@@ -2,9 +2,9 @@
 
 # 🌱 Digital Seed
 
-### Build your own personal AI operating system
+### Build your own personal AI operating context
 
-**Local-first · agent-friendly · customizable · privacy-aware**
+**Local-first · agent-neutral · free-first · privacy-aware**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-alpha-orange.svg)]()
@@ -14,72 +14,76 @@
 
 ---
 
-Digital Seed is a guide and starter kit for people who want more than a chatbot.
+Digital Seed is a starter kit for people who want their AI tools to understand their life, work, goals, files, and preferences without signing up for another platform.
+
+It gives you:
+
+- editable context files for who you are and what matters
+- a first 15-minute onboarding path
+- local notes/document search
+- integration recipes for tools you already use
+- safety defaults for private files and external actions
+- a neutral path for Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or another terminal-capable agent
+
+It is **not** a hosted AI platform, dashboard product, or one true agent recommendation. It is glue: a clear starting point for assembling your own personal AI infrastructure.
 
 Audit note: after an independent hostile audit, cleanup actions are tracked in [`docs/audit-response-2026-05-10.md`](docs/audit-response-2026-05-10.md).
 
-You do not need another platform. Digital Seed gives your tools a shared personal context and a map for connecting them safely.
-
-It helps you understand and assemble your own personal AI infrastructure: context files, memory, task tracking, local tools, research patterns, integrations, and an onboarding process that teaches your assistant who you are and what you are trying to build.
-
-The goal is not to give everyone the same assistant or reinvent tools that already exist. The goal is to give you a strong starting point, explain what is what, and help you glue together the agents and software that fit your life.
-
-## What you get
-
-After setup, you have an AI workspace that can:
-
-- understand who you are, what you are working on, and where you want to go
-- remember durable facts and preferences across sessions
-- route work to specialist modes such as research, writing, coding, strategy, finance, operations, and life admin
-- help organize notes, goals, projects, tasks, and recurring decisions
-- run locally with your files staying under your control
-- work with Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or another agent/tool you choose
-- grow into a personal operating system for work, learning, and life infrastructure
-
-## Quick start
-
-You can install it yourself:
+## Start in 15 minutes
 
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 ./setup.sh
+bun run seed onboard
 ```
 
-Or ask a terminal-capable AI agent to install it for you. See [AI Agent Install](docs/ai-agent-install.md).
-
-Then open the folder in your AI agent:
+Then open the folder in your preferred AI agent:
 
 ```bash
 claude
 # or: cursor .
+# or: another terminal-capable agent you trust
 ```
 
-Try:
+Paste the first prompt:
 
-```text
-Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.
+```bash
+bun run seed first-prompt
 ```
 
-## The core idea
+The goal is one useful first win: a clearer weekly plan, a better project list, a searchable notes folder, or a useful first draft.
 
-Most AI use is stateless. You explain the same context repeatedly. The assistant has no stable model of your goals, values, constraints, tools, projects, or information environment.
+## Ask an AI agent to install it
 
-Digital Seed flips that around. It gives your assistant a small, explicit, editable operating context:
+If you are not comfortable in the terminal, ask a terminal-capable AI agent to do it with you. See [AI Agent Install](docs/ai-agent-install.md).
 
-- who you are
-- where you are now
-- where you want to be
-- what problems repeat in your work or life
-- what information sources matter
-- what the assistant should remember
-- what it should avoid
+The agent should explain each step, avoid connecting external accounts by default, and ask before sending, publishing, deleting, uploading, or automating anything.
 
-That context becomes the seed. Your own infrastructure grows from there.
+## What this is for
 
-Digital Seed is intentionally **free-first**. Start locally with files, folders, notes, and tools you already have. Add vector databases, hosted infrastructure, always-on agents, or paid services only when you understand why you need them.
+Digital Seed is useful if you want to:
 
-## Personal context files
+- stop re-explaining your context to every AI session
+- keep goals, preferences, projects, and memory in editable files
+- search local notes and documents without starting with paid infrastructure
+- understand how tools like agents, MCP, local folders, vector search, Drive, GitHub, and chat surfaces fit together
+- gradually grow from local context files into a more capable personal AI setup
+
+## What this is not
+
+Digital Seed does not try to be:
+
+- a polished consumer app
+- a hosted SaaS platform
+- a replacement for Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or Obsidian
+- a dashboard product — see [Dashboard Options](docs/dashboard-options.md) if you want one
+- an always-on assistant by default
+- a promise that all integrations are fully automated out of the box
+
+Start local. Add complexity only when a real workflow needs it.
+
+## Core files
 
 These live in `user/`. They are meant to be edited by you and read by your assistant.
 
@@ -91,64 +95,31 @@ These live in `user/`. They are meant to be edited by you and read by your assis
 - `ANTI-GOALS.md` — what you explicitly do not want to optimize for
 - `MEMORY.md` — durable facts and lessons the assistant should preserve
 
-Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
+Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
 
-## Main capabilities
+## Useful commands
 
-- **Onboarding interview** — the assistant asks who you are, where you are, where you want to be, and what problems it should help solve.
-- **Memory and context routing** — important facts get stored in the right file instead of disappearing in chat history.
-- **Specialist agents** — focused modes for research, writing, code, strategy, finance, operations, learning, and life admin.
-- **Skill packs** — reusable bundles of prompts, templates, and agent settings for specific domains.
-- **Local retrieval hooks** — start with file reading/keyword search, then add local semantic search when useful.
-- **Task and digest loop** — queue tasks, review pending work, and produce lightweight daily summaries.
-- **Export/import** — move your setup between machines or archive snapshots.
+```bash
+bun run seed onboard          # Show the first 15-minute path
+bun run seed doctor           # Check local setup health
+bun run seed first-prompt     # Print the first agent prompt
+bun run seed privacy-scan     # Check for common private leftovers
+bun run seed index <folder>   # Build a local retrieval index
+bun run seed search "query"   # Search local indexed notes/docs
+bun run seed recipe list      # Show integration recipes
+```
 
-## Recommended first 15 minutes
+## Guides
 
-1. Run `./setup.sh`.
-2. Run `bun run seed onboard` for the shortest useful path.
-3. Run `bun run seed doctor` to check the setup.
-4. Run `bun run seed first-prompt` and paste that into your terminal-capable AI agent.
-5. Fill in `user/USER.md`, `user/COMPASS.md`, and `user/GOALS.md`.
-6. Use it on one real problem immediately.
-
-## Helpful guides
-
-- [Architecture Map](docs/architecture-map.md)
 - [First 15 Minutes](docs/first-15-minutes.md)
+- [Getting Started](docs/getting-started.md)
 - [Free-First Setup](docs/free-first-setup.md)
 - [AI Agent Install](docs/ai-agent-install.md)
-- [Setup Wizard](docs/setup-wizard.md)
 - [Agent Chooser](docs/agent-chooser.md)
 - [Integration Recipes](docs/integration-recipes.md)
-- [Recipe Skeletons](recipes/README.md)
-- [Personal AI Governance](docs/governance.md)
-- [First Session Prompt](docs/first-session-prompt.md)
-- [Hostile Audit](docs/hostile-audit-2026-05-10.md)
-- [Audit Response](docs/audit-response-2026-05-10.md)
 - [Dashboard Options](docs/dashboard-options.md)
-
-## Example prompts
-
-```text
-Interview me and build a first version of my personal AI operating context.
-```
-
-```text
-Given my goals and current constraints, what should I stop doing this month?
-```
-
-```text
-Turn this messy project folder into a clear working context and next-action list.
-```
-
-```text
-Help me design a personal knowledge system for my work, research, and life admin.
-```
-
-```text
-Read my DOMAINS.md and suggest three automations that would save me time weekly.
-```
+- [Known Alpha Limits](docs/known-alpha-limits.md)
+- [Audit Response](docs/audit-response-2026-05-10.md)
 
 ## Privacy model
 

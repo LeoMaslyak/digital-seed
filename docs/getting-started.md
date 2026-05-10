@@ -104,7 +104,7 @@ bun run marketplace  # Browse skill packs and patterns
 bun run seed         # Digital Seed helper CLI
 ```
 
-Need a visual dashboard? Digital Seed intentionally does not make that the default. Start from a mature template instead: see [Dashboard Options](dashboard-options.md).
+Need a visual dashboard? Digital Seed intentionally does not make that the default. Start from a mature template instead: see [Dashboard Options](dashboard-options.md). For expectations, read [Known Alpha Limits](known-alpha-limits.md).
 
 ## What to customize first
 
