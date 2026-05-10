@@ -14,11 +14,11 @@
 
 ---
 
-Digital Seed is a starter kit for people who want more than a chatbot.
+Digital Seed is a guide and starter kit for people who want more than a chatbot.
 
-It helps you set up a small personal AI infrastructure layer: context files, memory, task tracking, local tools, research patterns, and an onboarding process that teaches your assistant who you are and what you are trying to build.
+It helps you understand and assemble your own personal AI infrastructure: context files, memory, task tracking, local tools, research patterns, integrations, and an onboarding process that teaches your assistant who you are and what you are trying to build.
 
-The goal is not to give everyone the same assistant. The goal is to give you a strong starting point for building the assistant and digital work system that fits your life.
+The goal is not to give everyone the same assistant or reinvent tools that already exist. The goal is to give you a strong starting point, explain what is what, and help you glue together the agents and software that fit your life.
 
 ## What you get
 
@@ -29,7 +29,7 @@ After setup, you have an AI workspace that can:
 - route work to specialist modes such as research, writing, coding, strategy, finance, operations, and life admin
 - help organize notes, goals, projects, tasks, and recurring decisions
 - run locally with your files staying under your control
-- work with Claude Code, Cursor, Windsurf, OpenClaw, or another MCP-compatible agent
+- work with Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or another agent/tool you choose
 - grow into a personal operating system for work, learning, and life infrastructure
 
 ## Quick start
@@ -69,6 +69,8 @@ Digital Seed flips that around. It gives your assistant a small, explicit, edita
 
 That context becomes the seed. Your own infrastructure grows from there.
 
+Digital Seed is intentionally **free-first**. Start locally with files, folders, notes, and tools you already have. Add vector databases, hosted infrastructure, always-on agents, or paid services only when you understand why you need them.
+
 ## Personal context files
 
 These live in `user/`. They are meant to be edited by you and read by your assistant.
@@ -89,7 +91,7 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 - **Memory and context routing** — important facts get stored in the right file instead of disappearing in chat history.
 - **Specialist agents** — focused modes for research, writing, code, strategy, finance, operations, learning, and life admin.
 - **Skill packs** — reusable bundles of prompts, templates, and agent settings for specific domains.
-- **Local RAG hooks** — index notes, documents, and project folders for semantic search.
+- **Local retrieval hooks** — start with file reading/keyword search, then add local semantic search when useful.
 - **Task and digest loop** — queue tasks, review pending work, and produce lightweight daily summaries.
 - **Dashboard** — a simple local status surface for tasks, usage, and system health.
 - **Export/import** — move your setup between machines or archive snapshots.
@@ -102,6 +104,15 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 4. Start your agent in this repo.
 5. Ask it to interview you and improve the context files.
 6. Use it on one real problem immediately.
+
+## Helpful guides
+
+- [Architecture Map](docs/architecture-map.md)
+- [Free-First Setup](docs/free-first-setup.md)
+- [Agent Chooser](docs/agent-chooser.md)
+- [Integration Recipes](docs/integration-recipes.md)
+- [Personal AI Governance](docs/governance.md)
+- [First Session Prompt](docs/first-session-prompt.md)
 
 ## Example prompts
 
