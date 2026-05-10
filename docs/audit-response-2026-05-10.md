@@ -37,7 +37,7 @@ Additional cleanup after the first response:
 - Updated free-first docs to show the exact index/search loop.
 - Updated architecture docs to describe the local JSON mirror plus optional LanceDB path.
 - Removed the remaining security-contact placeholder.
-- Hid the built-in dashboard from the default journey: `bun run dashboard` now points users to dashboard guidance, `bun run dashboard:experimental` is the explicit escape hatch, health/setup/getting-started no longer promote it, and `docs/dashboard-options.md` points users to mature adaptable dashboard projects instead.
+- Removed the built-in dashboard from the default product surface and added `docs/dashboard-options.md` to point users to mature adaptable dashboard projects instead.
 - Added `bun run seed onboard` and `docs/first-15-minutes.md` so new users have one obvious first path before optional infrastructure.
 - Tightened README around what Digital Seed is / is not, and added `docs/known-alpha-limits.md` for transparent public-alpha expectations.
 

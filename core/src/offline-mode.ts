@@ -9,7 +9,7 @@
  *
  * Enable offline mode:
  *   config/config.yaml → offline: true
- *   OR set environment variable: DAI_OFFLINE=true
+ *   OR set environment variable: SEED_OFFLINE=true
  *
  * Auto-detection:
  *   Call detectConnectivity() to test reachability and auto-update config.
@@ -64,11 +64,11 @@ function saveAppConfig(root: string, config: AppConfig): void {
 
 /**
  * Returns true if offline mode is currently active.
- * Checks: env var DAI_OFFLINE → config/config.yaml → default (false).
+ * Checks: env var SEED_OFFLINE → config/config.yaml → default (false).
  */
 export function isOfflineMode(root: string): boolean {
-  if (process.env.DAI_OFFLINE === "true") return true;
-  if (process.env.DAI_OFFLINE === "false") return false;
+  if (process.env.SEED_OFFLINE === "true") return true;
+  if (process.env.SEED_OFFLINE === "false") return false;
   return loadAppConfig(root).offline === true;
 }
 
@@ -125,12 +125,12 @@ export async function autoDetectAndApply(root: string): Promise<{
  */
 export function describeOfflineMode(root: string): string {
   const offline = isOfflineMode(root);
-  const envOverride = process.env.DAI_OFFLINE !== undefined;
+  const envOverride = process.env.SEED_OFFLINE !== undefined;
 
   if (offline) {
     return [
       "⚠️  Offline mode ACTIVE",
-      `   Source: ${envOverride ? "DAI_OFFLINE env var" : "config/config.yaml"}`,
+      `   Source: ${envOverride ? "SEED_OFFLINE env var" : "config/config.yaml"}`,
       `   Skipped categories: ${NETWORK_REQUIRED_CATEGORIES.join(", ")}`,
       "   Local operations (memory, tasks, collab, digest) continue normally.",
       "   To disable: set offline: false in config/config.yaml",

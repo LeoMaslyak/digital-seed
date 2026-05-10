@@ -256,7 +256,6 @@ digital-seed/
 │   ├── lib/ai-call.ts     Model-agnostic AI provider chain
 │   └── ...
 │
-├── dashboard/             ← Archived experimental dashboard reference
 ├── user/                  ← Personal context (gitignored)
 ├── data/                  ← Runtime state (gitignored)
 ├── logs/                  ← Audit logs (gitignored)

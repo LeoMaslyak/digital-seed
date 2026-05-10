@@ -2,7 +2,7 @@
 
 Digital Seed is not trying to become a dashboard product.
 
-The built-in `dashboard/` folder is archived as an experimental reference. It is useful as a small example of how Digital Seed data could be displayed, but it should not be the default user journey or the main public demo.
+Digital Seed no longer ships an in-tree dashboard as part of the default product. If you want a visual layer, start from a mature dashboard project and connect it to simple Digital Seed files or APIs.
 
 ## Recommended approach
 

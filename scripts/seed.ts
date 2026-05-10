@@ -93,7 +93,24 @@ function printFirstPrompt(): void {
 }
 
 function privacyScan(): void {
-  const risky = [new RegExp("\\b" + "IE" + "SE" + "\\b", "i"), new RegExp("\\bD&" + "AI" + "\\b", "i"), /passport\s*[:=]/i, /ghp_[A-Za-z0-9_]+/, /sk-[A-Za-z0-9]{20,}/, /BEGIN (RSA|OPENSSH) PRIVATE KEY/, /(api[_-]?key|secret|token)\s*[:=]\s*[\'"][^\'"]{8,}/i];
+  const denyTerms = [
+    "IE" + "SE",
+    "D&" + "AI",
+    "Leo" + " M",
+    "Co" + "hort",
+    "PE" + " career",
+    "bu" + "lge" + "-bracket",
+    "Ex" + "change",
+  ];
+  const escapeRegExp = (term: string) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const risky = [
+    ...denyTerms.map((term) => new RegExp(`\\b${escapeRegExp(term)}\\b`, "i")),
+    /passport\s*[:=]/i,
+    /ghp_[A-Za-z0-9_]+/,
+    /sk-[A-Za-z0-9]{20,}/,
+    /BEGIN (RSA|OPENSSH) PRIVATE KEY/,
+    /(api[_-]?key|secret|token)\s*[:=]\s*[\'"][^\'"]{8,}/i,
+  ];
   const allow = ["docs/hostile-audit-2026-05-10.md"];
   const hits: string[] = [];
   for (const file of walkFiles(ROOT)) {

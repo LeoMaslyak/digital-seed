@@ -14,7 +14,7 @@ Start with COMPASS.md — that's the one with the most leverage. DOMAINS.md is w
 **Q: How does my AI use these files?**
 It does a tiered scan at session start: a lightweight summary pass first, then loads full detail only for files relevant to your current request. This keeps context loading fast and token-efficient.
 
-**Q: Can I share my `user/` files with classmates?**
+**Q: Can I share my `user/` files with collaborators?**
 No — and the system is designed to prevent it. All `user/` files are gitignored and the pre-commit hook blocks accidental leaks. For collaboration, use `collab/` instead.
 
 See [governance.md](governance.md) for a full guide to the personal context files.

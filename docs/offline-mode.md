@@ -34,7 +34,7 @@ offline: true
 
 **Option 2: Environment variable** (per-session)
 ```bash
-DAI_OFFLINE=true bun run task email-triage
+SEED_OFFLINE=true bun run task email-triage
 # → Skips the task, logs the skip
 ```
 
@@ -102,4 +102,4 @@ Previously indexed repos (`bun run repo-bot learn`) use keyword search
 offline: false  # or delete the line
 ```
 
-Or: `DAI_OFFLINE=false bun run task email-triage`
+Or: `SEED_OFFLINE=false bun run task email-triage`

@@ -196,7 +196,7 @@ No. Start with Digital Seed + the agent you prefer. Add PAI when you want a rich
 **Does this work without an API key?**
 Mostly. Claude Code with a Claude Max subscription handles Digital Seed, PAI, and gstack — no separate key needed for those. Fabric is the exception: it needs a real Anthropic API key OR a free local Ollama model. See Section 2 above.
 
-**My classmates are on Windows — does this work?**
+**My collaborators are on Windows — does this work?**
 Yes. See [install-claude-code.md](install-claude-code.md) for the WSL2 setup path. All tools above work identically inside WSL2.
 
 **Is my personal data shared anywhere?**

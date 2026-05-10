@@ -458,12 +458,11 @@ function ensureBundledRegistry(): void {
       {
         id: "project-analysis",
         name: "Project Analysis",
-        description: "Structured professional project analysis analysis with frameworks",
+        description: "Structured professional project analysis with frameworks",
         author: "LeoMaslyak",
         version: "1.0.0",
-        tags: ["study", "professional", "strategy"],
+        tags: ["project", "professional", "strategy"],
         kind: "pattern",
-        stars: 4.8,
         downloads: 0,
       },
       {
@@ -474,7 +473,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["email", "productivity"],
         kind: "pattern",
-        stars: 4.5,
         downloads: 0,
       },
       {
@@ -485,7 +483,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["research", "analysis"],
         kind: "pattern",
-        stars: 4.6,
         downloads: 0,
       },
       {
@@ -496,7 +493,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["research", "writing"],
         kind: "pattern",
-        stars: 4.7,
         downloads: 0,
       },
       {
@@ -507,7 +503,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["study", "notes"],
         kind: "pattern",
-        stars: 4.4,
         downloads: 0,
       },
       {
@@ -518,7 +513,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["writing", "productivity"],
         kind: "pattern",
-        stars: 4.3,
         downloads: 0,
       },
       {
@@ -529,7 +523,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["productivity", "planning"],
         kind: "pattern",
-        stars: 4.5,
         downloads: 0,
       },
       // ── Skill Packs ───────────────────────────────────────────────────
@@ -541,7 +534,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["finance", "professional", "digital-seed", "valuation"],
         kind: "pack",
-        stars: 4.9,
         downloads: 0,
       },
       {
@@ -552,7 +544,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["strategy", "professional", "digital-seed", "frameworks"],
         kind: "pack",
-        stars: 4.8,
         downloads: 0,
       },
       {
@@ -563,7 +554,6 @@ function ensureBundledRegistry(): void {
         version: "1.0.0",
         tags: ["operations", "professional", "digital-seed", "process"],
         kind: "pack",
-        stars: 4.6,
         downloads: 0,
       },
     ],

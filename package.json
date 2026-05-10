@@ -1,10 +1,9 @@
 {
   "name": "digital-seed",
-  "version": "0.2.0-alpha",
+  "version": "0.3.0-alpha",
   "description": "A public starter kit for building your own personal AI operating system",
   "type": "module",
   "scripts": {
-    "dashboard": "echo \"Digital Seed dashboard is archived for now. See docs/dashboard-options.md for better dashboard paths.\"",
     "health": "bun run scripts/health-check.ts",
     "tokens": "bun run scripts/token-report.ts",
     "export": "bun run scripts/export.ts",
@@ -24,8 +23,7 @@
     "repo-bot": "bun run scripts/repo-bot.ts",
     "status": "bun run scripts/health-check.ts",
     "update": "bun run scripts/update.ts",
-    "seed": "bun run scripts/seed.ts",
-    "dashboard:experimental": "bun run dashboard/src/server.ts"
+    "seed": "bun run scripts/seed.ts"
   },
   "dependencies": {
     "@mozilla/readability": "^0.5.0",
