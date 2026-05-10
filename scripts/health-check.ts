@@ -93,12 +93,6 @@ check("Patterns", () => {
   return { ok: patterns.length > 0, detail: `${patterns.length} patterns available` };
 });
 
-// Check dashboard
-check("Dashboard", () => {
-  const serverFile = existsSync(join(ROOT, "dashboard/src/server.ts"));
-  return { ok: serverFile, detail: serverFile ? "Ready to run" : "server.ts missing" };
-});
-
 // Check git hooks
 check("Security hooks", () => {
   const hook = join(ROOT, ".git/hooks/pre-commit");

@@ -1,70 +1,17 @@
-# Digital Seed Cockpit
+# Archived Experimental Dashboard
 
-A slick dark-mode dashboard for your Digital Seed. Open it every morning to see your tasks, queue AI jobs, and launch project decks or Excel models in one click.
+This folder is intentionally not part of the default Digital Seed journey.
 
-## Start it
+Digital Seed should first help users create useful context, index local files, and connect their preferred AI agent. A dashboard is a later layer, and there are better mature open-source dashboard projects that users can adapt to their own needs.
+
+See [`../docs/dashboard-options.md`](../docs/dashboard-options.md) for recommended dashboard paths.
+
+## If you still want to inspect this prototype
 
 ```bash
-bun run dev
+bun run dashboard:experimental
 ```
 
-Then open **http://localhost:3000** in your browser.
+Then open `http://localhost:3000`.
 
-## Make it yours
-
-Everything is in plain JSX files — no build step, no compilation, no framework to learn. Open a file, edit, reload. That's it.
-
-| File | What to change |
-|---|---|
-| `dai/topbar.jsx` | Your name, initials, session clock |
-| `dai/middle.jsx` | Your identity chips and USER.md summary quote |
-| `dai/lower.jsx` | Domain packs, learning group members, token budget cap |
-| `dai/footer.jsx` | Integration pills (add/remove services) |
-| `dai/hero.jsx` | Deck and Excel model dropdown options |
-| `dai/app.jsx` | Greeting name, daily schedule line |
-
-Search for `// CUSTOMIZE:` comments throughout the files — those are the exact spots.
-
-## Accent color
-
-Hit `⌘T` (or `Ctrl+T`) to open the Tweaks panel. Switch between teal, amber, and violet accents live. No code needed.
-
-## Live data
-
-The dashboard pulls real data from your Digital Seed system:
-
-| Source | File it reads |
-|---|---|
-| Active tasks | `data/tasks.json` |
-| Token usage | `data/token-usage.json` |
-| RAG index size | `data/rag-index.json` |
-| Knowledge Index sync | `data/knowledge-base-meta.json` |
-| User goals | `user/GOALS.md` |
-
-If a file doesn't exist yet, the dashboard shows sensible demo data. Nothing breaks.
-
-## Mobile view
-
-In the Tweaks panel (`⌘T`), switch Viewport to **Mobile** to see the 390px iPhone layout inside a phone frame. Useful for showing the dashboard to classmates.
-
-## Add a new integration pill
-
-Open `dai/footer.jsx` and add a line to the `items` array:
-
-```jsx
-{ status: 'ok', name: 'Your Tool', detail: 'Connected' },
-```
-
-Status options: `'ok'` (green), `'warn'` (amber), `'err'` (red), `'mute'` (greyed out).
-
-## Add a new API endpoint
-
-Open `src/server.ts` and add a route before the static file handler:
-
-```typescript
-if (url.pathname === "/api/my-data") {
-  return Response.json({ hello: "world" });
-}
-```
-
-Then fetch it from any JSX component with `fetch('/api/my-data')`.
+Treat this as reference code only. Do not present it as the main Digital Seed product surface.

@@ -80,20 +80,21 @@ What repeating problem in my work would be easiest to automate first?
 You can connect an Obsidian vault or index local folders for search. Start small: one notes folder, one project folder, or one exported document set.
 
 ```bash
-bun run embed --path ~/Documents/Notes
-bun run embed:status
+bun run seed index ~/Documents/Notes
+bun run seed search "what do my notes say about my goals?"
 ```
 
 ## 7. Explore useful commands
 
 ```bash
 bun run health       # Check local setup health
-bun run dashboard    # Start the local dashboard
 bun run tokens       # Token usage report
 bun run digest       # Summarize pending activity
 bun run marketplace  # Browse skill packs and patterns
 bun run seed         # Digital Seed helper CLI
 ```
+
+Need a visual dashboard? Digital Seed intentionally does not make that the default. Start from a mature template instead: see [Dashboard Options](dashboard-options.md).
 
 ## What to customize first
 

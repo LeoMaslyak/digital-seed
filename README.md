@@ -101,7 +101,6 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 - **Skill packs** — reusable bundles of prompts, templates, and agent settings for specific domains.
 - **Local retrieval hooks** — start with file reading/keyword search, then add local semantic search when useful.
 - **Task and digest loop** — queue tasks, review pending work, and produce lightweight daily summaries.
-- **Dashboard** — a simple local status surface for tasks, usage, and system health.
 - **Export/import** — move your setup between machines or archive snapshots.
 
 ## Recommended first hour
@@ -126,6 +125,7 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 - [First Session Prompt](docs/first-session-prompt.md)
 - [Hostile Audit](docs/hostile-audit-2026-05-10.md)
 - [Audit Response](docs/audit-response-2026-05-10.md)
+- [Dashboard Options](docs/dashboard-options.md)
 
 ## Example prompts
 

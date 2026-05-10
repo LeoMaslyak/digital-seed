@@ -37,6 +37,7 @@ Additional cleanup after the first response:
 - Updated free-first docs to show the exact index/search loop.
 - Updated architecture docs to describe the local JSON mirror plus optional LanceDB path.
 - Removed the remaining security-contact placeholder.
+- Hid the built-in dashboard from the default journey: `bun run dashboard` now points users to dashboard guidance, `bun run dashboard:experimental` is the explicit escape hatch, health/setup/getting-started no longer promote it, and `docs/dashboard-options.md` points users to mature adaptable dashboard projects instead.
 
 ## Remaining alpha caveats
 
