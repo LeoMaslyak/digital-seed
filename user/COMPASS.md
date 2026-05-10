@@ -10,7 +10,7 @@
 *(Your name, program, year, background — whatever helps your AI understand your context)*
 
 - **Name:**
-- **Program:** your organization professional / Executive professional / Exchange / Other
+- **Program:** professional / Executive professional / Exchange / Other
 - **Year:**
 - **Background:** *(e.g., 5 years in consulting, engineering, finance)*
 

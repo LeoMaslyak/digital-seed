@@ -1,5 +1,5 @@
 /**
- * DAI GitHub Repo Learning Bot — Index any GitHub repo into the RAG system.
+ * Digital Seed GitHub Repo Learning Bot — Index any GitHub repo into the RAG system.
  *
  * Fetches README, docs, and key source files from a GitHub repo via the
  * GitHub API, chunks them, and stores them in the local RAG index (same

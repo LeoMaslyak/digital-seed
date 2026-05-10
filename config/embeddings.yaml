@@ -1,6 +1,6 @@
-# DAI Embedding Pipeline Configuration
+# Digital Seed Embedding Pipeline Configuration
 # Controls what gets indexed for semantic search (RAG)
-# Supports three layers: personal (L3), collab (L2), knowledge base (L1)
+# Supports three layers: personal (L3), collab (L2), knowledge index (L1)
 
 # Embedding provider: "openai" or "ollama"
 # Auto-detected from environment if not set here
@@ -15,14 +15,14 @@ paths:
   - patterns/
   - docs/
 
-# ─── L1: Knowledge Base index ───────────────────────────────────────────
-# Shared your organization knowledge base. Populated by:
-#   (a) git clone of digital-seed-knowledge base (cloned to ~/.digital-seed-knowledge base by setup.sh)
-#   (b) shared drive sync: bun run shared-drive:sync --layer knowledge base
+# ─── L1: Knowledge Index ───────────────────────────────────────────
+# Shared shared knowledge index. Populated by:
+#   (a) git clone of digital-seed-knowledge-base (cloned to ~/.digital-seed-knowledge-base by setup.sh)
+#   (b) shared drive sync: bun run shared-drive:sync --layer knowledge-base
 # Uncomment after running setup:
-# knowledge basePaths:
-#   - ~/.digital-seed-knowledge base/
-#   - data/shared-drive-cache/knowledge base/
+# knowledgeBasePaths:
+#   - ~/.digital-seed-knowledge-base/
+#   - data/shared-drive-cache/knowledge-base/
 
 # ─── L2: Collab index ────────────────────────────────────────────
 # Active team workspaces. Populated by:

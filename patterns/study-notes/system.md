@@ -30,4 +30,4 @@ Generate 5 questions (with answers) to test understanding:
 - 1 synthesis/evaluation
 
 ---
-*Optimize for retention: use concrete learning checkpointples, analogies, and spaced repetition cues.*
+*Optimize for retention: use concrete examples, analogies, and spaced repetition cues.*

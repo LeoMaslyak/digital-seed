@@ -1,4 +1,4 @@
-// Root app — fetches live data from the DAI server APIs.
+// Root app — fetches live data from the Digital Seed server APIs.
 // Data sources:
 //   GET /api/tasks  → active tasks (data/tasks.json)
 //   GET /api/tokens → token usage (data/token-usage.json)
@@ -10,9 +10,9 @@ const { useState, useEffect } = React;
 
 // Demo tasks shown when no real tasks exist yet
 const DEMO_TASKS = [
-  { id: 1, title: 'Research Inditex supply-chain resilience',       status: 'running', progress: 64, duration: '4 min' },
-  { id: 2, title: 'DCF model · Nestlé 5-year projection',          status: 'running', progress: 22, duration: '1 min' },
-  { id: 3, title: 'Porter’s 5F deck · Spanish telecom sector', status: 'done',    progress: 100, duration: '7 min' },
+  { id: 1, title: 'Organize project notes into a useful map',       status: 'running', progress: 64, duration: '4 min' },
+  { id: 2, title: 'Draft weekly focus plan from goals',            status: 'running', progress: 22, duration: '1 min' },
+  { id: 3, title: 'Create first personal workflow checklist',      status: 'done',    progress: 100, duration: '7 min' },
 ];
 
 function useApiTasks() {
@@ -114,10 +114,10 @@ function App() {
         <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', padding: '4px 2px 8px'}}>
           <div>
             <div style={{fontSize: 26, fontWeight: 600, letterSpacing: '-0.025em'}}>
-              {greeting()}, Leo.
+              {greeting()}, welcome back.
             </div>
             <div style={{fontSize: 14, color:'var(--fg-dim)', marginTop: 4}}>
-              {tasks.filter(t => t.status === 'running').length} tasks running · Strategy 101 at 10:30 · Group sync at 14:00
+              {tasks.filter(t => t.status === 'running').length} tasks running · Review your goals · Choose one useful next step
             </div>
           </div>
           <div style={{display:'flex', gap: 8}}>
@@ -134,9 +134,9 @@ function App() {
           <TasksCard tasks={tasks} />
         </div>
 
-        {/* Lower: knowledge base + group + usage */}
+        {/* Lower: knowledge index + group + usage */}
         <div style={{display:'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20}}>
-          <Knowledge BaseCard />
+          <KnowledgeBaseCard />
           <GroupCard />
           <UsageCard tokens={tokens} />
         </div>

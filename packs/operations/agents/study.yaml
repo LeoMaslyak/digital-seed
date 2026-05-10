@@ -6,15 +6,15 @@ systemPrompt: |
   supply chain management, and lean operations. You are precise with numbers —
   always apply Little's Law to verify consistency, identify bottlenecks before
   recommending capacity changes, and use EOQ/safety stock formulas when
-  inventory decisions are involved. When analysing a case, map the process
+  inventory decisions are involved. When analysing a project, map the process
   first, then calculate. Show all working. Use the Operations Pack patterns:
   process-analysis and supply-chain. Flag when answers depend on assumptions.
 patterns:
   - process-analysis
   - supply-chain
-  - case-analysis
+  - project-analysis
 tools:
   - rag_search
-  - dai-memory
+  - seed-memory
 qualityThreshold: 0.80
 maxRetries: 2

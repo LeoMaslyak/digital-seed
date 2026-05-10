@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Daily Digest CLI
+ * Digital Seed Daily Digest CLI
  *
  * Usage:
  *   bun run digest              — print today's digest in markdown

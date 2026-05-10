@@ -105,3 +105,8 @@ bun run seed         # Digital Seed helper CLI
 ## Public/private warning
 
 The `user/` folder is personal by design. Be careful before sharing it. If you publish a fork, strip private context first.
+
+
+## Audit trail
+
+Digital Seed is alpha software. The current cleanup response is documented in [`audit-response-2026-05-10.md`](audit-response-2026-05-10.md).

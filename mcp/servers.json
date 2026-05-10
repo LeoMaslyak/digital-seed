@@ -2,25 +2,25 @@
   "$schema": "./servers.schema.json",
   "description": "MCP server registry for Digital Seed",
   "servers": {
-    "dai-memory": {
+    "seed-memory": {
       "command": "bun",
       "args": ["run", "mcp/memory-server/src/index.ts"],
       "description": "Persistent memory across sessions",
       "builtin": true
     },
-    "dai-tasks": {
+    "seed-tasks": {
       "command": "bun",
       "args": ["run", "mcp/tasks-server/src/index.ts"],
       "description": "Task management with dashboard integration",
       "builtin": true
     },
-    "dai-rag": {
+    "seed-rag": {
       "command": "bun",
       "args": ["run", "mcp/rag-server/src/index.ts"],
       "description": "Semantic search over embedded content (LanceDB + fallback)",
       "builtin": true
     },
-    "dai-graph": {
+    "seed-graph": {
       "command": "bun",
       "args": ["run", "mcp/graph-server/src/index.ts"],
       "description": "Knowledge graph — connects people, topics, projects, notes, tasks, goals",

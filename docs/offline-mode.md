@@ -8,7 +8,7 @@ Offline mode disables tasks that require network connectivity.
 ✅ Everything local:
 - Memory operations (read/write user/, MEMORY.md)
 - Task management (data/tasks.json)
-- Collaboration (collab/ projects and study groups)
+- Collaboration (collab/ projects and learning groups)
 - Daily digest generation (reads local logs)
 - Pattern application (all patterns are local files)
 - Knowledge graph (data/graph.json)
@@ -92,7 +92,7 @@ always available for search, even without internet.
 Only **new indexing** requires the embedding API. The rag-server gracefully
 returns empty results for new content when offline rather than crashing.
 
-Previously indexed repos (`bun run repo-bot learn`) use keyword search 
+Previously indexed repos (`bun run repo-bot learn`) use keyword search
 (`searchAllRepos`) which works fully offline.
 
 ## Restore Online Mode

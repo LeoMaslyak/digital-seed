@@ -44,7 +44,7 @@ check_command() {
 # ─── Step 1: Prerequisites ───
 
 check_prerequisites() {
-  echo -e "${BOLD}Step 1/6 — Checking prerequisites${NC}"
+  echo -e "${BOLD}Step 1/7 — Checking prerequisites${NC}"
   echo ""
 
   local missing=0
@@ -120,7 +120,7 @@ set_env_var() {
 }
 
 configure_providers() {
-  echo -e "${BOLD}Step 2/6 — AI Provider${NC}"
+  echo -e "${BOLD}Step 2/7 — AI Provider${NC}"
   echo ""
   echo "The kit works with subscriptions (Claude Code, ChatGPT Plus, Gemini Advanced)"
   echo "or direct API keys. No API key needed if you already use a subscription."
@@ -218,10 +218,104 @@ configure_providers() {
   echo ""
 }
 
+
+# ─── Step 3: Setup Profile ───
+
+select_setup_profile() {
+  echo -e "${BOLD}Step 3/7 — Setup Profile${NC}"
+  echo ""
+  echo "Pick the starting shape that matches what you want this week."
+  echo "You can change this later; it only sets friendly defaults."
+  echo ""
+  echo "  1. Simple local workspace        — context files + first prompt only"
+  echo "  2. Notes/documents search        — add local retrieval for folders/notes"
+  echo "  3. Project/GitHub helper         — add repo/project assistant defaults"
+  echo "  4. Always-on assistant later     — document the path, but keep setup local now"
+  echo ""
+  echo -ne "  Enter choice [1]: "
+  read -r profile_choice
+  profile_choice="${profile_choice:-1}"
+
+  mkdir -p "$SCRIPT_DIR/user"
+  case "$profile_choice" in
+    1)
+      SETUP_PROFILE="simple-local"
+      PROFILE_LABEL="Simple local workspace"
+      ;;
+    2)
+      SETUP_PROFILE="notes-search"
+      PROFILE_LABEL="Notes/documents search"
+      ;;
+    3)
+      SETUP_PROFILE="project-github"
+      PROFILE_LABEL="Project/GitHub helper"
+      ;;
+    4)
+      SETUP_PROFILE="always-on-later"
+      PROFILE_LABEL="Always-on assistant later"
+      ;;
+    *)
+      SETUP_PROFILE="simple-local"
+      PROFILE_LABEL="Simple local workspace"
+      ;;
+  esac
+
+  set_env_var "DIGITAL_SEED_PROFILE" "$SETUP_PROFILE"
+  cat > "$SCRIPT_DIR/user/PROFILE.md" << PROFILEEOF
+# Digital Seed Setup Profile
+
+- **Profile:** $PROFILE_LABEL
+- **Profile ID:** $SETUP_PROFILE
+
+## What this means
+
+This is a starting default, not a permanent commitment. Ask your AI agent to update this file as your workspace becomes more useful.
+
+## Suggested first week
+
+PROFILEEOF
+
+  case "$SETUP_PROFILE" in
+    simple-local)
+      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
+- Fill in `user/USER.md`, `user/GOALS.md`, and `user/COMPASS.md`.
+- Use `bun run seed first-prompt` with your preferred AI agent.
+- Avoid external integrations until the local workflow feels useful.
+PROFILEEOF
+      ;;
+    notes-search)
+      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
+- Choose one folder of notes or documents.
+- Run `bun run seed index <folder>`.
+- Try `bun run seed search "what do I know about X?"`.
+- Keep sources local unless you explicitly choose a hosted service later.
+PROFILEEOF
+      ;;
+    project-github)
+      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
+- Point your agent at one active project or GitHub repo.
+- Run `bun run seed learn owner/repo` for public repos you want searchable.
+- Ask the agent to create a weekly project checklist and decision log.
+PROFILEEOF
+      ;;
+    always-on-later)
+      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
+- Start local-first; do not connect messaging, email, or cloud automation yet.
+- Read `docs/free-first-setup.md` and `docs/architecture-map.md`.
+- When ready, add OpenClaw/Hermes/Telegram/Drive as explicit opt-in integrations.
+PROFILEEOF
+      ;;
+  esac
+
+  echo -e "  ${GREEN}✓${NC} Profile selected: $PROFILE_LABEL"
+  echo -e "  ${GREEN}✓${NC} Wrote user/PROFILE.md"
+  echo ""
+}
+
 # ─── Step 3: Integrations ───
 
 configure_integrations() {
-  echo -e "${BOLD}Step 3/6 — Integrations${NC}"
+  echo -e "${BOLD}Step 4/7 — Integrations${NC}"
   echo ""
   echo "Which integrations do you want to enable?"
   echo ""
@@ -279,7 +373,7 @@ configure_integrations() {
 # ─── Step 4: Personal Context ───
 
 create_user_context() {
-  echo -e "${BOLD}Step 4/6 — Personal Context${NC}"
+  echo -e "${BOLD}Step 5/7 — Personal Context${NC}"
   echo ""
   echo "Let's create your personal context files. These tell your AI who you are."
   echo "  (Press Enter to skip any field — you can edit the files later.)"
@@ -316,7 +410,7 @@ USEREOF
   echo -e "  ${BOLD}Now let's set your goals.${NC} Your AI uses these to prioritize and give better advice."
   echo ""
 
-  echo -ne "  What are you working on right now? (e.g. professional at your organization, job search, side project): "
+  echo -ne "  What are you working on right now? (e.g. professional, founder, student, job search, side project): "
   read -r goal_current
 
   echo -ne "  What's your #1 goal for the next 3–6 months? "
@@ -374,7 +468,7 @@ USEREOF
 # ─── Step 5: Install Dependencies & MCP Servers ───
 
 install_dependencies() {
-  echo -e "${BOLD}Step 5/6 — Installing dependencies${NC}"
+  echo -e "${BOLD}Step 6/7 — Installing dependencies${NC}"
   echo ""
 
   # Install root dependencies
@@ -405,7 +499,7 @@ install_dependencies() {
 # ─── Step 6: Configure Agent ───
 
 configure_agent() {
-  echo -e "${BOLD}Step 6/6 — Agent Configuration${NC}"
+  echo -e "${BOLD}Step 7/7 — Agent Configuration${NC}"
   echo ""
 
   case "${DEFAULT_AGENT:-generic}" in
@@ -492,6 +586,7 @@ main() {
   print_header
   check_prerequisites
   configure_providers
+  select_setup_profile
   configure_integrations
   create_user_context
   install_dependencies

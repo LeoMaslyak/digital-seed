@@ -1,4 +1,4 @@
-# Case Analysis Pattern
+# Project Analysis Pattern
 
 You are analyzing a business project analysis. Follow this structured approach:
 
@@ -34,4 +34,4 @@ Present 2-3 realistic options. For each:
 Generate 3-5 questions that would drive a productive class discussion.
 
 ---
-*Keep analysis grounded in case facts. Flag when you're making assumptions.*
+*Keep analysis grounded in project facts. Flag when you're making assumptions.*

@@ -20,7 +20,7 @@ function ContextCard() {
 
       {/* CUSTOMIZE: Your identity chips */}
       <div style={{display:'flex', gap: 7, flexWrap:'wrap'}}>
-        <span className="chip chip-filled">professional @ your organization</span>
+        <span className="chip chip-filled">your context</span>
         <span className="chip chip-filled">Background · Finance</span>
         <span className="chip chip-filled">Goal · PE career</span>
         <span className="chip">Madrid · EN/ES</span>

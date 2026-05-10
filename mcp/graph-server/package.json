@@ -1,5 +1,5 @@
 {
-  "name": "@dai/graph-server",
+  "name": "@digital-seed/graph-server",
   "version": "0.1.0",
   "description": "Knowledge graph MCP server — connects people, topics, projects, notes, tasks, goals",
   "type": "module",

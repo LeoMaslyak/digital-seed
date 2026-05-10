@@ -1,5 +1,5 @@
 /**
- * DAI Activity State Detection — Infer user presence from message signals.
+ * Digital Seed Activity State Detection — Infer user presence from message signals.
  *
  * States (ordered by specificity):
  *   active-desk   — recent messages, desktop-length content → collaborative mode

@@ -3,7 +3,7 @@
  * Excel template generator — creates pre-filled financial workbooks.
  *
  * Usage:
- *   bun run scripts/excel-gen.ts dcf|ratios|case
+ *   bun run scripts/excel-gen.ts dcf|ratios|project
  *   bun run scripts/excel-gen.ts            (list templates)
  */
 
@@ -19,7 +19,8 @@ const EXPORTS_DIR = join(ROOT, "exports");
 const TEMPLATES: Record<string, string> = {
   dcf: "Discounted Cash Flow model (Assumptions, Projections, Valuation, Sensitivity)",
   ratios: "Financial ratios template (Liquidity, Profitability, Leverage, Efficiency)",
-  case: "your organization project analysis data table (company, financials, ratios, notes)",
+  project: "general project analysis data table (company, financials, ratios, notes)",
+  case: "legacy alias for project analysis",
 };
 
 function today(): string {
@@ -153,7 +154,7 @@ function buildRatios(wb: ExcelJS.Workbook): void {
 }
 
 function buildCase(wb: ExcelJS.Workbook): void {
-  const ws = wb.addWorksheet("Case Data");
+  const ws = wb.addWorksheet("Project Data");
   const headers = ["Field", "Value", "Notes"];
   ws.addRow(headers);
   ws.getRow(1).eachCell((c) => Object.assign(c, { style: headerStyle() }));
@@ -175,7 +176,7 @@ function buildCase(wb: ExcelJS.Workbook): void {
     ["ROE (%)", "", ""],
     ["Debt/Equity", "", ""],
     ["Current Ratio", "", ""],
-    ["Key Issue 1", "", "From the case"],
+    ["Key Issue 1", "", "From the source material"],
     ["Key Issue 2", "", ""],
     ["Key Issue 3", "", ""],
     ["Recommendation", "", "Your analysis"],
@@ -233,9 +234,9 @@ interface CaseFill {
   recommendation: string;
 }
 
-function buildExcelFillPrompt(template: string, caseName: string): string {
+function buildExcelFillPrompt(template: string, topicName: string): string {
   if (template === "dcf") {
-    return `You are generating DCF assumptions for: "${caseName}".
+    return `You are generating DCF assumptions for: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks) with this exact structure:
 {
   "baseRevenue": 1000,
@@ -249,11 +250,11 @@ Return ONLY valid JSON (no markdown, no backticks) with this exact structure:
   "daPercent": 0.03,
   "nwcPercent": 0.02
 }
-Use realistic numbers for this company/case. baseRevenue in millions (local currency). All percentages as decimals (e.g. 8% = 0.08).`;
+Use realistic numbers for this company/topic. baseRevenue in millions (local currency). All percentages as decimals (e.g. 8% = 0.08).`;
   }
 
   if (template === "ratios") {
-    return `You are generating financial ratios for: "${caseName}".
+    return `You are generating financial ratios for: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks) with this exact structure:
 {
   "company": "Company Name",
@@ -267,8 +268,8 @@ Return ONLY valid JSON (no markdown, no backticks) with this exact structure:
 Use realistic financial data for the company/sector.`;
   }
 
-  // case
-  return `You are generating project analysis financial data for: "${caseName}".
+  // project
+  return `You are generating project analysis financial data for: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks) with this exact structure:
 {
   "companyName": "Company Name",
@@ -442,7 +443,7 @@ function applyRatiosFill(wb: ExcelJS.Workbook, data: RatiosFill): void {
 }
 
 function applyCaseFill(wb: ExcelJS.Workbook, data: CaseFill): void {
-  const ws = wb.getWorksheet("Case Data");
+  const ws = wb.getWorksheet("Project Data");
   if (!ws) return;
 
   const mapping: Record<string, string> = {
@@ -477,11 +478,11 @@ function applyCaseFill(wb: ExcelJS.Workbook, data: CaseFill): void {
   });
 }
 
-async function fillExcelContent(wb: ExcelJS.Workbook, template: string, caseName: string, webContext?: string): Promise<void> {
-  console.log(`🤖 Generating Excel assumptions for: "${caseName}" ...`);
-  let prompt = buildExcelFillPrompt(template, caseName);
+async function fillExcelContent(wb: ExcelJS.Workbook, template: string, topicName: string, webContext?: string): Promise<void> {
+  console.log(`🤖 Generating Excel assumptions for: "${topicName}" ...`);
+  let prompt = buildExcelFillPrompt(template, topicName);
   if (webContext) {
-    prompt = `Here is recent web context about this company/case:\n---\n${webContext}\n---\nUse this to make your assumptions more accurate and realistic.\n\n${prompt}`;
+    prompt = `Here is recent web context about this company/topic:\n---\n${webContext}\n---\nUse this to make your assumptions more accurate and realistic.\n\n${prompt}`;
   }
 
   let raw: string | null = null;
@@ -501,12 +502,12 @@ async function fillExcelContent(wb: ExcelJS.Workbook, template: string, caseName
 
   if (template === "dcf") applyDCFFill(wb, parsed as DCFAssumptions);
   else if (template === "ratios") applyRatiosFill(wb, parsed as RatiosFill);
-  else if (template === "case") applyCaseFill(wb, parsed as CaseFill);
+  else if (template === "case" || template === "project") applyCaseFill(wb, parsed as CaseFill);
 
   console.log("✅ AI-generated assumptions applied");
 }
 
-export async function generateExcel(template: string, outputDir: string, options?: { fill?: boolean; caseName?: string; webContext?: string }): Promise<string> {
+export async function generateExcel(template: string, outputDir: string, options?: { fill?: boolean; topicName?: string; webContext?: string }): Promise<string> {
   if (!existsSync(outputDir)) mkdirSync(outputDir, { recursive: true });
 
   const wb = new ExcelJS.Workbook();
@@ -521,14 +522,15 @@ export async function generateExcel(template: string, outputDir: string, options
       buildRatios(wb);
       break;
     case "case":
+    case "project":
       buildCase(wb);
       break;
     default:
       throw new Error(`Unknown template: ${template}`);
   }
 
-  if (options?.fill && options?.caseName) {
-    await fillExcelContent(wb, template, options.caseName, options.webContext);
+  if (options?.fill && options?.topicName) {
+    await fillExcelContent(wb, template, options.topicName, options.webContext);
   }
 
   const outPath = join(outputDir, `${template}-${today()}.xlsx`);
@@ -541,14 +543,14 @@ const args = process.argv.slice(2);
 
 let template: string | undefined;
 let fillMode = false;
-let caseName: string | undefined;
+let topicName: string | undefined;
 let webMode = false;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--fill") {
     fillMode = true;
-  } else if (args[i] === "--case" && args[i + 1]) {
-    caseName = args[i + 1];
+  } else if (args[i] === "--topic" && args[i + 1]) {
+    topicName = args[i + 1];
     i++;
   } else if (args[i] === "--web") {
     webMode = true;
@@ -564,7 +566,7 @@ if (!template) {
   }
   console.log("\nUsage:");
   console.log("  bun run scripts/excel-gen.ts <template>");
-  console.log("  bun run scripts/excel-gen.ts <template> --fill --case 'Company name'");
+  console.log("  bun run scripts/excel-gen.ts <template> --fill --topic 'Company name'");
   process.exit(0);
 }
 
@@ -574,10 +576,10 @@ if (!TEMPLATES[template]) {
 }
 
 let webContext: string | undefined;
-if (webMode && caseName) {
+if (webMode && topicName) {
   console.log("🌐 --web: fetching live context...");
-  webContext = await fetchCaseContext(caseName) || undefined;
+  webContext = await fetchCaseContext(topicName) || undefined;
 }
 
-const outPath = await generateExcel(template, EXPORTS_DIR, { fill: fillMode, caseName, webContext });
+const outPath = await generateExcel(template, EXPORTS_DIR, { fill: fillMode, topicName, webContext });
 console.log(`✅ Generated: ${outPath}`);

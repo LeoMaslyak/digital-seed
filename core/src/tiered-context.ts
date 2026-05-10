@@ -1,5 +1,5 @@
 /**
- * DAI Tiered Context Loading — Read summaries before full files.
+ * Digital Seed Tiered Context Loading — Read summaries before full files.
  *
  * L0 (~20 tokens): One-liner per file — "what is this file about?"
  * L1 (~200 tokens): Section headings + key facts — "is this relevant?"

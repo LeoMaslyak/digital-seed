@@ -28,7 +28,7 @@ function TopBar() {
       backdropFilter: 'blur(14px)',
       position: 'sticky', top: 0, zIndex: 10
     }}>
-      {/* Logo — CUSTOMIZE: change "DAI" and the icon */}
+      {/* Logo — CUSTOMIZE: change "Seed" and the icon */}
       <div style={{display:'flex', alignItems:'center', gap: 10}}>
         <div style={{
           width: 28, height: 28, borderRadius: 8,
@@ -39,7 +39,7 @@ function TopBar() {
         }}>
           <Icon.Bolt size={14} stroke={2} />
         </div>
-        <div style={{fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em'}}>DAI</div>
+        <div style={{fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em'}}>Seed</div>
         <div className="mono" style={{fontSize: 10.5, color: 'var(--fg-faint)', marginLeft: 2, letterSpacing: '0.06em'}}>COCKPIT</div>
       </div>
 

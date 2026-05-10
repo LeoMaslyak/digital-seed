@@ -133,12 +133,12 @@ export async function fetchArticle(url: string): Promise<{ title: string; conten
  * Returns an array of text content for each matched element.
  */
 /**
- * Fetch web context for a company/case name via Jina search.
+ * Fetch web context for a company/topic name via Jina search.
  * Returns up to 3000 chars of context, or empty string on failure.
  */
-export async function fetchCaseContext(caseName: string): Promise<string> {
-  console.log(`🌐 Fetching web context for: ${caseName}...`);
-  const searchUrl = `https://r.jina.ai/https://www.google.com/search?q=${encodeURIComponent(caseName + " company financials overview 2024")}`;
+export async function fetchCaseContext(topicName: string): Promise<string> {
+  console.log(`🌐 Fetching web context for: ${topicName}...`);
+  const searchUrl = `https://r.jina.ai/https://www.google.com/search?q=${encodeURIComponent(topicName + " company financials overview 2024")}`;
   try {
     const text = await fetchMarkdown(searchUrl, { timeout: 20_000 });
     return text.length > 3000 ? text.slice(0, 3000) : text;

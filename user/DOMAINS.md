@@ -52,4 +52,4 @@ A domain can be a job, company, research area, domain, project, responsibility, 
 
 List workflows your assistant could eventually help automate:
 
-- 
+-

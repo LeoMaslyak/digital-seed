@@ -264,3 +264,8 @@ Digital Seed is promising because it is not trying to own the whole stack. But t
 - Let the agent install and explain it.
 - Add integrations only when you understand why.
 - Grow from seed to infrastructure at your own pace.
+
+
+## Response
+
+The cleanup response is tracked in [`audit-response-2026-05-10.md`](audit-response-2026-05-10.md).

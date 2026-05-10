@@ -1,8 +1,8 @@
 # Strategy Project Analysis — [Company / Industry]
 
-**Domain:** Business Policy / Competitive Strategy  
-**Date:**  
-**Team:**  
+**Domain:** Business Policy / Competitive Strategy
+**Date:**
+**Team:**
 
 ---
 

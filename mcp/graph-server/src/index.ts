@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Knowledge Graph MCP Server
+ * Digital Seed Knowledge Graph MCP Server
  *
  * Tools:
  *   - graph_search: Find nodes by query, optionally filtered by type
@@ -74,7 +74,7 @@ function genId(): string {
 // ─── MCP Server ─────────────────────────────────────────────────────
 
 const server = new Server(
-  { name: "dai-graph", version: "0.1.0" },
+  { name: "seed-graph", version: "0.1.0" },
   { capabilities: { tools: {} } }
 );
 

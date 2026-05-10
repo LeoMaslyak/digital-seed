@@ -1,6 +1,6 @@
 # Skill Packs
 
-Pre-built bundles of patterns, agent overrides, and templates for your organization domains.
+Pre-built bundles of patterns, agent overrides, and templates for community domains.
 
 ## Available Packs
 
@@ -30,8 +30,8 @@ packs/<name>/
   agents/
     study.yaml       ← agent override (domain-specific study specialist)
   templates/
-    project-analysis.md    ← structured case analysis template
-    learning-prep.md     ← formula sheet and learning checkpoint strategy
+    project-analysis.md    ← structured project analysis template
+    learning-prep.md     ← formula sheet and learning strategy
 ```
 
 ## Create Your Own Pack

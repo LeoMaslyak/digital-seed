@@ -1,5 +1,5 @@
 /**
- * DAI Dashboard — Local server for the DAI Cockpit.
+ * Digital Seed Dashboard — Local server for the Digital Seed Cockpit.
  * Serves the static dashboard and live API endpoints for tasks, tokens, and health.
  *
  * Run with:  bun run dev
@@ -11,7 +11,7 @@ import { join, dirname, extname } from "path";
 
 const ROOT         = process.env.DIGITAL_SEED_ROOT || join(dirname(new URL(import.meta.url).pathname), "../..");
 const DASHBOARD    = join(dirname(new URL(import.meta.url).pathname), "..");
-const PORT         = parseInt(process.env.DAI_DASHBOARD_PORT || "3000");
+const PORT         = parseInt(process.env.SEED_DASHBOARD_PORT || process.env.DAI_DASHBOARD_PORT || "3000");
 
 // ── Data loaders ─────────────────────────────────────────────────────────────
 
@@ -104,20 +104,20 @@ const server = Bun.serve({
     if (url.pathname === "/api/health") {
       const memoryFile  = join(ROOT, "data", "tasks.json");
       const ragFile     = join(ROOT, "data", "rag-index.json");
-      const knowledge baseMeta = join(ROOT, "data", "knowledge base-meta.json");
+      const knowledgeBaseMeta = join(ROOT, "data", "knowledge-base-meta.json");
 
       let ragDocs = 0;
       if (existsSync(ragFile)) {
         try { ragDocs = JSON.parse(readFileSync(ragFile, "utf-8")).count ?? 0; } catch {}
       }
 
-      let knowledge baseSyncAge = "—";
-      if (existsSync(knowledge baseMeta)) {
+      let knowledgeBaseSyncAge = "—";
+      if (existsSync(knowledgeBaseMeta)) {
         try {
-          const meta = JSON.parse(readFileSync(knowledge baseMeta, "utf-8"));
+          const meta = JSON.parse(readFileSync(knowledgeBaseMeta, "utf-8"));
           if (meta.lastSync) {
             const ageMin = Math.round((Date.now() - new Date(meta.lastSync).getTime()) / 60000);
-            knowledge baseSyncAge = ageMin < 60 ? `${ageMin}m ago` : `${Math.round(ageMin / 60)}h ago`;
+            knowledgeBaseSyncAge = ageMin < 60 ? `${ageMin}m ago` : `${Math.round(ageMin / 60)}h ago`;
           }
         } catch {}
       }
@@ -129,8 +129,8 @@ const server = Bun.serve({
         memory:         existsSync(memoryFile),
         rag:            existsSync(ragFile),
         ragDocs,
-        knowledge base:        existsSync(knowledge baseMeta) && freshWithinMinutes(knowledge baseMeta, 720),
-        knowledge baseSyncAge: knowledge baseSyncAge !== "—" ? knowledge baseSyncAge : "Not synced",
+        knowledgeBase:        existsSync(knowledgeBaseMeta) && freshWithinMinutes(knowledgeBaseMeta, 720),
+        knowledgeBaseSyncAge: knowledgeBaseSyncAge !== "—" ? knowledgeBaseSyncAge : "Not synced",
       });
     }
 
@@ -143,4 +143,4 @@ const server = Bun.serve({
   },
 });
 
-console.log(`\n  ⚡ DAI Cockpit  →  http://localhost:${server.port}\n`);
+console.log(`\n  ⚡ Digital Seed Cockpit  →  http://localhost:${server.port}\n`);

@@ -1,5 +1,5 @@
 /**
- * DAI Quality Loop — Generic run → evaluate → feedback → retry engine.
+ * Digital Seed Quality Loop — Generic run → evaluate → feedback → retry engine.
  *
  * Extracts and expands the quality gate from orchestrator.ts (Layer 3) into
  * a standalone, reusable module any agent can use.

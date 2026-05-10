@@ -21,7 +21,7 @@ function MobileCockpit({ tasks, onQueue, tokens }) {
           }}>
             <Icon.Bolt size={12} stroke={2.2}/>
           </div>
-          <span style={{fontWeight: 700, fontSize: 14}}>DAI</span>
+          <span style={{fontWeight: 700, fontSize: 14}}>Seed</span>
         </div>
         <div style={{display:'flex', alignItems:'center', gap: 8}}>
           <div style={{
@@ -76,7 +76,7 @@ function MobileCockpit({ tasks, onQueue, tokens }) {
       <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap: 10}}>
         <div className="card" style={{padding:14, display:'flex', flexDirection:'column', gap:8}}>
           <div style={{color:'var(--accent)'}}><Icon.Slides size={18}/></div>
-          <div style={{fontSize:13.5, fontWeight:600}}>Case Deck</div>
+          <div style={{fontSize:13.5, fontWeight:600}}>Project Deck</div>
           <div style={{fontSize:11, color:'var(--fg-dim)'}}>→ Google Slides</div>
         </div>
         <div className="card" style={{padding:14, display:'flex', flexDirection:'column', gap:8}}>
@@ -116,7 +116,7 @@ function MobileCockpit({ tasks, onQueue, tokens }) {
       <div className="card" style={{padding: 16, display:'flex', flexDirection:'column', gap: 8}}>
         <div className="label">CONTEXT</div>
         <div style={{display:'flex', gap:6, flexWrap:'wrap'}}>
-          <span className="chip chip-filled" style={{fontSize:11}}>professional @ your organization</span>
+          <span className="chip chip-filled" style={{fontSize:11}}>your context</span>
           <span className="chip chip-filled" style={{fontSize:11}}>Finance</span>
           <span className="chip chip-filled" style={{fontSize:11}}>PE career</span>
         </div>
@@ -130,7 +130,7 @@ function MobileCockpit({ tasks, onQueue, tokens }) {
           ['ok',   'Claude Code',   'Connected'],
           ['ok',   'Memory Server', 'Active'],
           ['ok',   'RAG Index',     '342 docs'],
-          ['ok',   'Knowledge Base',  '6h ago'],
+          ['ok',   'Knowledge Index',  '6h ago'],
           ['mute', 'PAI Bridge',    'Not configured'],
         ].map(([s, n, d]) => (
           <div key={n} style={{display:'flex', alignItems:'center', gap: 10, padding: '6px 0', fontSize: 12.5, color: s==='mute' ? 'var(--fg-faint)':'var(--fg-mute)'}}>

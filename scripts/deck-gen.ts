@@ -3,8 +3,8 @@
  * Slide deck generator — creates polished PPTX presentations with varied layouts.
  *
  * Usage:
- *   bun run scripts/deck-gen.ts case|strategy|finance
- *   bun run scripts/deck-gen.ts case --fill --case 'Nestlé sustainability'
+ *   bun run scripts/deck-gen.ts project|strategy|finance
+ *   bun run scripts/deck-gen.ts project --fill --topic 'project roadmap'
  *   bun run scripts/deck-gen.ts                        (list templates)
  */
 
@@ -26,7 +26,8 @@ const WHITE = "FFFFFF";
 const FONT = "Calibri";
 
 const TEMPLATES: Record<string, string> = {
-  case: "your organization project analysis (Title, Situation, Analysis, Options, Recommendation, Q&A)",
+  project: "general project analysis (Title, Situation, Analysis, Options, Recommendation, Q&A)",
+  case: "legacy alias for project analysis",
   strategy: "Strategy presentation (Title, Market, Competitive, Options, Recommendation)",
   finance: "Finance presentation (Title, Overview, DCF, Comparables, Investment Thesis)",
 };
@@ -58,7 +59,7 @@ function addTitleSlide(
     fill: { color: ACCENT },
   });
 
-  // Company / case name
+  // Company / topic name
   slide.addText(data.company, {
     x: 1.0, y: 2.0, w: 10.0, h: 1.2,
     fontSize: 40, fontFace: FONT, color: WHITE, bold: true,
@@ -550,14 +551,14 @@ function defaultFinanceContent(): FinanceContent {
 
 // ── Fill mode: Claude-generated content ──────────────────────────────
 
-function buildFillPrompt(template: string, caseName: string): string {
+function buildFillPrompt(template: string, topicName: string): string {
   const dateStr = today();
 
-  if (template === "case") {
-    return `You are generating content for an your organization professional project analysis presentation about: "${caseName}".
+  if (template === "project" || template === "case") {
+    return `You are generating content for an professional project analysis presentation about: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exact structure:
 {
-  "title": { "company": "Company Name", "subtitle": "Short case description", "domain": "Strategy I", "date": "${dateStr}" },
+  "title": { "company": "Company Name", "subtitle": "Short topic description", "domain": "Strategy I", "date": "${dateStr}" },
   "situation": { "bullets": ["4 specific bullets about the company situation with real data/numbers"] },
   "analysis": {
     "left": ["Framework 1", "Framework 2", "Framework 3", "Framework 4"],
@@ -570,11 +571,11 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exa
   ],
   "recommendation": { "statement": "One clear recommendation sentence", "bullets": ["supporting point 1", "supporting point 2", "supporting point 3"] }
 }
-Make the content specific, realistic, with actual numbers and data points appropriate for an professional case discussion. Use frameworks like Porter's Five Forces, SWOT, or value chain analysis where relevant.`;
+Make the content specific, realistic, with actual numbers and data points appropriate for an professional project discussion. Use frameworks like Porter's Five Forces, SWOT, or value chain analysis where relevant.`;
   }
 
   if (template === "strategy") {
-    return `You are generating content for an your organization professional strategy presentation about: "${caseName}".
+    return `You are generating content for an professional strategy presentation about: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exact structure:
 {
   "title": { "company": "Company Name", "subtitle": "Strategy topic", "domain": "Strategy I", "date": "${dateStr}" },
@@ -590,11 +591,11 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exa
   ],
   "recommendation": { "statement": "Clear strategic recommendation", "bullets": ["supporting point 1", "supporting point 2", "supporting point 3"] }
 }
-Make content specific to the case with realistic numbers and your organization-style strategic analysis.`;
+Make content specific to the topic with realistic numbers and clear, domain-aware strategic analysis.`;
   }
 
   // finance
-  return `You are generating content for an your organization professional finance/valuation presentation about: "${caseName}".
+  return `You are generating content for an professional finance/valuation presentation about: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exact structure:
 {
   "title": { "company": "Company Name", "subtitle": "Valuation topic", "domain": "Finance I", "date": "${dateStr}" },
@@ -653,11 +654,11 @@ function parseClaudeResponse(raw: string): any | null {
   }
 }
 
-async function fillContent<T>(template: string, caseName: string, defaultFn: () => T, webContext?: string): Promise<T> {
-  console.log(`🤖 Generating content for: "${caseName}" ...`);
-  let prompt = buildFillPrompt(template, caseName);
+async function fillContent<T>(template: string, topicName: string, defaultFn: () => T, webContext?: string): Promise<T> {
+  console.log(`🤖 Generating content for: "${topicName}" ...`);
+  let prompt = buildFillPrompt(template, topicName);
   if (webContext) {
-    prompt = `Here is recent web context about this company/case:\n---\n${webContext}\n---\nUse this to make your assumptions more accurate and realistic.\n\n${prompt}`;
+    prompt = `Here is recent web context about this company/topic:\n---\n${webContext}\n---\nUse this to make your assumptions more accurate and realistic.\n\n${prompt}`;
   }
   const raw = await callAI(prompt);
   if (!raw) return defaultFn();
@@ -704,7 +705,7 @@ function buildFinanceDeck(pptx: PptxGenJS, content: FinanceContent): void {
 export async function generateDeck(
   template: string,
   outputDir: string,
-  options?: { fill?: boolean; caseName?: string; webContext?: string },
+  options?: { fill?: boolean; topicName?: string; webContext?: string },
 ): Promise<string> {
   if (!existsSync(outputDir)) mkdirSync(outputDir, { recursive: true });
 
@@ -712,26 +713,27 @@ export async function generateDeck(
   pptx.layout = "LAYOUT_WIDE";
   pptx.author = "Digital Seed";
 
-  const useFill = options?.fill && options?.caseName;
+  const useFill = options?.fill && options?.topicName;
 
   switch (template) {
-    case "case": {
+    case "case":
+    case "project": {
       const content = useFill
-        ? await fillContent("case", options!.caseName!, defaultCaseContent, options?.webContext)
+        ? await fillContent("project", options!.topicName!, defaultCaseContent, options?.webContext)
         : defaultCaseContent();
       buildCaseDeck(pptx, content);
       break;
     }
     case "strategy": {
       const content = useFill
-        ? await fillContent("strategy", options!.caseName!, defaultStrategyContent, options?.webContext)
+        ? await fillContent("strategy", options!.topicName!, defaultStrategyContent, options?.webContext)
         : defaultStrategyContent();
       buildStrategyDeck(pptx, content);
       break;
     }
     case "finance": {
       const content = useFill
-        ? await fillContent("finance", options!.caseName!, defaultFinanceContent, options?.webContext)
+        ? await fillContent("finance", options!.topicName!, defaultFinanceContent, options?.webContext)
         : defaultFinanceContent();
       buildFinanceDeck(pptx, content);
       break;
@@ -785,15 +787,15 @@ const args = process.argv.slice(2);
 // Parse flags
 let template: string | undefined;
 let fillMode = false;
-let caseName: string | undefined;
+let topicName: string | undefined;
 let format: "pptx" | "google-slides" = "pptx";
 let webMode = false;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--fill") {
     fillMode = true;
-  } else if (args[i] === "--case" && args[i + 1]) {
-    caseName = args[i + 1];
+  } else if (args[i] === "--topic" && args[i + 1]) {
+    topicName = args[i + 1];
     i++;
   } else if (args[i] === "--format" && args[i + 1]) {
     format = args[i + 1] as "pptx" | "google-slides";
@@ -812,11 +814,11 @@ if (!template) {
   }
   console.log("\nUsage:");
   console.log("  bun run seed deck <template>                              Template with defaults");
-  console.log("  bun run seed deck <template> --fill --case 'Description'  Claude-generated content");
+  console.log("  bun run seed deck <template> --fill --topic 'Description'  Claude-generated content");
   console.log("\nExamples:");
-  console.log("  bun run seed deck case");
-  console.log("  bun run seed deck case --fill --case 'Nestlé sustainability'");
-  console.log("  bun run seed deck finance --fill --case 'Inditex DCF valuation'");
+  console.log("  bun run seed deck project");
+  console.log("  bun run seed deck project --fill --topic 'project roadmap'");
+  console.log("  bun run seed deck finance --fill --topic 'sample project analysis'");
   process.exit(0);
 }
 
@@ -826,12 +828,12 @@ if (!TEMPLATES[template]) {
 }
 
 let webContext: string | undefined;
-if (webMode && caseName) {
+if (webMode && topicName) {
   console.log("🌐 --web: fetching live context...");
-  webContext = await fetchCaseContext(caseName) || undefined;
+  webContext = await fetchCaseContext(topicName) || undefined;
 }
 
-const outPath = await generateDeck(template, EXPORTS_DIR, { fill: fillMode, caseName, webContext });
+const outPath = await generateDeck(template, EXPORTS_DIR, { fill: fillMode, topicName, webContext });
 console.log(`✅ Generated: ${outPath}`);
 
 if (format === "google-slides") {

@@ -1,5 +1,5 @@
 /**
- * DAI Collaboration Layer — Shared project spaces with personal context separation.
+ * Digital Seed Collaboration Layer — Shared project spaces with personal context separation.
  *
  * Architecture overview:
  *
@@ -27,10 +27,10 @@
  * The pre-commit hook (scripts/pre-commit-check.ts) enforces this boundary
  * by scanning staged collab/ files for personal data patterns before every commit.
  *
- * Study Group Mode:
+ * Learning Group Mode:
  *   Each member adds their own analysis under members/<handle>.md.
  *   context.md is auto-merged from all member contributions.
- *   Perfect for your organization project analysis groups working on the same material.
+ *   Perfect for general project analysis groups working on the same material.
  */
 
 import {
@@ -56,7 +56,7 @@ export interface StudyGroup {
   name: string;
   description: string;
   domain?: string;            // e.g. "Finance I", "Strategy"
-  caseTitle?: string;         // e.g. "IKEA Sustainability"
+  topicTitle?: string;         // e.g. "Sample Project"
   members: string[];
   createdAt: string;
   updatedAt: string;
@@ -162,7 +162,7 @@ export function initCollabDir(root: string): void {
     writeFileSync(readme, [
       "# Collaboration Space",
       "",
-      "This directory contains shared project and study group content.",
+      "This directory contains shared project and learning group content.",
       "It is **git-tracked** and safe to commit — no personal data lives here.",
       "",
       "## What lives here",
@@ -330,10 +330,10 @@ export function getProjectContext(root: string, projectId: string): string {
     .join("\n\n---\n\n");
 }
 
-// ─── Study Group Mode ─────────────────────────────────────────────────────────
+// ─── Learning Group Mode ─────────────────────────────────────────────────────────
 
 /**
- * Create a new study group under collab/study-groups/<id>/.
+ * Create a new learning group under collab/study-groups/<id>/.
  */
 export function createStudyGroup(
   root: string,
@@ -341,7 +341,7 @@ export function createStudyGroup(
     name: string;
     description: string;
     domain?: string;
-    caseTitle?: string;
+    topicTitle?: string;
     members?: string[];
   }
 ): StudyGroup {
@@ -360,7 +360,7 @@ export function createStudyGroup(
     name: config.name,
     description: config.description,
     domain: config.domain,
-    caseTitle: config.caseTitle,
+    topicTitle: config.topicTitle,
     members: config.members ?? [],
     createdAt: now,
     updatedAt: now,
@@ -375,7 +375,7 @@ export function createStudyGroup(
     config.description,
     "",
     ...(config.domain    ? [`**Domain:** ${config.domain}  `]    : []),
-    ...(config.caseTitle ? [`**Case:** ${config.caseTitle}  `]   : []),
+    ...(config.topicTitle ? [`**Topic:** ${config.topicTitle}  `]   : []),
     `**Created:** ${now.slice(0, 10)}`,
     "",
     "---",
@@ -390,7 +390,7 @@ export function createStudyGroup(
 }
 
 /**
- * List all study groups.
+ * List all learning groups.
  */
 export function listStudyGroups(root: string): StudyGroup[] {
   const dir = join(root, GROUPS_DIR);
@@ -404,7 +404,7 @@ export function listStudyGroups(root: string): StudyGroup[] {
 }
 
 /**
- * Get a study group by name or ID.
+ * Get a learning group by name or ID.
  */
 export function getStudyGroup(root: string, idOrName: string): StudyGroup | null {
   const byId = readJson<StudyGroup | null>(
@@ -418,7 +418,7 @@ export function getStudyGroup(root: string, idOrName: string): StudyGroup | null
 }
 
 /**
- * Add a member's contribution to a study group.
+ * Add a member's contribution to a learning group.
  * Creates collab/study-groups/<id>/members/<handle>.md and rebuilds context.md.
  */
 export function addStudyGroupContribution(
@@ -467,7 +467,7 @@ function rebuildStudyGroupContext(root: string, groupId: string): void {
     cfg.description ?? "",
     "",
     ...(cfg.domain    ? [`**Domain:** ${cfg.domain}  `]    : []),
-    ...(cfg.caseTitle ? [`**Case:** ${cfg.caseTitle}  `]   : []),
+    ...(cfg.topicTitle ? [`**Topic:** ${cfg.topicTitle}  `]   : []),
     `**Members:** ${(cfg.members ?? []).join(", ") || "none yet"}`,
     `**Updated:** ${new Date().toISOString().slice(0, 10)}`,
     "",
@@ -488,7 +488,7 @@ function rebuildStudyGroupContext(root: string, groupId: string): void {
 }
 
 /**
- * Get the full study group context including all member contributions.
+ * Get the full learning group context including all member contributions.
  */
 export function getStudyGroupContext(root: string, groupIdOrName: string): StudyGroupContext {
   const id = slugify(groupIdOrName);
@@ -513,7 +513,7 @@ export function getStudyGroupContext(root: string, groupIdOrName: string): Study
 }
 
 /**
- * Build an LLM prompt that injects the study group's shared context.
+ * Build an LLM prompt that injects the learning group's shared context.
  * Personal user context remains separate — only shared knowledge is included.
  */
 export function buildStudyGroupPrompt(root: string, groupIdOrName: string): string {
@@ -523,14 +523,14 @@ export function buildStudyGroupPrompt(root: string, groupIdOrName: string): stri
     : "No member contributions yet.";
 
   return [
-    `## Study Group Context: ${group.name}`,
+    `## Learning Group Context: ${group.name}`,
     "",
     group.description ?? "",
     group.domain    ? `Domain: ${group.domain}`       : "",
-    group.caseTitle ? `Case: ${group.caseTitle}`      : "",
+    group.topicTitle ? `Topic: ${group.topicTitle}`      : "",
     memberSummary,
     "",
-    "### Shared Knowledge Base",
+    "### Shared Knowledge Index",
     "",
     sharedContext,
     "",
@@ -668,7 +668,7 @@ export function getCollabSummary(root: string): string {
   const groups   = listStudyGroups(root);
 
   if (projects.length === 0 && groups.length === 0) {
-    return "No collaborative projects or study groups yet.\nRun `bun run collab create <name>` to start one.";
+    return "No collaborative projects or learning groups yet.\nRun `bun run collab create <name>` to start one.";
   }
 
   const lines: string[] = [];
@@ -683,9 +683,9 @@ export function getCollabSummary(root: string): string {
   }
 
   if (groups.length > 0) {
-    lines.push("### Study Groups");
+    lines.push("### Learning Groups");
     for (const g of groups) {
-      const detail = [g.domain, g.caseTitle].filter(Boolean).join(" · ");
+      const detail = [g.domain, g.topicTitle].filter(Boolean).join(" · ");
       lines.push(`- **${g.name}**${detail ? ` *(${detail})*` : ""} — ${g.description}`);
       if (g.members.length > 0) lines.push(`  Members: ${g.members.join(", ")}`);
     }

@@ -1,5 +1,5 @@
 /**
- * DAI Daily Digest — Standalone generator that consolidates system activity
+ * Digital Seed Daily Digest — Standalone generator that consolidates system activity
  * into a human-readable summary. Extends the basic digest prompt in autonomy.ts
  * with richer content: token costs, precedent promotions, collab activity,
  * upcoming tasks, and a configurable delivery hook.
@@ -108,7 +108,7 @@ export function loadDigestConfig(root: string): DigestConfig {
 }
 
 /**
- * Write an learning checkpointple digest config if none exists.
+ * Write an example digest config if none exists.
  * Called by generateDigest() on first run.
  */
 export function ensureDigestConfig(root: string): void {
@@ -119,7 +119,7 @@ export function ensureDigestConfig(root: string): void {
   if (!existsSync(configDir)) mkdirSync(configDir, { recursive: true });
 
   writeFileSync(path, [
-    "# DAI Daily Digest Configuration",
+    "# Digital Seed Daily Digest Configuration",
     "enabled: true",
     "schedule: \"21:00\"   # 24h local time",
     "",
@@ -407,7 +407,7 @@ export async function deliverDigest(
     try {
       const body = JSON.stringify({
         to:      config.delivery.email.address,
-        subject: `DAI Digest — ${digest.date}: ${digest.headline}`,
+        subject: `Digital Seed Digest — ${digest.date}: ${digest.headline}`,
         text:    formatDigest(digest, "text"),
         html:    formatDigest(digest, "markdown"),
       });

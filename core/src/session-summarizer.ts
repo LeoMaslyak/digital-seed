@@ -1,5 +1,5 @@
 /**
- * DAI Session Summarizer — Compress conversation history and maintain shift handoffs.
+ * Digital Seed Session Summarizer — Compress conversation history and maintain shift handoffs.
  *
  * Detects when context window is growing large, compresses older conversation
  * into structured summaries, and creates handoff notes for session continuity.

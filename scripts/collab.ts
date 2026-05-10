@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Collaboration CLI
+ * Digital Seed Collaboration CLI
  *
  * Usage:
  *   bun run collab create <name> [--desc "..."] [--members a,b,c] [--tags t1,t2]
@@ -8,7 +8,7 @@
  *   bun run collab note <project> "<note>" [--author handle]
  *   bun run collab context <project>
  *
- *   bun run collab group create <name> [--desc "..."] [--domain "..."] [--case "..."]
+ *   bun run collab group create <name> [--desc "..."] [--domain "..."] [--topic "..."]
  *   bun run collab group list
  *   bun run collab group add <group> <handle> "<analysis>"
  *   bun run collab group show <group>
@@ -32,7 +32,7 @@ const args = process.argv.slice(2);
 
 function usage(): void {
   console.log(`
-DAI Collaboration Layer
+Digital Seed Collaboration Layer
 
 PROJECTS
   bun run collab create <name> [--desc "..."] [--members a,b] [--tags t1,t2]
@@ -44,7 +44,7 @@ PROJECTS
   bun run collab context <project>
 
 STUDY GROUPS
-  bun run collab group create <name> [--desc "..."] [--domain "..."] [--case "..."]
+  bun run collab group create <name> [--desc "..."] [--domain "..."] [--topic "..."]
   bun run collab group list
   bun run collab group add <group> <handle> "<analysis>"
   bun run collab group show <group>
@@ -105,7 +105,7 @@ else if (cmd === "list") {
   const groups   = listStudyGroups(root);
 
   if (projects.length === 0 && groups.length === 0) {
-    console.log("No projects or study groups yet.");
+    console.log("No projects or learning groups yet.");
     console.log("Create one: bun run collab create <name>");
     process.exit(0);
   }
@@ -119,9 +119,9 @@ else if (cmd === "list") {
   }
 
   if (groups.length > 0) {
-    console.log("\n👥 Study Groups");
+    console.log("\n👥 Learning Groups");
     for (const g of groups) {
-      const detail = [g.domain, g.caseTitle].filter(Boolean).join(" · ");
+      const detail = [g.domain, g.topicTitle].filter(Boolean).join(" · ");
       console.log(`  ${g.name.padEnd(24)} ${g.description}${detail ? ` (${detail})` : ""}`);
       if (g.members.length > 0) console.log(`  ${"".padEnd(24)} 👥 ${g.members.join(", ")}`);
     }
@@ -167,20 +167,20 @@ else if (cmd === "group") {
   // bun run collab group create <name>
   if (subcmd === "create") {
     const name = args[2];
-    if (!name) { console.error("Usage: bun run collab group create <name> [--desc ...] [--domain ...] [--case ...]"); process.exit(1); }
+    if (!name) { console.error("Usage: bun run collab group create <name> [--desc ...] [--domain ...] [--topic ...]"); process.exit(1); }
 
     try {
       const group = createStudyGroup(root, {
         name,
         description: flag("--desc")   ?? `Study group: ${name}`,
         domain:      flag("--domain") ?? undefined,
-        caseTitle:   flag("--case")   ?? undefined,
+        topicTitle:   flag("--topic")   ?? undefined,
         members:     flag("--members")?.split(",").map((m) => m.trim()).filter(Boolean) ?? [],
       });
-      console.log(`✅ Created study group: ${group.name}`);
+      console.log(`✅ Created learning group: ${group.name}`);
       console.log(`   Path: collab/study-groups/${group.id}/`);
       if (group.domain)    console.log(`   Domain: ${group.domain}`);
-      if (group.caseTitle) console.log(`   Case: ${group.caseTitle}`);
+      if (group.topicTitle) console.log(`   Topic: ${group.topicTitle}`);
       console.log(`\n   Add your analysis: bun run collab group add ${group.id} <your-handle> "<insight>"`);
     } catch (e) {
       console.error(`❌ ${(e as Error).message}`);
@@ -192,10 +192,10 @@ else if (cmd === "group") {
   else if (subcmd === "list") {
     const groups = listStudyGroups(root);
     if (groups.length === 0) {
-      console.log("No study groups yet. Create one: bun run collab group create <name>");
+      console.log("No learning groups yet. Create one: bun run collab group create <name>");
     } else {
       for (const g of groups) {
-        const detail = [g.domain, g.caseTitle].filter(Boolean).join(" · ");
+        const detail = [g.domain, g.topicTitle].filter(Boolean).join(" · ");
         console.log(`  ${g.name.padEnd(24)} ${g.description}${detail ? ` (${detail})` : ""}`);
         console.log(`  ${"".padEnd(24)} ${g.members.length} member(s) · id: ${g.id}`);
       }
@@ -231,7 +231,7 @@ else if (cmd === "group") {
 
     console.log(`\n📚 ${ctx.group.name}`);
     if (ctx.group.domain)    console.log(`   Domain: ${ctx.group.domain}`);
-    if (ctx.group.caseTitle) console.log(`   Case: ${ctx.group.caseTitle}`);
+    if (ctx.group.topicTitle) console.log(`   Topic: ${ctx.group.topicTitle}`);
     console.log(`   Members: ${ctx.group.members.join(", ") || "none yet"}`);
     console.log(`   Contributions: ${ctx.memberContributions.length}`);
     console.log("\n--- Shared Context ---");
@@ -328,7 +328,7 @@ else if (cmd === "export") {
   if (!exists(exportDir)) mkdir(exportDir, { recursive: true });
   const outPath = pjoin(exportDir, `${id}-${today}.md`);
 
-  // Try as project first, then as study group
+  // Try as project first, then as learning group
   let content = "";
   let title = "";
   const project = getProject(root, id);
@@ -340,13 +340,13 @@ else if (cmd === "export") {
     const ctx = getStudyGroupContext(root, id);
     if (ctx.group?.id) {
       title = ctx.group.name;
-      const detail = [ctx.group.domain, ctx.group.caseTitle].filter(Boolean).join(" · ");
+      const detail = [ctx.group.domain, ctx.group.topicTitle].filter(Boolean).join(" · ");
       content = `# ${ctx.group.name}\n\n`;
       if (detail) content += `> ${detail}\n\n`;
       content += `*Exported ${today} · Members: ${ctx.group.members.join(", ") || "—"}*\n\n---\n\n`;
       content += ctx.sharedContext;
     } else {
-      console.error(`❌ No project or study group found with id "${id}".`);
+      console.error(`❌ No project or learning group found with id "${id}".`);
       process.exit(1);
     }
   }
@@ -427,7 +427,7 @@ else if (cmd === "share") {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const header = `<!-- DAI Collab snapshot · ${today} -->\n\n`;
+  const header = `<!-- Digital Seed collaboration snapshot · ${today} -->\n\n`;
   const snapshot = header + content;
 
   if (flagBool("--copy")) {

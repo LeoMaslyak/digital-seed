@@ -21,7 +21,7 @@ Each layer is independent — install any combination, in any order.
 
 ## 1. Daniel Miessler's PAI
 
-**What it is:** A complete personal AI infrastructure by the person who coined the term. Think of DAI as the your organization-adapted version of PAI — similar philosophy, tuned for professional users.
+**What it is:** A complete personal AI infrastructure by the person who coined the term. Think of Digital Seed as the personal-infrastructure version of PAI — similar philosophy, tuned for professional users.
 
 **Why add it:** PAI has a richer identity/values system, voice features, and a larger community contributing patterns and packs.
 
@@ -37,7 +37,7 @@ cp -rn .claude/PAI ~/.claude/
 bash .claude/install.sh
 ```
 
-> **Safe merge:** the `cp -rn` flags skip any files that already exist, so your DAI setup is protected.
+> **Safe merge:** the `cp -rn` flags skip any files that already exist, so your Digital Seed setup is protected.
 
 **After install:** Run `source ~/.zshrc && pai` to launch.
 
@@ -164,8 +164,8 @@ After installing everything, a typical session looks like:
 cd ~/digital-seed && claude
 
 # Or use Fabric for quick pattern runs
-cat my-case-brief.pdf | fabric-ai --pattern analyze_paper
-echo "Nestlé Q3 revenue grew 4.2% despite..." | fabric-ai --pattern extract_wisdom
+cat my-project-brief.pdf | fabric-ai --pattern analyze_paper
+echo "This project grew usage 4.2% despite..." | fabric-ai --pattern extract_wisdom
 
 # Use Claude Code with skills
 claude  # then: /brainstorming "How should I structure my Finance midterm prep?"
@@ -184,17 +184,17 @@ claude  # then: /investigate "Why is my DCF model giving different results than 
 | gstack | Your project structure | Reads from current working directory |
 | superpowers | Nothing personal | Task-specific skills only |
 
-The most important thing: keep your DAI `user/COMPASS.md` updated. Everything else is optional tooling. The AI that knows you is more valuable than the one with more plugins.
+The most important thing: keep your Digital Seed `user/COMPASS.md` updated. Everything else is optional tooling. The AI that knows you is more valuable than the one with more plugins.
 
 ---
 
 ## Common Questions
 
 **Do I need all of these?**
-No. Start with DAI + Claude Code. Add PAI when you want a richer personal identity layer. Add Fabric when you find yourself doing the same text-processing task repeatedly. Add plugins when you start doing code projects.
+No. Start with Digital Seed + the agent you prefer. Add PAI when you want a richer personal identity layer. Add Fabric when you find yourself doing the same text-processing task repeatedly. Add plugins when you start doing code projects.
 
 **Does this work without an API key?**
-Mostly. Claude Code with a Claude Max subscription handles DAI, PAI, and gstack — no separate key needed for those. Fabric is the exception: it needs a real Anthropic API key OR a free local Ollama model. See Section 2 above.
+Mostly. Claude Code with a Claude Max subscription handles Digital Seed, PAI, and gstack — no separate key needed for those. Fabric is the exception: it needs a real Anthropic API key OR a free local Ollama model. See Section 2 above.
 
 **My classmates are on Windows — does this work?**
 Yes. See [install-claude-code.md](install-claude-code.md) for the WSL2 setup path. All tools above work identically inside WSL2.

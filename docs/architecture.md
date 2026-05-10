@@ -47,7 +47,7 @@
 │  └── offline-mode.ts     Graceful degradation, network guard    │
 │                                                                 │
 │  Collaboration & Output                                         │
-│  ├── collaboration.ts    Shared projects, study groups, boundary│
+│  ├── collaboration.ts    Shared projects, learning groups, boundary│
 │  ├── daily-digest.ts     Consolidated daily summary             │
 │  └── repo-bot.ts         Index GitHub repos for RAG search      │
 │                                                                 │
@@ -232,7 +232,7 @@ digital-seed/
 │   └── ...
 │
 ├── patterns/              ← Prompt patterns (Fabric-style)
-│   ├── case-analysis/
+│   ├── project-analysis/
 │   ├── dcf-analysis/       (installed with pack:finance)
 │   └── ...
 │

@@ -1,5 +1,5 @@
 /**
- * DAI Knowledge Graph — Connects people, topics, projects, notes, tasks, goals, and sessions
+ * Digital Seed Knowledge Graph — Connects people, topics, projects, notes, tasks, goals, and sessions
  * into a queryable graph. File-based storage (data/graph.json).
  *
  * Node types: person, topic, project, note, task, goal, session, pattern

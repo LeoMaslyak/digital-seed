@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Memory Server — MCP server for persistent file-backed memory.
+ * Digital Seed Memory Server — MCP server for persistent file-backed memory.
  *
  * Tools:
  *   - memory_read: Read the current memory file
@@ -69,7 +69,7 @@ function searchMemory(query: string): string {
 // ─── Server ───
 
 const server = new Server(
-  { name: "dai-memory", version: "0.1.0" },
+  { name: "seed-memory", version: "0.1.0" },
   { capabilities: { tools: {} } }
 );
 

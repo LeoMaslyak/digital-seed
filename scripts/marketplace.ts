@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Pattern Marketplace — Install, publish, and rate community patterns and packs.
+ * Digital Seed Pattern Marketplace — Install, publish, and rate community patterns and packs.
  *
  * Usage:
  *   bun run marketplace list [--search <query>] [--tag <tag>]
@@ -396,7 +396,7 @@ function cmdPublish(patternDir: string): void {
   const patternName = dir.split("/").pop() ?? dir;
   const firstLine   = readFileSync(systemMd, "utf-8").split("\n")[0]?.replace(/^#\s*/, "") ?? patternName;
 
-  console.log(`\n📤 Publishing "${firstLine}" to the DAI Marketplace\n`);
+  console.log(`\n📤 Publishing "${firstLine}" to the Digital Seed Marketplace\n`);
   console.log("Follow these steps:\n");
   console.log("1. Fork https://github.com/LeoMaslyak/digital-seed");
   console.log(`2. Copy your pattern: cp -r ${dir} patterns/${patternName}/`);
@@ -456,8 +456,8 @@ function ensureBundledRegistry(): void {
     entries: [
       // ── Built-in patterns ──────────────────────────────────────────────
       {
-        id: "case-analysis",
-        name: "Case Analysis",
+        id: "project-analysis",
+        name: "Project Analysis",
         description: "Structured professional project analysis analysis with frameworks",
         author: "LeoMaslyak",
         version: "1.0.0",
@@ -536,7 +536,7 @@ function ensureBundledRegistry(): void {
       {
         id: "finance",
         name: "Finance Pack",
-        description: "your organization Finance I & II: DCF, ratios, LBO, valuation frameworks",
+        description: "Finance workflows: DCF, ratios, LBO, valuation frameworks",
         author: "LeoMaslyak",
         version: "1.0.0",
         tags: ["finance", "professional", "digital-seed", "valuation"],
@@ -547,7 +547,7 @@ function ensureBundledRegistry(): void {
       {
         id: "strategy",
         name: "Strategy Pack",
-        description: "your organization Strategy: Porter, BCG, competitive dynamics, M&A",
+        description: "Strategy workflows: Porter, BCG, competitive dynamics, M&A",
         author: "LeoMaslyak",
         version: "1.0.0",
         tags: ["strategy", "professional", "digital-seed", "frameworks"],
@@ -558,7 +558,7 @@ function ensureBundledRegistry(): void {
       {
         id: "operations",
         name: "Operations Pack",
-        description: "your organization Operations: process analysis, supply chain, lean",
+        description: "Operations workflows: process analysis, supply chain, lean",
         author: "LeoMaslyak",
         version: "1.0.0",
         tags: ["operations", "professional", "digital-seed", "process"],
@@ -586,7 +586,7 @@ function flag(name: string): string | undefined {
 
 if (!cmd || cmd === "help" || cmd === "--help") {
   console.log(`
-DAI Pattern Marketplace
+Digital Seed Pattern Marketplace
 
   bun run marketplace list [--search <q>] [--tag <tag>]
   bun run marketplace info <id>

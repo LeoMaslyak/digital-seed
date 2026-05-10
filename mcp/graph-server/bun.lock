@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@dai/graph-server",
+      "name": "@digital-seed/graph-server",
       "dependencies": {
         "@modelcontextprotocol/sdk": "^1.0.0",
       },

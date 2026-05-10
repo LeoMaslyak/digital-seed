@@ -43,7 +43,7 @@ function HeroCard({ icon, kicker, title, subLabel, children, ctaLabel, accent, o
 }
 
 function HeroRow({ onQueue }) {
-  const [deck, setDeck] = useStateH({ topic: '', kind: 'Case' });
+  const [deck, setDeck] = useStateH({ topic: '', kind: 'Project' });
   const [xl, setXl] = useStateH({ topic: '', kind: 'DCF' });
   const [agentText, setAgentText] = useStateH('');
 
@@ -57,7 +57,7 @@ function HeroRow({ onQueue }) {
       <HeroCard
         icon={<Icon.Slides size={18} />}
         kicker="PRESENT"
-        title="Case Deck"
+        title="Project Deck"
         accent="1"
         subLabel="Uploads to Google Slides automatically"
         ctaLabel="Generate"
@@ -65,12 +65,12 @@ function HeroRow({ onQueue }) {
       >
         <input
           className="input"
-          placeholder="Case name or topic…"
+          placeholder="Project name or topic…"
           value={deck.topic}
           onChange={e => setDeck({...deck, topic: e.target.value})}
         />
         <select className="select" value={deck.kind} onChange={e => setDeck({...deck, kind: e.target.value})}>
-          <option>Case</option>
+          <option>Project</option>
           <option>Strategy</option>
           <option>Finance</option>
         </select>
@@ -94,7 +94,7 @@ function HeroRow({ onQueue }) {
         <select className="select" value={xl.kind} onChange={e => setXl({...xl, kind: e.target.value})}>
           <option>DCF</option>
           <option>Ratios</option>
-          <option>Case Model</option>
+          <option>Project Model</option>
         </select>
       </HeroCard>
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Task Runner — Execute a scheduled autonomous task.
+ * Digital Seed Task Runner — Execute a scheduled autonomous task.
  *
  * Called by the scheduler (cron/launchd). Checks autonomy permissions,
  * queues the task prompt for the next agent session, and logs the decision.
@@ -47,7 +47,7 @@ const TASK_LIBRARY: Record<string, TaskDefinition> = {
     description: "Classify and prioritise inbox",
     priority: "normal",
     prompt: `Triage the inbox automatically.
-1. Use the email integration (or dai-tasks if no email is connected) to list recent emails
+1. Use the email integration (or seed-tasks if no email is connected) to list recent emails
 2. Classify each as: urgent/important, important/not-urgent, fyi, or trash
 3. Flag anything urgent for the user
 4. Archive or label the rest
@@ -77,7 +77,7 @@ Goal: keep MEMORY.md accurate, compact, and up-to-date.`,
     prompt: `Generate today's daily digest.
 1. Read today's autonomous actions from logs/autonomous.jsonl
 2. Check data/pending-tasks.json for anything that couldn't run
-3. Review any completed tasks from dai-tasks
+3. Review any completed tasks from seed-tasks
 4. Generate a short, friendly summary (3-7 bullets):
    - What was done automatically
    - Any issues or failures
@@ -98,7 +98,7 @@ Deliver the digest to the user (send as a message if a channel is configured).`,
    - Links to related notes or resources
    - Structure improvements (add headers, bullets)
 3. Prepare suggestions (don't auto-apply — this is notify mode by default)
-4. Queue suggestions as tasks in dai-tasks for the user to review`,
+4. Queue suggestions as tasks in seed-tasks for the user to review`,
   },
 
   "task-reminders": {
@@ -107,7 +107,7 @@ Deliver the digest to the user (send as a message if a channel is configured).`,
     description: "Surface tasks due soon",
     priority: "high",
     prompt: `Check for upcoming task deadlines.
-1. List all tasks from dai-tasks
+1. List all tasks from seed-tasks
 2. Flag anything due today or tomorrow
 3. Flag anything overdue
 4. If anything is urgent, notify the user immediately

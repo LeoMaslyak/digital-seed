@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Token Report — View token usage across providers.
+ * Digital Seed Token Report — View token usage across providers.
  */
 
 import { existsSync, readFileSync } from "fs";
@@ -29,7 +29,7 @@ function loadUsage(): TokenUsage {
 
 const usage = loadUsage();
 
-console.log("\n💰 DAI Token Usage Report\n");
+console.log("\n💰 Digital Seed Token Usage Report\n");
 
 if (usage.total === 0) {
   console.log("  No usage recorded yet. Start using your AI agent to see stats here.");

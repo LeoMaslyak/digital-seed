@@ -1,6 +1,6 @@
 # Finance Pack
 
-**your organization Finance I & II support**
+**Finance workflows support**
 
 ## What's included
 
@@ -13,8 +13,8 @@
 - `study.yaml` — Finance-tuned study specialist
 
 **Templates:**
-- `project-analysis.md` — Structured case analysis template
-- `learning-prep.md` — Formula sheet + learning checkpoint strategy
+- `project-analysis.md` — Structured project analysis template
+- `learning-prep.md` — Formula sheet + learning strategy
 
 ## Install
 
@@ -25,7 +25,7 @@ bun run marketplace install pack:finance
 ## Usage
 
 ```
-Tell me the DCF value of Nestlé given: Revenue €95B, EBIT margin 16%,
+Tell me the DCF value of a sample company given: Revenue €95B, EBIT margin 16%,
 WACC 8%, terminal growth 2%, capex 3% of revenue.
 ```
 

@@ -1,6 +1,6 @@
-# DAI Cockpit
+# Digital Seed Cockpit
 
-A slick dark-mode dashboard for your Digital Seed. Open it every morning to see your tasks, queue AI jobs, and launch case decks or Excel models in one click.
+A slick dark-mode dashboard for your Digital Seed. Open it every morning to see your tasks, queue AI jobs, and launch project decks or Excel models in one click.
 
 ## Start it
 
@@ -18,7 +18,7 @@ Everything is in plain JSX files — no build step, no compilation, no framework
 |---|---|
 | `dai/topbar.jsx` | Your name, initials, session clock |
 | `dai/middle.jsx` | Your identity chips and USER.md summary quote |
-| `dai/lower.jsx` | Domain packs, study group members, token budget cap |
+| `dai/lower.jsx` | Domain packs, learning group members, token budget cap |
 | `dai/footer.jsx` | Integration pills (add/remove services) |
 | `dai/hero.jsx` | Deck and Excel model dropdown options |
 | `dai/app.jsx` | Greeting name, daily schedule line |
@@ -31,14 +31,14 @@ Hit `⌘T` (or `Ctrl+T`) to open the Tweaks panel. Switch between teal, amber, a
 
 ## Live data
 
-The dashboard pulls real data from your DAI system:
+The dashboard pulls real data from your Digital Seed system:
 
 | Source | File it reads |
 |---|---|
 | Active tasks | `data/tasks.json` |
 | Token usage | `data/token-usage.json` |
 | RAG index size | `data/rag-index.json` |
-| Knowledge Base sync | `data/knowledge base-meta.json` |
+| Knowledge Index sync | `data/knowledge-base-meta.json` |
 | User goals | `user/GOALS.md` |
 
 If a file doesn't exist yet, the dashboard shows sensible demo data. Nothing breaks.

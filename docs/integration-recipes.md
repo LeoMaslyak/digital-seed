@@ -17,7 +17,7 @@ Each recipe should answer:
 Use for:
 
 - personal notes
-- knowledge base
+- knowledge index
 - project logs
 - learning notes
 

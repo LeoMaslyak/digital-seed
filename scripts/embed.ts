@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Embedding Pipeline
+ * Digital Seed Embedding Pipeline
  *
  * Usage:
  *   bun run embed              — Index all configured paths
@@ -419,7 +419,7 @@ if (args.includes("--status")) {
 
 const config = loadConfig();
 
-console.log("DAI Embedding Pipeline");
+console.log("Digital Seed Embedding Pipeline");
 console.log(`Provider: ${config.provider} (${config.model})`);
 console.log(`Paths:    ${config.paths.join(", ")}`);
 

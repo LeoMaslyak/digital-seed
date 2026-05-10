@@ -1,5 +1,5 @@
 /**
- * DAI Core — Entry point for all core modules.
+ * Digital Seed Core — Entry point for all core modules.
  */
 
 export * from "./context-router.js";

@@ -1,6 +1,6 @@
 # Claude Code Integration
 
-Claude Code is the recommended agent for Digital Seed. It supports MCP natively.
+Claude Code is one strong option for Digital Seed because it supports MCP natively. Other terminal-capable agents can also install and use the kit.
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ Claude Code will automatically:
 
 ## Customizing
 
-Edit `.claude/CLAUDE.md` to change how Claude Code behaves. For learning checkpointple:
+Edit `.claude/CLAUDE.md` to change how Claude Code behaves. For example:
 - Add domain-specific instructions
 - Change the communication style
 - Add or remove capabilities

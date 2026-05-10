@@ -6,7 +6,7 @@ All notable changes to Digital Seed will be documented in this file.
 ### Added
 - Excel template generator: `bun run seed excel dcf|ratios|case`
 - Slide deck generator: `bun run seed deck case|strategy|finance`
-- `--fill` mode: AI-generated case-specific deck content (model-agnostic)
+- `--fill` mode: AI-generated topic-specific deck content (model-agnostic)
 - `scripts/lib/ai-call.ts`: provider detection chain (Claude → OpenAI → Gemini → direct API)
 - Knowledge graph seeding from setup wizard (`scripts/seed-graph.ts`)
 - Setup wizard now collects real goals in Step 4
@@ -17,7 +17,7 @@ All notable changes to Digital Seed will be documented in this file.
 - Initial release
 - Core CLI (`bun run seed`)
 - Pattern marketplace with 7 patterns + 3 skill packs
-- Collaboration layer (shared projects + study groups)
+- Collaboration layer (shared projects + learning groups)
 - Daily digest
 - Knowledge graph MCP server
 - Activity state detection

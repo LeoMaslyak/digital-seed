@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Import — Restore from a portable archive.
+ * Digital Seed Import — Restore from a portable archive.
  */
 
 import { execSync } from "child_process";
@@ -20,7 +20,7 @@ if (!existsSync(archive)) {
   process.exit(1);
 }
 
-console.log(`📦 DAI Import: ${archive}\n`);
+console.log(`📦 Digital Seed Import: ${archive}\n`);
 
 try {
   execSync(`cd "${ROOT}" && tar -xzf "${archive}"`, { stdio: "inherit" });

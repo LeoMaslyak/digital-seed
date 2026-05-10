@@ -1,6 +1,6 @@
 # Strategy Pack
 
-**your organization Business Policy & Competitive Strategy support**
+**your context Business Policy & Competitive Strategy support**
 
 ## What's included
 

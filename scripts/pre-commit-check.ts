@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Pre-Commit Boundary Check
+ * Digital Seed Pre-Commit Boundary Check
  *
  * Called automatically by .git/hooks/pre-commit.
  * Validates that staged files don't contain personal data or violate the

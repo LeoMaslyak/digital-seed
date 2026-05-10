@@ -1,5 +1,5 @@
 {
-  "name": "@dai/memory-server",
+  "name": "@digital-seed/memory-server",
   "version": "0.1.0",
   "description": "File-backed persistent memory MCP server",
   "type": "module",

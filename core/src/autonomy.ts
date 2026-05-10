@@ -1,5 +1,5 @@
 /**
- * DAI Autonomy Engine — Permission checking, audit logging, and daily digest.
+ * Digital Seed Autonomy Engine — Permission checking, audit logging, and daily digest.
  *
  * Every autonomous action flows through this module:
  *   1. Load config from config/autonomy.yaml
@@ -82,12 +82,12 @@ const DATA_DIR      = "data";
 export function loadAutonomyConfig(root: string): AutonomyConfig {
   const path = join(root, CONFIG_FILE);
   if (!existsSync(path)) {
-    // Auto-bootstrap: copy learning checkpointple config if present, otherwise use defaults
-    const learning checkpointplePath = join(root, 'config', 'autonomy.learning checkpointple.yaml');
-    if (existsSync(learning checkpointplePath)) {
+    // Auto-bootstrap: copy example config if present, otherwise use defaults
+    const examplePath = join(root, 'config', 'autonomy.example.yaml');
+    if (existsSync(examplePath)) {
       mkdirSync(join(root, 'config'), { recursive: true });
       const { copyFileSync } = require('fs');
-      copyFileSync(learning checkpointplePath, path);
+      copyFileSync(examplePath, path);
     } else {
       return getDefaultConfig();
     }
@@ -311,7 +311,7 @@ ${pendingText}
 
 Write a brief, friendly digest (3–8 bullet points). Format:
 - What was done automatically (keep it short, not exhaustive)
-- Any issues or failures to flag  
+- Any issues or failures to flag
 - Pending tasks waiting to run
 - One sentence: suggested focus for tomorrow
 

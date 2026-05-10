@@ -8,8 +8,8 @@ These ship with the starter kit:
 
 | Server | Port | Description |
 |--------|------|-------------|
-| `dai-memory` | stdio | Persistent memory across sessions |
-| `dai-tasks` | stdio | Task management + dashboard feed |
+| `seed-memory` | stdio | Persistent memory across sessions |
+| `seed-tasks` | stdio | Task management + dashboard feed |
 
 ## Adding Community Servers
 
@@ -20,7 +20,7 @@ These ship with the starter kit:
 
 ## Creating Your Own
 
-See the `memory-server/` and `tasks-server/` as learning checkpointples. An MCP server needs:
+See the `memory-server/` and `tasks-server/` as examples. An MCP server needs:
 
 1. A `package.json` with `@modelcontextprotocol/sdk` as a dependency
 2. A `src/index.ts` that creates a Server, registers tools, and connects via stdio

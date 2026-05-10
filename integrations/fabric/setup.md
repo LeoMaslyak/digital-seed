@@ -1,6 +1,6 @@
 # Fabric Integration
 
-Use Daniel Miessler's [Fabric](https://github.com/danielmiessler/fabric) patterns alongside DAI.
+Use Daniel Miessler's [Fabric](https://github.com/danielmiessler/fabric) patterns alongside Digital Seed.
 
 ## Install Fabric
 
@@ -18,9 +18,9 @@ go install github.com/danielmiessler/fabric@latest
 fabric --setup
 ```
 
-This will configure your model providers (same API keys as DAI).
+This will configure your model providers (same API keys as your AI tools).
 
-## Using Fabric Patterns with DAI
+## Using Fabric Patterns with Digital Seed
 
 Fabric has 252+ patterns. Use them directly from the CLI:
 
@@ -41,10 +41,10 @@ Or reference them from your AI agent:
 "Use the Fabric 'extract_wisdom' pattern on this article"
 ```
 
-## DAI vs Fabric Patterns
+## Digital Seed vs Fabric Patterns
 
-DAI includes its own patterns in `patterns/` that are complementary:
-- DAI patterns are structured for MCP-connected agents (read context, use tools)
+Digital Seed includes its own patterns in `patterns/` that are complementary:
+- Digital Seed patterns are structured for MCP-connected agents (read context, use tools)
 - Fabric patterns are designed for CLI piping (stdin → stdout)
 
 Use both — they work together.

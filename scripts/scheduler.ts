@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Scheduler — Cross-platform scheduled task setup.
+ * Digital Seed Scheduler — Cross-platform scheduled task setup.
  *
  * Detects your OS and generates the right scheduler config:
  *   macOS  → launchd plists in ~/Library/LaunchAgents/
@@ -38,7 +38,7 @@ interface ScheduledTask {
 
 const DEFAULT_TASKS: ScheduledTask[] = [
   {
-    id: "dai-email-triage",
+    id: "seed-email-triage",
     name: "email-triage",
     category: "email-triage",
     description: "Classify and prioritise incoming emails",
@@ -46,7 +46,7 @@ const DEFAULT_TASKS: ScheduledTask[] = [
     launchdCalendar: { Hour: 9, Minute: 0 }, // launchd runs at 9am (simplified; edit plist for multiple)
   },
   {
-    id: "dai-memory-maintenance",
+    id: "seed-memory-maintenance",
     name: "memory-maintenance",
     category: "memory-maintenance",
     description: "Compress old sessions, update MEMORY.md with durable facts",
@@ -54,7 +54,7 @@ const DEFAULT_TASKS: ScheduledTask[] = [
     launchdCalendar: { Hour: 23, Minute: 0 },
   },
   {
-    id: "dai-daily-digest",
+    id: "seed-daily-digest",
     name: "daily-digest",
     category: "daily-digest",
     description: "Generate end-of-day summary of autonomous actions",
@@ -62,7 +62,7 @@ const DEFAULT_TASKS: ScheduledTask[] = [
     launchdCalendar: { Hour: 21, Minute: 0 },
   },
   {
-    id: "dai-note-organization",
+    id: "seed-note-organization",
     name: "note-organization",
     category: "note-organization",
     description: "Suggest tags, links, and structure for new notes",
@@ -70,7 +70,7 @@ const DEFAULT_TASKS: ScheduledTask[] = [
     launchdCalendar: { Hour: 22, Minute: 0 },
   },
   {
-    id: "dai-task-reminders",
+    id: "seed-task-reminders",
     name: "task-reminders",
     category: "task-reminders",
     description: "Check for tasks due soon and surface them",
@@ -232,7 +232,7 @@ function showStatus(tasks: ScheduledTask[]): void {
   const platform = detectPlatform();
   const config = loadAutonomyConfig(ROOT);
 
-  console.log("\n🗓  DAI Scheduler Status\n");
+  console.log("\n🗓  Digital Seed Scheduler Status\n");
   console.log(`Platform: ${platform}`);
   console.log(`Config:   ${ROOT}/config/autonomy.yaml\n`);
 

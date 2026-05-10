@@ -11,7 +11,7 @@ patterns:
 
 tools:
   - rag_search
-  - dai-memory
+  - seed-memory
   - read
 
 systemPrompt: |

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Repo Bot CLI
+ * Digital Seed Repo Bot CLI
  *
  * Usage:
  *   bun run repo-bot learn <owner/repo> [--token <PAT>] [--max-files 40] [--branch main]
@@ -24,7 +24,7 @@ function flag(name: string): string | undefined {
 
 if (!cmd || cmd === "help" || cmd === "--help") {
   console.log(`
-DAI Repo Bot — learn any GitHub repo
+Digital Seed Repo Bot — learn any GitHub repo
 
   bun run repo-bot learn <owner/repo> [--token <PAT>] [--max-files 40] [--branch main]
   bun run repo-bot list

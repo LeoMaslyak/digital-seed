@@ -16,6 +16,8 @@
 
 Digital Seed is a guide and starter kit for people who want more than a chatbot.
 
+Audit note: after an independent hostile audit, cleanup actions are tracked in [`docs/audit-response-2026-05-10.md`](docs/audit-response-2026-05-10.md).
+
 You do not need another platform. Digital Seed gives your tools a shared personal context and a map for connecting them safely.
 
 It helps you understand and assemble your own personal AI infrastructure: context files, memory, task tracking, local tools, research patterns, integrations, and an onboarding process that teaches your assistant who you are and what you are trying to build.
@@ -105,10 +107,10 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 ## Recommended first hour
 
 1. Run `./setup.sh`.
-2. Fill in `user/USER.md`, `user/COMPASS.md`, and `user/GOALS.md`.
-3. Add your current projects and responsibilities to `user/DOMAINS.md`.
-4. Start your agent in this repo.
-5. Ask it to interview you and improve the context files.
+2. Run `bun run seed doctor` to check the setup.
+3. Run `bun run seed first-prompt` and paste that into your terminal-capable AI agent.
+4. Fill in `user/USER.md`, `user/COMPASS.md`, and `user/GOALS.md`.
+5. Add one useful integration recipe with `bun run seed recipe list`.
 6. Use it on one real problem immediately.
 
 ## Helpful guides
@@ -119,9 +121,11 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 - [Setup Wizard](docs/setup-wizard.md)
 - [Agent Chooser](docs/agent-chooser.md)
 - [Integration Recipes](docs/integration-recipes.md)
+- [Recipe Skeletons](recipes/README.md)
 - [Personal AI Governance](docs/governance.md)
 - [First Session Prompt](docs/first-session-prompt.md)
 - [Hostile Audit](docs/hostile-audit-2026-05-10.md)
+- [Audit Response](docs/audit-response-2026-05-10.md)
 
 ## Example prompts
 

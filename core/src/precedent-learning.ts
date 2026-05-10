@@ -1,5 +1,5 @@
 /**
- * DAI Precedent Learning — Track human approvals/rejections of autonomous actions.
+ * Digital Seed Precedent Learning — Track human approvals/rejections of autonomous actions.
  *
  * Over time, builds confidence profiles per action category. When a category
  * reaches ≥95% approval with ≥8 samples, it can be auto-promoted to a higher

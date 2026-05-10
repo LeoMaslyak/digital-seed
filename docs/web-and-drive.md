@@ -10,7 +10,7 @@ These commands let you **grab content from the web** and **manage files** — al
 
 ## Why professional users should care
 
-- **Case research**: Quickly grab company news, financial data, or industry reports as clean text
+- **Project research**: Quickly grab company news, financial data, or industry reports as clean text
 - **Bulk reading**: Save a list of article URLs and fetch them all at once
 - **Paper downloads**: Download PDFs or datasets from domain materials in bulk
 - **AI summaries**: Fetch a long article and get an instant AI summary
@@ -24,20 +24,20 @@ These commands let you **grab content from the web** and **manage files** — al
 
 ```bash
 # Get clean text from any URL
-bun run seed web fetch https://learning checkpointple.com/article
+bun run seed web fetch https://example.com/article
 
 # Fetch + get an AI summary
-bun run seed web fetch https://learning checkpointple.com/article --summarize
+bun run seed web fetch https://example.com/article --summarize
 ```
 
 ### Scrape specific data
 
 ```bash
 # Extract all h2 headings from a page
-bun run seed web scrape https://learning checkpointple.com --selector h2
+bun run seed web scrape https://example.com --selector h2
 
 # Extract table rows, output as JSON
-bun run seed web scrape https://learning checkpointple.com --selector "table tr" --json
+bun run seed web scrape https://example.com --selector "table tr" --json
 ```
 
 ### Bulk operations
@@ -46,9 +46,9 @@ Create a text file with one URL per line:
 
 ```
 # urls.txt — my research list
-https://learning checkpointple.com/article-1
-https://learning checkpointple.com/article-2
-https://learning checkpointple.com/report.pdf
+https://example.com/article-1
+https://example.com/article-2
+https://example.com/report.pdf
 ```
 
 Then:
@@ -72,20 +72,20 @@ bun run seed web bulk urls.txt --summarize
 ```bash
 # Search the web and get an AI-powered summary
 bun run seed web research "Porter's five forces airline industry"
-bun run seed web research "Inditex sustainability strategy 2025"
+bun run seed web research "personal knowledge system setup"
 ```
 
 ### Google Drive
 
 ```bash
 # Upload a file
-bun run seed drive upload exports/case-deck-2026-03-20.pptx
+bun run seed drive upload exports/project-deck-2026-03-20.pptx
 
 # Download a file from a URL
-bun run seed drive download https://learning checkpointple.com/report.pdf
+bun run seed drive download https://example.com/report.pdf
 
 # Download + immediately upload to Drive
-bun run seed drive download https://learning checkpointple.com/report.pdf --drive
+bun run seed drive download https://example.com/report.pdf --drive
 
 # Bulk download from a URL list
 bun run seed drive bulk urls.txt --drive

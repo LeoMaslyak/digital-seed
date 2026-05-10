@@ -76,9 +76,9 @@ bun run setup
 
 | Pack | Patterns | Agent | Templates |
 |------|----------|-------|-----------|
-| Finance | DCF analysis, ratio analysis, LBO primer | Finance specialist (threshold 0.82) | Case study, learning prep |
-| Strategy | Five Forces, BCG Matrix, Competitive Dynamics | Strategy specialist | Case study, learning prep |
-| Operations | Process Analysis, Supply Chain | Operations specialist | Case study, learning prep |
+| Finance | DCF analysis, ratio analysis, LBO primer | Finance specialist (threshold 0.82) | Project workflow, learning prep |
+| Strategy | Five Forces, BCG Matrix, Competitive Dynamics | Strategy specialist | Project workflow, learning prep |
+| Operations | Process Analysis, Supply Chain | Operations specialist | Project workflow, learning prep |
 
 **Q: Can I modify the pack patterns?**
 Yes — they're just markdown files in `patterns/<name>/system.md`. Edit them directly. Your changes don't affect other club members' installations.
@@ -95,7 +95,7 @@ bun run marketplace publish my-pattern  # generates PR to share with everyone
 
 ## Collaboration
 
-**Q: How does the study group feature work?**
+**Q: How does the learning group feature work?**
 Each member runs their own kit instance. You add your analysis to the shared `collab/study-groups/<group>/members/<you>.md` file. The system auto-merges everyone's contributions into `context.md`. Your personal files (`user/`, `data/`) are never part of the merge.
 
 **Q: What's the pre-commit hook doing?**
@@ -108,7 +108,7 @@ Yes: `git commit --no-verify`. Use this only in emergencies — the hook is ther
 ```bash
 bun run collab check
 ```
-Shows exactly what pattern matched and the surrounding text. Common false positives: timestamps that look like phone numbers (we've tuned this), or file paths in code learning checkpointples (use relative paths in shared content).
+Shows exactly what pattern matched and the surrounding text. Common false positives: timestamps that look like phone numbers (we've tuned this), or file paths in code examples (use relative paths in shared content).
 
 ---
 
@@ -159,7 +159,7 @@ Token tracking starts automatically after your first agent interaction. Run `bun
 4. Open a PR to `LeoMaslyak/digital-seed`
 
 **Q: How do I contribute a skill pack?**
-Copy an existing pack from `packs/`, customise it, and add an entry to `data/registry.json`. Open a PR — packs are warmly welcomed, especially for your organization domains not yet covered.
+Copy an existing pack from `packs/`, customise it, and add an entry to `data/registry.json`. Open a PR — packs are warmly welcomed, especially for community domains not yet covered.
 
 **Q: Something's broken — how do I report it?**
 Open an issue at [github.com/LeoMaslyak/digital-seed](https://github.com/LeoMaslyak/digital-seed/issues). Include: your OS, Bun version (`bun --version`), and the exact error message.

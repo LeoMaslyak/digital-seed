@@ -1,8 +1,8 @@
 # Operations Project Analysis — [Company / Process]
 
-**Domain:** Operations Management  
-**Date:**  
-**Team:**  
+**Domain:** Operations Management
+**Date:**
+**Team:**
 
 ---
 
@@ -14,7 +14,7 @@
 |------|----------|-------------|-------------|
 | | | | |
 
-**Effective throughput:**  
+**Effective throughput:**
 **Bottleneck:**
 
 ## 3. Current State KPIs

@@ -1,5 +1,5 @@
 {
-  "name": "@dai/core",
+  "name": "@digital-seed/core",
   "version": "0.1.0",
   "description": "Digital Seed core library",
   "type": "module",

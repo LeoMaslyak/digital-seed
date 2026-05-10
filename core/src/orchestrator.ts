@@ -1,5 +1,5 @@
 /**
- * DAI Multi-Layer Agent Orchestrator
+ * Digital Seed Multi-Layer Agent Orchestrator
  *
  * Three-layer architecture:
  *
@@ -39,7 +39,7 @@ import { runWithQuality, llmJudge, type LLMCallFn, type QualityReport } from "./
 
 export type SpecialistCategory =
   | "research"   // Web research, synthesis, source analysis
-  | "study"      // learning and knowledge work, case analysis, learning prep
+  | "study"      // learning and knowledge work, project analysis, learning prep
   | "email"      // Email drafting, triage, replies
   | "writing"    // Essays, reports, documents
   | "code"       // Programming, debugging, code review
@@ -121,7 +121,7 @@ const ROUTING_SIGNALS: Record<SpecialistCategory, RegExp[]> = {
     /\b(source|article|paper|study|evidence|fact.?check|verify)\b/i,
   ],
   study: [
-    /\b(case|digital-seed|professional|knowledge work|learning checkpoint|domain|study|source|mentor)\b/i,
+    /\b(case|digital-seed|professional|knowledge work|learning|domain|study|source|mentor)\b/i,
     /\b(finance|strategy|marketing|accounting|operations|economics|ob)\b/i,
     /\b(analyze this case|framework|swot|porter|bcg|3c|prepare for)\b/i,
     /\b(assignment|homework|thesis|dissertation|academic)\b/i,
@@ -507,7 +507,7 @@ function getDefaultConfig(category: SpecialistCategory): AgentConfig {
     description: getCategoryDescription(category),
     systemPrompt: "You are a helpful assistant. Be accurate, clear, and concise.",
     patterns: [],
-    tools: ["rag_search", "dai-memory"],
+    tools: ["rag_search", "seed-memory"],
     qualityThreshold: 0.7,
     maxRetries: 2,
   };
@@ -516,7 +516,7 @@ function getDefaultConfig(category: SpecialistCategory): AgentConfig {
 function getCategoryDescription(category: SpecialistCategory): string {
   const descriptions: Record<SpecialistCategory, string> = {
     research: "Web research, synthesis, and source analysis",
-    study: "learning and knowledge work, case analysis, and learning prep",
+    study: "learning and knowledge work, project analysis, and learning prep",
     email: "Email drafting, triage, and replies",
     writing: "Essays, reports, and structured documents",
     code: "Programming, debugging, and code review",

@@ -15,8 +15,8 @@
 ## Likely Question Types
 1. Quick valuation: given EBITDA and multiple, what's EV?
 2. Capital structure: optimal D/E given tax shield vs distress cost
-3. Case analysis: identify key financial risk in case X
+3. Project analysis: identify key financial risk in project X
 
 ## My Weak Areas
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]

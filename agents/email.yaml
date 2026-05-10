@@ -9,7 +9,7 @@ patterns:
   - email-triage
 
 tools:
-  - dai-memory
+  - seed-memory
   - read
 
 systemPrompt: |

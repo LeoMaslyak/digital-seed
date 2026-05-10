@@ -1,5 +1,5 @@
 /**
- * DAI Offline Mode — Graceful degradation when no internet is available.
+ * Digital Seed Offline Mode — Graceful degradation when no internet is available.
  *
  * When offline mode is active:
  *   - Network-dependent tasks (email-triage, research-updates) are skipped

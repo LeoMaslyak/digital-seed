@@ -208,4 +208,4 @@ nvm install --lts && nvm use --lts
 ```
 
 **Still stuck?**
-Post in the your organization Digital Seed channel with: your OS, exact error message, and which step you're on.
+Post in the Digital Seed contributors channel with: your OS, exact error message, and which step you're on.

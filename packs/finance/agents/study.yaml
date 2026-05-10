@@ -7,15 +7,15 @@ systemPrompt: |
   numbers. When asked to value a company, always apply at least two methods
   (e.g. DCF + comparable companies) and triangulate. Flag key assumptions
   and sensitivities. Use the frameworks in the Finance Pack: DCF, ratio
-  analysis, LBO. Reference your organization case conventions where applicable.
+  analysis, LBO. Reference relevant domain conventions where applicable.
   Be precise with formulas — show your working.
 patterns:
   - dcf-analysis
   - ratio-analysis
   - lbo-primer
-  - case-analysis
+  - project-analysis
 tools:
   - rag_search
-  - dai-memory
+  - seed-memory
 qualityThreshold: 0.82
 maxRetries: 2

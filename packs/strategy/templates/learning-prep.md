@@ -20,5 +20,5 @@
 3. Is [company]'s competitive advantage sustainable? Apply VRIO.
 
 ## My Weak Areas
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]

@@ -1,8 +1,8 @@
 # Finance Project Analysis — [Company Name]
 
-**Domain:** Finance I / II  
-**Date:**  
-**Team:**  
+**Domain:** Finance I / II
+**Date:**
+**Team:**
 
 ---
 
@@ -31,5 +31,5 @@
 *(Clear, defensible, 2–3 sentences)*
 
 ## 6. Questions to Expect in Class
-- 
-- 
+-
+-

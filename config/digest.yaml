@@ -1,4 +1,4 @@
-# DAI Daily Digest Configuration
+# Digital Seed Daily Digest Configuration
 enabled: true
 schedule: "21:00"   # 24h local time
 

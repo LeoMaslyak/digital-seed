@@ -44,7 +44,7 @@ function IntegrationRow() {
     { status: health ? 'ok' : 'warn', name: 'Claude Code',   detail: health ? `Connected · ${health.claudeVersion || 'v1.x'}` : 'Checking…' },
     { status: health?.memory  ? 'ok' : 'warn', name: 'Memory Server', detail: health?.memory  ? 'Active' : 'Not started' },
     { status: health?.rag     ? 'ok' : 'warn', name: 'RAG Index',     detail: health?.ragDocs  ? `${health.ragDocs} docs` : '—' },
-    { status: health?.knowledge base ? 'ok' : 'warn', name: 'Knowledge Base',  detail: health?.knowledge baseSyncAge || 'Synced' },
+    { status: health?.knowledgeBase ? 'ok' : 'warn', name: 'Knowledge Index',  detail: health?.knowledgeBaseSyncAge || 'Synced' },
     { status: 'mute',                           name: 'PAI Bridge',    detail: 'Not configured' },
   ];
 

@@ -1,5 +1,5 @@
 /**
- * DAI Context Router — Intelligently decides where new information should be stored.
+ * Digital Seed Context Router — Intelligently decides where new information should be stored.
  *
  * Routes information to the correct file based on content classification:
  *   - Identity facts → USER.md

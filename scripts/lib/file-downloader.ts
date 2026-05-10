@@ -209,7 +209,7 @@ export async function downloadAndUpload(
   url: string,
   opts: DownloadOptions = {},
 ): Promise<string | null> {
-  const tmpDir = join(process.env.TMPDIR ?? "/tmp", "dai-downloads");
+  const tmpDir = join(process.env.TMPDIR ?? "/tmp", "digital-seed-downloads");
   const localPath = await downloadFile(url, tmpDir, opts);
   return uploadToDrive(localPath);
 }

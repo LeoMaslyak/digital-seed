@@ -1,6 +1,6 @@
 # Collaboration Space
 
-This directory contains shared project and study group content.
+This directory contains shared project and learning group content.
 It is **git-tracked** and safe to commit — no personal data lives here.
 
 ## What lives here
@@ -24,13 +24,13 @@ The pre-commit hook enforces this boundary automatically.
 bun run collab hook install
 
 # Create a shared project
-bun run collab create "IKEA Case" --desc "Strategy case analysis" --members alice,bob
+bun run collab create "Sample Project" --desc "Strategy project analysis" --members alice,bob
 
 # Add a note
-bun run collab note ikea-case "Porter's Five Forces: medium rivalry..." --author alice
+bun run collab note sample-project "Porter's Five Forces: medium rivalry..." --author alice
 
-# Create a study group
-bun run collab group create "Finance Group A" --domain "Finance I" --case "Nestlé Valuation"
+# Create a learning group
+bun run collab group create "Finance Group A" --domain "Finance I" --topic "Project Analysis"
 
 # Add your analysis
 bun run collab group add finance-group-a alice "DCF terminal value assuming 2% growth..."

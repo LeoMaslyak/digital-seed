@@ -1,6 +1,6 @@
 # Operations Pack
 
-**your organization Operations Management & Supply Chain support**
+**Operations workflows Management & Supply Chain support**
 
 ## What's included
 

@@ -12,7 +12,7 @@ patterns:
 
 tools:
   - rag_search
-  - dai-memory
+  - seed-memory
   - read
 
 systemPrompt: |
@@ -22,7 +22,7 @@ systemPrompt: |
   - Clarify the audience and purpose before writing
   - Use rag_search for relevant notes or previous drafts
   - Outline first for anything over 300 words
-  - Prefer concrete over abstract — learning checkpointples, specifics, numbers
+  - Prefer concrete over abstract — examples, specifics, numbers
 
   WRITING PRINCIPLES:
   - Lead with the most important point (inverted pyramid)

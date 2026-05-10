@@ -57,7 +57,7 @@ Every significant AI action is logged to `logs/audit.jsonl`:
 {
   "timestamp": "2026-03-18T10:00:00Z",
   "action": "email.draft",
-  "summary": "Drafted reply to john@learning checkpointple.com",
+  "summary": "Drafted reply to john@example.com",
   "model": "claude-sonnet-4-6",
   "tokens": 1250
 }

@@ -22,7 +22,7 @@
     ]
   },
   "mcpServers": {
-    "dai-memory": {
+    "seed-memory": {
       "command": "bun",
       "args": [
         "run",
@@ -30,7 +30,7 @@
       ],
       "env": {}
     },
-    "dai-tasks": {
+    "seed-tasks": {
       "command": "bun",
       "args": [
         "run",
@@ -38,7 +38,7 @@
       ],
       "env": {}
     },
-    "dai-rag": {
+    "seed-rag": {
       "command": "bun",
       "args": [
         "run",
@@ -46,7 +46,7 @@
       ],
       "env": {}
     },
-    "dai-graph": {
+    "seed-graph": {
       "command": "bun",
       "args": [
         "run",

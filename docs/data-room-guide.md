@@ -50,15 +50,15 @@ Digital Seed — Public Starter Kit/
 ## Must exclude
 
 - institution-specific workshop files
-- classroom, learning checkpoint, mentor, or user material
-- private personal learning checkpointples
+- classroom, learning, mentor, or user material
+- private personal examples
 - copyrighted domain/company cases
 - private Google Drive links
 - tokens, credentials, hidden config, personal IDs
 
-## Public learning checkpointples to use instead
+## Public examples to use instead
 
-Use generic learning checkpointples:
+Use generic examples:
 
 - freelancer building a client/project system
 - founder managing research, sales, product, and admin

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI RAG Server — Semantic search MCP server backed by LanceDB.
+ * Digital Seed RAG Server — Semantic search MCP server backed by LanceDB.
  *
  * Tools:
  *   - rag_search: Semantic search over embedded content
@@ -593,7 +593,7 @@ const embeddingsConfig = await loadEmbeddingsConfig();
 await initDB(embeddingsConfig);
 
 const server = new Server(
-  { name: "dai-rag", version: "0.2.0" },
+  { name: "seed-rag", version: "0.2.0" },
   { capabilities: { tools: {} } }
 );
 

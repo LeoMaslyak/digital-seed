@@ -1,5 +1,5 @@
 {
-  "name": "@dai/dashboard",
+  "name": "@digital-seed/dashboard",
   "version": "0.1.0",
   "description": "Local observability dashboard",
   "type": "module",

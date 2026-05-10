@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Export — Create a portable archive of your setup.
+ * Digital Seed Export — Create a portable archive of your setup.
  *
  * Exports: user context, patterns, config templates, MCP configs
  * Does NOT export: .env (secrets), data/ (runtime), node_modules/
@@ -13,17 +13,17 @@ import { join, dirname } from "path";
 const ROOT = join(dirname(new URL(import.meta.url).pathname), "..");
 const EXPORT_DIR = join(ROOT, "exports");
 const timestamp = new Date().toISOString().slice(0, 10);
-const archiveName = `dai-export-${timestamp}.tar.gz`;
+const archiveName = `digital-seed-export-${timestamp}.tar.gz`;
 
 if (!existsSync(EXPORT_DIR)) mkdirSync(EXPORT_DIR, { recursive: true });
 
-console.log("📦 DAI Export\n");
+console.log("📦 Digital Seed Export\n");
 
 // Files to include
 const includes = [
   "user/",
   "patterns/",
-  "config/autonomy.learning checkpointple.yaml",
+  "config/autonomy.example.yaml",
   ".claude/CLAUDE.md",
   ".claude/settings.json",
   "mcp/servers.json",

@@ -9,8 +9,8 @@ patterns:
   - weekly-review
 
 tools:
-  - dai-tasks
-  - dai-memory
+  - seed-tasks
+  - seed-memory
   - read
 
 systemPrompt: |

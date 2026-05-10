@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * DAI Tasks Server — MCP server for task management.
+ * Digital Seed Tasks Server — MCP server for task management.
  *
  * Tools:
  *   - tasks_list: List all tasks (with optional status filter)
@@ -55,7 +55,7 @@ function generateId(): string {
 // ─── Server ───
 
 const server = new Server(
-  { name: "dai-tasks", version: "0.1.0" },
+  { name: "seed-tasks", version: "0.1.0" },
   { capabilities: { tools: {} } }
 );
 

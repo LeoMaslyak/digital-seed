@@ -16,7 +16,7 @@ The cleanest mobile experience. Full terminal, persistent sessions.
 # Connect to your machine
 ssh your-machine
 
-# Run DAI commands normally
+# Run Digital Seed commands normally
 cd ~/digital-seed
 bun run digest --text       # mobile-safe output
 bun run collab group show finance-group-a
@@ -28,22 +28,22 @@ bun run marketplace list
 - `bun run collab summary` gives a quick overview without long output
 - Alias common commands in your `~/.zshrc`:
   ```bash
-  alias dai-status='bun run digest --text'
-  alias dai-check='bun run collab check'
+  alias seed-status='bun run digest --text'
+  alias seed-check='bun run collab check'
   ```
 
 ---
 
 ## Option 2: OpenClaw Mobile
 
-If you use [OpenClaw](https://github.com/openclaw/openclaw), your DAI kit is
+If you use [OpenClaw](https://github.com/openclaw/openclaw), your Digital Seed kit is
 accessible through any OpenClaw-connected channel (Telegram, WhatsApp, etc.).
 
-The `CLAUDE.md` agent instructions tell the agent how to use all DAI tools,
+The `CLAUDE.md` agent instructions tell the agent how to use all Digital Seed tools,
 so you can interact naturally:
 
 - *"Show me the daily digest"* → `bun run digest --text`
-- *"Add a note to IKEA project"* → `bun run collab note ikea "..."` 
+- *"Add a note to my project"* → `bun run collab note sample-project "..."`
 - *"What patterns are installed?"* → `bun run marketplace installed`
 
 The activity state detector (`core/src/activity-state.ts`) automatically
@@ -78,7 +78,7 @@ ssh your-machine-name
 
 **MCP over Tailscale:**
 If you run a remote Claude Code or another MCP client, you can expose the
-DAI MCP servers over Tailscale:
+Digital Seed MCP servers over Tailscale:
 ```bash
 # Start MCP servers bound to Tailscale interface
 DIGITAL_SEED_ROOT=~/digital-seed bun run mcp/memory-server/src/index.ts
@@ -90,7 +90,7 @@ DIGITAL_SEED_ROOT=~/digital-seed bun run mcp/memory-server/src/index.ts
 
 ## Option 4: VS Code Remote / Cursor SSH
 
-Edit and run DAI scripts remotely from VS Code or Cursor using their built-in
+Edit and run Digital Seed scripts remotely from VS Code or Cursor using their built-in
 SSH extension:
 
 1. Install "Remote - SSH" extension

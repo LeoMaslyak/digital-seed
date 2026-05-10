@@ -1,5 +1,5 @@
 /**
- * DAI Token Tracker — Track spending across providers with budget awareness.
+ * Digital Seed Token Tracker — Track spending across providers with budget awareness.
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";

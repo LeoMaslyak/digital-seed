@@ -1,5 +1,5 @@
 /**
- * DAI Interview Engine — Proactive onboarding and ongoing context building.
+ * Digital Seed Interview Engine — Proactive onboarding and ongoing context building.
  *
  * Two modes:
  *   1. Structured onboarding (first run) — walk through key questions
