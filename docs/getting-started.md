@@ -19,11 +19,15 @@ bun install -g @anthropic-ai/claude-code
 
 ## 2. Clone and run setup
 
+You can do this yourself:
+
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 ./setup.sh
 ```
+
+Or ask a terminal-capable AI agent to install it for you. See [Let an AI Agent Install Digital Seed For You](ai-agent-install.md).
 
 The setup wizard checks your tools, asks about your AI provider, creates your first context files, and installs dependencies.
 
@@ -48,7 +52,7 @@ claude
 Then ask:
 
 ```text
-Read my USER.md, COMPASS.md, GOALS.md, and DOMAINS.md. Interview me for missing context and improve the files.
+Read my USER.md, COMPASS.md, GOALS.md, and DOMAINS.md. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.
 ```
 
 ## 5. Use it on real work immediately

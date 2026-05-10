@@ -26,6 +26,9 @@ print_header() {
   echo ""
   echo -e "  ${YELLOW}⚠  Alpha version — expect rough edges${NC}"
   echo ""
+  echo "  Digital Seed is a free-first guide + workspace for personal AI infrastructure."
+  echo "  You can run this yourself, or ask a terminal-capable AI agent to run it for you."
+  echo ""
 }
 
 check_command() {
@@ -463,9 +466,10 @@ print_finish() {
   echo ""
   echo -e "  ${BOLD}Next steps:${NC}"
   echo ""
-  echo -e "  1. Edit ${CYAN}user/GOALS.md${NC} with your actual goals"
-  echo -e "  2. Start your AI agent in this directory"
-  echo -e "  3. Try: ${CYAN}\"Read my COMPASS.md and GOALS.md, then help me plan my week\"${NC}"
+  echo -e "  1. Start your AI agent in this directory"
+  echo -e "  2. Paste this first prompt:"
+  echo -e "     ${CYAN}\"Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.\"${NC}"
+  echo -e "  3. Improve ${CYAN}user/USER.md${NC}, ${CYAN}user/COMPASS.md${NC}, ${CYAN}user/GOALS.md${NC}, and ${CYAN}user/DOMAINS.md${NC} with your agent."
   echo ""
   echo -e "  ${BOLD}Useful commands:${NC}"
   echo ""
@@ -474,6 +478,7 @@ print_finish() {
   echo -e "  ${CYAN}bun run tokens${NC}        — View token usage report"
   echo ""
   echo -e "  ${BOLD}Documentation:${NC} ${CYAN}docs/getting-started.md${NC}"
+  echo -e "  ${BOLD}Agent install:${NC} ${CYAN}docs/ai-agent-install.md${NC}"
   echo -e "  ${BOLD}Security:${NC}      ${CYAN}SECURITY.md${NC}"
   echo ""
   echo -e "  ${YELLOW}Remember: This is an alpha. Report issues at:${NC}"

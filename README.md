@@ -16,6 +16,8 @@
 
 Digital Seed is a guide and starter kit for people who want more than a chatbot.
 
+You do not need another platform. Digital Seed gives your tools a shared personal context and a map for connecting them safely.
+
 It helps you understand and assemble your own personal AI infrastructure: context files, memory, task tracking, local tools, research patterns, integrations, and an onboarding process that teaches your assistant who you are and what you are trying to build.
 
 The goal is not to give everyone the same assistant or reinvent tools that already exist. The goal is to give you a strong starting point, explain what is what, and help you glue together the agents and software that fit your life.
@@ -34,13 +36,17 @@ After setup, you have an AI workspace that can:
 
 ## Quick start
 
+You can install it yourself:
+
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 ./setup.sh
 ```
 
-Then open the folder in your AI coding agent:
+Or ask a terminal-capable AI agent to install it for you. See [AI Agent Install](docs/ai-agent-install.md).
+
+Then open the folder in your AI agent:
 
 ```bash
 claude
@@ -50,7 +56,7 @@ claude
 Try:
 
 ```text
-Read my COMPASS.md, USER.md, and GOALS.md. Help me decide what to focus on this week.
+Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.
 ```
 
 ## The core idea
@@ -109,10 +115,13 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 
 - [Architecture Map](docs/architecture-map.md)
 - [Free-First Setup](docs/free-first-setup.md)
+- [AI Agent Install](docs/ai-agent-install.md)
+- [Setup Wizard](docs/setup-wizard.md)
 - [Agent Chooser](docs/agent-chooser.md)
 - [Integration Recipes](docs/integration-recipes.md)
 - [Personal AI Governance](docs/governance.md)
 - [First Session Prompt](docs/first-session-prompt.md)
+- [Hostile Audit](docs/hostile-audit-2026-05-10.md)
 
 ## Example prompts
 

@@ -35,7 +35,7 @@ The kit is free and open source. You pay only for AI model API usage:
 Typical professional user usage: $5–15/month with Claude.
 
 **Q: Which AI agent should I use?**
-Claude Code is recommended — it has the best MCP support and reasoning quality. Cursor and Windsurf also work well. Any MCP-compatible agent is compatible with the infrastructure.
+Digital Seed does not recommend one agent for everyone. Claude Code is strong for terminal/project work; Cursor and Windsurf are strong editor-based options; OpenClaw and Hermes are useful for always-on assistant workflows. See `docs/agent-chooser.md` and choose based on how you work.
 
 **Q: Can I use ChatGPT?**
 Not directly — ChatGPT doesn't support MCP. You can copy patterns manually, but you won't get the full infrastructure benefits.
