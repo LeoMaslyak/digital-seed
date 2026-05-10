@@ -58,6 +58,36 @@ function walkFiles(dir: string, out: string[] = []): string[] {
   return out;
 }
 
+
+function printOnboard(): void {
+  const lines = [
+    "Digital Seed — first 15 minutes",
+    "",
+    "1. Check setup",
+    "   bun run seed doctor",
+    "",
+    "2. Open the three core context files",
+    "   user/USER.md",
+    "   user/COMPASS.md",
+    "   user/GOALS.md",
+    "",
+    "3. Paste this into your AI agent",
+    "   Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.",
+    "",
+    "4. Pick one real folder to search, if you have one",
+    "   bun run seed index ~/Documents/Notes",
+    "   bun run seed search \"what do my notes say about my goals?\"",
+    "",
+    "5. Choose one next recipe only",
+    "   bun run seed recipe list",
+    "",
+    "Rule: do not connect email, messaging, or cloud automation until the local workflow is useful.",
+    "",
+    "Full guide: docs/first-15-minutes.md",
+  ];
+  console.log(lines.join("\n"));
+}
+
 function printFirstPrompt(): void {
   console.log("Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.");
 }
@@ -174,6 +204,7 @@ PATTERNS
 
 BEGINNER SETUP
   bun run seed doctor                  Friendly setup health check
+  bun run seed onboard                 Show the first 15-minute path
   bun run seed first-prompt            Print the first agent prompt
   bun run seed privacy-scan            Check for common private leftovers
   bun run seed recipe list             List integration recipes
@@ -246,6 +277,7 @@ else if (cmd === "rate")    { run("scripts/marketplace.ts", ["rate", ...rest]); 
 else if (cmd === "patterns"){ run("scripts/marketplace.ts", ["list"]); }
 else if (cmd === "packs")   { run("scripts/marketplace.ts", ["list", "--packs-only"]); }
 else if (cmd === "doctor")  { run("scripts/health-check.ts", rest); }
+else if (cmd === "onboard" || cmd === "init") { printOnboard(); }
 else if (cmd === "first-prompt") { printFirstPrompt(); }
 else if (cmd === "privacy-scan") { privacyScan(); }
 else if (cmd === "recipe") { recipe(rest); }

@@ -31,7 +31,17 @@ Or ask a terminal-capable AI agent to install it for you. See [Let an AI Agent I
 
 The setup wizard checks your tools, asks about your AI provider, creates your first context files, and installs dependencies.
 
-## 3. Fill the core context files
+For the shortest path after setup, run:
+
+```bash
+bun run seed onboard
+```
+
+## 3. Follow the first 15-minute path
+
+Use [First 15 Minutes](first-15-minutes.md) as the default path. The point is to get one real win before adding optional infrastructure.
+
+## 4. Fill the core context files
 
 Start with:
 
@@ -42,7 +52,7 @@ Start with:
 
 Do not try to make these perfect. A rough first draft is enough. The assistant can improve them with you.
 
-## 4. Start your agent
+## 5. Start your agent
 
 ```bash
 claude
@@ -55,7 +65,7 @@ Then ask:
 Read my USER.md, COMPASS.md, GOALS.md, and DOMAINS.md. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.
 ```
 
-## 5. Use it on real work immediately
+## 6. Use it on real work immediately
 
 Good first prompts:
 
@@ -75,7 +85,7 @@ Design a personal knowledge system around my actual tools and files.
 What repeating problem in my work would be easiest to automate first?
 ```
 
-## 6. Add notes and documents
+## 7. Add notes and documents
 
 You can connect an Obsidian vault or index local folders for search. Start small: one notes folder, one project folder, or one exported document set.
 
@@ -84,7 +94,7 @@ bun run seed index ~/Documents/Notes
 bun run seed search "what do my notes say about my goals?"
 ```
 
-## 7. Explore useful commands
+## 8. Explore useful commands
 
 ```bash
 bun run health       # Check local setup health

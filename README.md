@@ -103,18 +103,19 @@ Start with `COMPASS.md`, `USER.md`, and `GOALS.md`. Improve the rest gradually.
 - **Task and digest loop** — queue tasks, review pending work, and produce lightweight daily summaries.
 - **Export/import** — move your setup between machines or archive snapshots.
 
-## Recommended first hour
+## Recommended first 15 minutes
 
 1. Run `./setup.sh`.
-2. Run `bun run seed doctor` to check the setup.
-3. Run `bun run seed first-prompt` and paste that into your terminal-capable AI agent.
-4. Fill in `user/USER.md`, `user/COMPASS.md`, and `user/GOALS.md`.
-5. Add one useful integration recipe with `bun run seed recipe list`.
+2. Run `bun run seed onboard` for the shortest useful path.
+3. Run `bun run seed doctor` to check the setup.
+4. Run `bun run seed first-prompt` and paste that into your terminal-capable AI agent.
+5. Fill in `user/USER.md`, `user/COMPASS.md`, and `user/GOALS.md`.
 6. Use it on one real problem immediately.
 
 ## Helpful guides
 
 - [Architecture Map](docs/architecture-map.md)
+- [First 15 Minutes](docs/first-15-minutes.md)
 - [Free-First Setup](docs/free-first-setup.md)
 - [AI Agent Install](docs/ai-agent-install.md)
 - [Setup Wizard](docs/setup-wizard.md)

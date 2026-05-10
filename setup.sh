@@ -567,6 +567,7 @@ print_finish() {
   echo ""
   echo -e "  ${BOLD}Useful commands:${NC}"
   echo ""
+  echo -e "  ${CYAN}bun run seed onboard${NC} — Show the first 15-minute path"
   echo -e "  ${CYAN}bun run health${NC}        — Check system health"
   echo -e "  ${CYAN}bun run seed first-prompt${NC} — Print your first AI-agent prompt"
   echo -e "  ${CYAN}bun run tokens${NC}        — View token usage report"
