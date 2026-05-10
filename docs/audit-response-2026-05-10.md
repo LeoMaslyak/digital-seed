@@ -11,7 +11,7 @@ This document records what was changed in response.
 - Replaced legacy product branding with Digital Seed / Seed terminology.
 - Renamed public MCP/tool identifiers and package scopes to Seed / Digital Seed naming.
 - Removed seeded private/course-style collaboration examples (`ikea-sustainability`, `finance-group-a`).
-- Cleaned dashboard demo copy so it no longer presents stale course/company examples as if they were real user state.
+- Removed the stale built-in dashboard from the product surface.
 - Added setup profiles to the setup wizard:
   - Simple local workspace
   - Notes/documents search

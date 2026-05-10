@@ -9,7 +9,7 @@ These ship with the starter kit:
 | Server | Port | Description |
 |--------|------|-------------|
 | `seed-memory` | stdio | Persistent memory across sessions |
-| `seed-tasks` | stdio | Task management + dashboard feed |
+| `seed-tasks` | stdio | Task management feed |
 
 ## Adding Community Servers
 

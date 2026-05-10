@@ -11,7 +11,7 @@
     "seed-tasks": {
       "command": "bun",
       "args": ["run", "mcp/tasks-server/src/index.ts"],
-      "description": "Task management with dashboard integration",
+      "description": "Task management integration",
       "builtin": true
     },
     "seed-rag": {

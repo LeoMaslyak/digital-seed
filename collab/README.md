@@ -27,7 +27,7 @@ bun run collab hook install
 bun run collab create "Sample Project" --desc "Strategy project analysis" --members alice,bob
 
 # Add a note
-bun run collab note sample-project "Porter's Five Forces: medium rivalry..." --author alice
+bun run collab note sample-project "Key context: current project has three open decisions..." --author alice
 
 # Create a learning group
 bun run collab group create "Finance Group A" --domain "Finance I" --topic "Project Analysis"

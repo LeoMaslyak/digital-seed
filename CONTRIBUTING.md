@@ -18,7 +18,7 @@ git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 bun install
 
-# Run the dashboard
+# Show the first onboarding path
 bun run seed onboard
 
 # Run health check

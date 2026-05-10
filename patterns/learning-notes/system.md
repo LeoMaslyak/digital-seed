@@ -1,4 +1,4 @@
-# Study Notes Pattern
+# Learning Notes Pattern
 
 Convert content into structured, memorable study notes.
 

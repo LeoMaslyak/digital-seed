@@ -5,7 +5,7 @@
 ## What's included
 
 **Patterns:**
-- `five-forces` — Porter's Five Forces with industry attractiveness summary
+- `five-forces` — Industry and stakeholder structure with attractiveness summary
 - `bcg-matrix` — Portfolio analysis with SBU mapping
 - `competitive-dynamics` — Competitor profiling, VRIO, competitive interaction
 

@@ -571,7 +571,7 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exa
   ],
   "recommendation": { "statement": "One clear recommendation sentence", "bullets": ["supporting point 1", "supporting point 2", "supporting point 3"] }
 }
-Make the content specific, realistic, with actual numbers and data points appropriate for an professional project discussion. Use frameworks like Porter's Five Forces, SWOT, or value chain analysis where relevant.`;
+Make the content specific, realistic, with actual numbers and data points appropriate for an professional project discussion. Use a relevant framework only when it helps the user make a clearer decision.`;
   }
 
   if (template === "strategy") {

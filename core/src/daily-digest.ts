@@ -6,7 +6,7 @@
  *
  * Three output formats:
  *   markdown  — for terminal display and file logging
- *   json      — for the dashboard widget (/api/digest)
+ *   json
  *   text      — for Telegram/email delivery (plain, no markdown)
  *
  * Delivery (optional, config/digest.yaml):
@@ -21,7 +21,7 @@
  *
  * CLI:
  *   bun run digest             — print today's digest
- *   bun run digest --json      — JSON output for dashboard
+ *   bun run digest --json      — JSON output
  *   bun run digest --deliver   — also run configured delivery hooks
  */
 
@@ -70,7 +70,7 @@ export interface DailyDigest {
   // Summary line for telegram/email subject
   headline: string;
 
-  // Raw counts for dashboard widget
+  // Raw counts for API consumers
   stats: {
     actionsToday:    number;
     tasksCompleted:  number;
@@ -428,7 +428,7 @@ export async function deliverDigest(
 // ─── Dashboard JSON endpoint ──────────────────────────────────────────────────
 
 /**
- * Return digest data formatted for the dashboard /api/digest endpoint.
+ * Return digest data formatted for API consumers.
  * Lightweight — only stats + section summaries, not full content.
  */
 export function getDigestWidgetData(root: string): {

@@ -71,7 +71,7 @@ bun run seed web bulk urls.txt --summarize
 
 ```bash
 # Search the web and get an AI-powered summary
-bun run seed web research "Porter's five forces airline industry"
+bun run seed web research "personal knowledge system setup"
 bun run seed web research "personal knowledge system setup"
 ```
 

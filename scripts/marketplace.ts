@@ -539,7 +539,7 @@ function ensureBundledRegistry(): void {
       {
         id: "strategy",
         name: "Strategy Pack",
-        description: "Strategy workflows: Porter, BCG, competitive dynamics, M&A",
+        description: "Strategy workflows: option analysis, competitive context, decisions",
         author: "Digital Seed",
         version: "1.0.0",
         tags: ["strategy", "professional", "digital-seed", "frameworks"],
