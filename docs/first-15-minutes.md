@@ -1,5 +1,7 @@
 # First 15 Minutes
 
+![Digital Seed growing into a personal AI tree](assets/seed-tree-magic.svg)
+
 This is the smallest useful Digital Seed path. Do this before adding dashboards, databases, automations, or always-on agents.
 
 ## Goal

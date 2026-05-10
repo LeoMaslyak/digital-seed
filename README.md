@@ -12,6 +12,10 @@
 
 </div>
 
+<p align="center">
+  <img src="docs/assets/seed-tree-magic.svg" alt="Animated Digital Seed growing into a personal AI tree" width="900">
+</p>
+
 ---
 
 Digital Seed is a starter kit for people who want their AI tools to understand their life, work, goals, files, and preferences without signing up for another platform.

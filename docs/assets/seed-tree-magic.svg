@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Digital Seed grows into a personal AI tree</title>
+  <desc id="desc">An animated seed grows into a glowing tree with roots, branches, leaves, and small lights representing context, memory, tools, and workflows.</desc>
+  <style>
+    :root { color-scheme: dark; }
+    .bg { fill: url(#bg); }
+    .soil { fill: #24351f; opacity: .85; }
+    .root, .trunk, .branch { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .root { stroke: #8b6f45; stroke-width: 7; opacity: .72; stroke-dasharray: 460; stroke-dashoffset: 460; animation: draw 2.2s ease forwards .35s; }
+    .trunk { stroke: #b88752; stroke-width: 16; stroke-dasharray: 620; stroke-dashoffset: 620; animation: draw 2.5s ease forwards 1.2s; }
+    .branch { stroke: #c99a64; stroke-width: 9; stroke-dasharray: 420; stroke-dashoffset: 420; animation: draw 2s ease forwards 2.1s; }
+    .seed { fill: #d8a85e; transform-origin: 600px 394px; animation: seedPulse 2s ease-in-out infinite alternate; }
+    .leaf { opacity: 0; transform-box: fill-box; transform-origin: center; animation: leafIn .75s cubic-bezier(.2,.8,.2,1) forwards; }
+    .spark { fill: #f7e7a0; opacity: 0; animation: twinkle 2.8s ease-in-out infinite; }
+    .label { fill: #d6efe6; font: 600 22px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .02em; opacity: 0; animation: fadeIn .9s ease forwards 4.2s; }
+    .small { fill: #9fc7bc; font: 500 15px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; opacity: 0; animation: fadeIn .9s ease forwards 4.5s; }
+    .ring { fill: none; stroke: #8df3d1; stroke-width: 2; opacity: 0; animation: ring 3s ease-in-out infinite; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes leafIn { 0% { opacity: 0; transform: scale(.2) rotate(-18deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+    @keyframes twinkle { 0%, 100% { opacity: .05; transform: scale(.75); } 45% { opacity: .95; transform: scale(1.15); } }
+    @keyframes seedPulse { from { transform: scale(.98); filter: drop-shadow(0 0 0 #f7d37a); } to { transform: scale(1.05); filter: drop-shadow(0 0 18px #f7d37a); } }
+    @keyframes ring { 0% { opacity: 0; r: 8; } 35% { opacity: .5; } 100% { opacity: 0; r: 44; } }
+  </style>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="35%" r="80%">
+      <stop offset="0%" stop-color="#143c35"/>
+      <stop offset="45%" stop-color="#102620"/>
+      <stop offset="100%" stop-color="#08110f"/>
+    </radialGradient>
+    <linearGradient id="leafA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8ffd9"/>
+      <stop offset="1" stop-color="#3ac983"/>
+    </linearGradient>
+    <linearGradient id="leafB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e2ffb5"/>
+      <stop offset="1" stop-color="#6ad66e"/>
+    </linearGradient>
+  </defs>
+  <rect class="bg" width="1200" height="520" rx="34"/>
+  <path class="soil" d="M150 398c155-31 280-27 450-12 170 15 305 11 450-13 31-5 58 19 58 50v97H92v-71c0-25 22-46 58-51z"/>
+
+  <circle class="ring" cx="600" cy="388" r="8"/>
+  <ellipse class="seed" cx="600" cy="394" rx="27" ry="18" transform="rotate(-16 600 394)"/>
+
+  <path class="root" d="M600 390c-45 22-76 54-111 91M596 392c22 30 54 55 99 80M599 392c-15 38-18 72-13 110M575 428c-34 5-71 3-115-8M634 424c45 9 88 9 137-5"/>
+
+  <path class="trunk" d="M600 392c-8-58 2-111 25-162 16-35 25-73 5-119"/>
+  <path class="branch" d="M619 265c-51-28-105-42-169-37M624 240c51-35 104-50 178-43M620 190c-30-43-74-73-139-91M633 173c44-45 97-71 171-82M627 132c-5-42-28-75-67-103"/>
+
+  <g>
+    <ellipse class="leaf" style="animation-delay:2.8s" fill="url(#leafA)" cx="438" cy="226" rx="30" ry="15" transform="rotate(-18 438 226)"/>
+    <ellipse class="leaf" style="animation-delay:3.0s" fill="url(#leafB)" cx="502" cy="100" rx="34" ry="16" transform="rotate(32 502 100)"/>
+    <ellipse class="leaf" style="animation-delay:3.1s" fill="url(#leafA)" cx="792" cy="196" rx="36" ry="17" transform="rotate(-28 792 196)"/>
+    <ellipse class="leaf" style="animation-delay:3.25s" fill="url(#leafB)" cx="812" cy="88" rx="32" ry="16" transform="rotate(22 812 88)"/>
+    <ellipse class="leaf" style="animation-delay:3.35s" fill="url(#leafA)" cx="557" cy="34" rx="29" ry="14" transform="rotate(-34 557 34)"/>
+    <ellipse class="leaf" style="animation-delay:3.45s" fill="url(#leafB)" cx="474" cy="229" rx="22" ry="11" transform="rotate(20 474 229)"/>
+    <ellipse class="leaf" style="animation-delay:3.55s" fill="url(#leafA)" cx="733" cy="121" rx="25" ry="12" transform="rotate(-12 733 121)"/>
+  </g>
+
+  <g>
+    <circle class="spark" style="animation-delay:3.6s" cx="455" cy="178" r="5"/>
+    <circle class="spark" style="animation-delay:4.1s" cx="530" cy="70" r="4"/>
+    <circle class="spark" style="animation-delay:4.5s" cx="716" cy="75" r="5"/>
+    <circle class="spark" style="animation-delay:4.8s" cx="829" cy="158" r="4"/>
+    <circle class="spark" style="animation-delay:5.2s" cx="642" cy="50" r="4"/>
+  </g>
+
+  <text class="label" x="86" y="104">Start with a seed of context.</text>
+  <text class="small" x="88" y="137">Goals · preferences · notes · tools · safe recipes</text>
+  <text class="label" x="790" y="398">Grow only what is useful.</text>
+  <text class="small" x="792" y="431">Local first. Agent neutral. Carefully tended.</text>
+</svg>
