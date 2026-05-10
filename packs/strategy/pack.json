@@ -1,0 +1,30 @@
+{
+  "id": "strategy",
+  "name": "Strategy Toolkit",
+  "description": "Strategy workflows: competitive analysis, positioning, roadmap decisions",
+  "version": "1.0.0",
+  "author": "digital-seed",
+  "patterns": [
+    "five-forces",
+    "bcg-matrix",
+    "competitive-dynamics"
+  ],
+  "frameworks": [
+    "Porter's Five Forces",
+    "BCG Matrix",
+    "Value Chain",
+    "VRIO",
+    "Blue Ocean",
+    "3C",
+    "SWOT"
+  ],
+  "domains": [
+    "Business Policy",
+    "Competitive Strategy"
+  ],
+  "tags": [
+    "strategy",
+    "frameworks",
+    "decisions"
+  ]
+}

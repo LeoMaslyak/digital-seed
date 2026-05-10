@@ -1,0 +1,55 @@
+# DAI Embedding Pipeline Configuration
+# Controls what gets indexed for semantic search (RAG)
+# Supports three layers: personal (L3), collab (L2), knowledge base (L1)
+
+# Embedding provider: "openai" or "ollama"
+# Auto-detected from environment if not set here
+# provider: openai
+# model: text-embedding-3-small
+# dimensions: 1536
+
+# ─── L3: Personal index ───────────────────────────────────────────
+# Your private notes, goals, preferences. Never shared.
+paths:
+  - user/
+  - patterns/
+  - docs/
+
+# ─── L1: Knowledge Base index ───────────────────────────────────────────
+# Shared your organization knowledge base. Populated by:
+#   (a) git clone of digital-seed-knowledge base (cloned to ~/.digital-seed-knowledge base by setup.sh)
+#   (b) shared drive sync: bun run shared-drive:sync --layer knowledge base
+# Uncomment after running setup:
+# knowledge basePaths:
+#   - ~/.digital-seed-knowledge base/
+#   - data/shared-drive-cache/knowledge base/
+
+# ─── L2: Collab index ────────────────────────────────────────────
+# Active team workspaces. Populated by:
+#   bun run shared-drive:sync --layer collab
+# Uncomment when using team workspaces:
+# collabPaths:
+#   - collab/
+#   - data/shared-drive-cache/collab/
+
+# File types to include
+fileTypes:
+  - .md
+  - .txt
+  - .yaml
+  - .yml
+
+# Paths/patterns to exclude
+exclude:
+  - node_modules
+  - .git
+  - data/rag
+  - bun.lock
+  - "*.jsonl"
+  - vectors.json
+  - "*.lock"
+  - _sync-meta.json
+
+# Chunking settings
+chunkSize: 1000
+chunkOverlap: 200

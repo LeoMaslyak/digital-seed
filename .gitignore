@@ -1,0 +1,45 @@
+# Secrets & config
+.env
+.env.*
+config/config.yaml
+
+# User data (personal, never committed)
+user/USER.md
+user/GOALS.md
+user/MEMORY.md
+user/PREFERENCES.md
+# Starter templates that SHOULD be committed
+!user/COMPASS.md
+!user/ANTI-GOALS.md
+!user/DOMAINS.md
+
+# Runtime data
+data/
+logs/
+
+# Dependencies
+node_modules/
+.bun/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Export archives
+exports/
+
+# Config (personal)
+config/config.yaml
+config/autonomy.yaml
+config/token-budget.json
+
+# Collaboration space is git-tracked (shared content)
+# Un-ignore collab/ explicitly since data/ is ignored above
+!collab/
+!collab/**

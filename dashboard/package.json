@@ -1,0 +1,11 @@
+{
+  "name": "@dai/dashboard",
+  "version": "0.1.0",
+  "description": "Local observability dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/server.ts",
+    "start": "bun run src/server.ts"
+  },
+  "dependencies": {}
+}

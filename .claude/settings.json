@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "LS",
+      "WebFetch",
+      "WebSearch",
+      "mcp__*"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~)"
+    ]
+  },
+  "mcpServers": {
+    "dai-memory": {
+      "command": "bun",
+      "args": [
+        "run",
+        "mcp/memory-server/src/index.ts"
+      ],
+      "env": {}
+    },
+    "dai-tasks": {
+      "command": "bun",
+      "args": [
+        "run",
+        "mcp/tasks-server/src/index.ts"
+      ],
+      "env": {}
+    },
+    "dai-rag": {
+      "command": "bun",
+      "args": [
+        "run",
+        "mcp/rag-server/src/index.ts"
+      ],
+      "env": {}
+    },
+    "dai-graph": {
+      "command": "bun",
+      "args": [
+        "run",
+        "mcp/graph-server/src/index.ts"
+      ],
+      "env": {}
+    }
+  }
+}

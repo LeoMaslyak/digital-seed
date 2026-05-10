@@ -1,0 +1,34 @@
+# DAI Autonomy Configuration
+# Controls what your AI can do automatically.
+#
+# Permission levels:
+#   off    — always ask before doing anything
+#   notify — do it automatically, then tell you what happened
+#   auto   — do it silently, appears only in the daily digest
+#
+# Start conservative (everything off), then enable what you trust.
+# Change notify → auto once you've seen it work a few times.
+
+# ── Email ────────────────────────────────────────────────────────────────────
+# Classify and prioritise your inbox (does NOT send emails)
+email-triage: off
+
+# ── Memory ───────────────────────────────────────────────────────────────────
+# Compress old sessions, keep MEMORY.md accurate and compact
+memory-maintenance: notify
+
+# ── Notes ────────────────────────────────────────────────────────────────────
+# Suggest tags, links, structure for new notes (suggestions only, no edits)
+note-organization: off
+
+# ── Daily Digest ─────────────────────────────────────────────────────────────
+# End-of-day summary of what happened automatically
+daily-digest: notify
+
+# ── Reminders ────────────────────────────────────────────────────────────────
+# Surface tasks due today or overdue
+task-reminders: notify
+
+# ── Research ─────────────────────────────────────────────────────────────────
+# Proactively track topics you care about for new information
+research-updates: off

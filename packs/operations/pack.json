@@ -1,0 +1,28 @@
+{
+  "id": "operations",
+  "name": "Operations Toolkit",
+  "description": "Operations workflows: process analysis, systems, capacity, execution",
+  "version": "1.0.0",
+  "author": "digital-seed",
+  "patterns": [
+    "process-analysis",
+    "supply-chain"
+  ],
+  "frameworks": [
+    "Process Flow",
+    "Little's Law",
+    "Theory of Constraints",
+    "Lean/TPS",
+    "EOQ",
+    "Newsvendor"
+  ],
+  "domains": [
+    "Operations Management",
+    "Supply Chain Management"
+  ],
+  "tags": [
+    "operations",
+    "process",
+    "systems"
+  ]
+}

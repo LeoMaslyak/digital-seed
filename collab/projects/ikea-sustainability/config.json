@@ -1,0 +1,12 @@
+{
+  "id": "ikea-sustainability",
+  "name": "IKEA Sustainability",
+  "description": "Strategy case analysis",
+  "members": [
+    "alice",
+    "bob"
+  ],
+  "createdAt": "2026-03-18T17:52:55.477Z",
+  "updatedAt": "2026-03-18T17:52:55.494Z",
+  "tags": []
+}

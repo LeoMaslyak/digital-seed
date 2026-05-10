@@ -1,0 +1,12 @@
+{
+  "name": "@dai/tasks-server",
+  "version": "0.1.0",
+  "description": "File-backed task management MCP server",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

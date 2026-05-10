@@ -1,0 +1,29 @@
+{
+  "id": "finance",
+  "name": "Finance Toolkit",
+  "description": "Finance workflows: valuation, financial analysis, budgeting, capital structure",
+  "version": "1.0.0",
+  "author": "digital-seed",
+  "patterns": [
+    "dcf-analysis",
+    "ratio-analysis",
+    "lbo-primer"
+  ],
+  "frameworks": [
+    "DCF",
+    "Comparable Companies",
+    "LBO",
+    "DuPont",
+    "WACC",
+    "Capital Structure"
+  ],
+  "domains": [
+    "Finance I",
+    "Finance II"
+  ],
+  "tags": [
+    "finance",
+    "valuation",
+    "modeling"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "./servers.schema.json",
+  "description": "MCP server registry for Digital Seed",
+  "servers": {
+    "dai-memory": {
+      "command": "bun",
+      "args": ["run", "mcp/memory-server/src/index.ts"],
+      "description": "Persistent memory across sessions",
+      "builtin": true
+    },
+    "dai-tasks": {
+      "command": "bun",
+      "args": ["run", "mcp/tasks-server/src/index.ts"],
+      "description": "Task management with dashboard integration",
+      "builtin": true
+    },
+    "dai-rag": {
+      "command": "bun",
+      "args": ["run", "mcp/rag-server/src/index.ts"],
+      "description": "Semantic search over embedded content (LanceDB + fallback)",
+      "builtin": true
+    },
+    "dai-graph": {
+      "command": "bun",
+      "args": ["run", "mcp/graph-server/src/index.ts"],
+      "description": "Knowledge graph — connects people, topics, projects, notes, tasks, goals",
+      "builtin": true
+    }
+  },
+  "community": {
+    "obsidian": {
+      "package": "@smithery/mcp-obsidian",
+      "description": "Read, search, and create Obsidian notes",
+      "setup": "integrations/obsidian/setup.md"
+    },
+    "gmail": {
+      "package": "@anthropic/mcp-gmail",
+      "description": "Gmail read, search, draft, send",
+      "setup": "integrations/email/setup.md"
+    },
+    "google-calendar": {
+      "package": "mcp-google-calendar",
+      "description": "Google Calendar events",
+      "setup": "integrations/calendar/setup.md"
+    },
+    "github": {
+      "package": "@modelcontextprotocol/server-github",
+      "description": "GitHub issues, PRs, repos",
+      "setup": "https://github.com/modelcontextprotocol/servers"
+    },
+    "postgres": {
+      "package": "@modelcontextprotocol/server-postgres",
+      "description": "Query any PostgreSQL database",
+      "setup": "integrations/databases/setup.md"
+    }
+  }
+}

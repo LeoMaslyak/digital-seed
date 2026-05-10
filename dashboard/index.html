@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DAI Cockpit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        oklch(0.18 0.02 250);
+    --bg-elev:   oklch(0.215 0.022 248);
+    --bg-card:   oklch(0.235 0.024 248);
+    --bg-card-2: oklch(0.26 0.025 248);
+    --border:    oklch(0.32 0.02 248);
+    --border-2:  oklch(0.38 0.025 248);
+    --fg:        oklch(0.97 0.005 250);
+    --fg-mute:   oklch(0.74 0.015 250);
+    --fg-dim:    oklch(0.58 0.015 250);
+    --fg-faint:  oklch(0.42 0.015 250);
+    --accent:    oklch(0.82 0.14 195);
+    --accent-2:  oklch(0.72 0.16 195);
+    --accent-glow: oklch(0.82 0.14 195 / 0.15);
+    --ok:        oklch(0.80 0.15 155);
+    --warn:      oklch(0.82 0.14 80);
+    --err:       oklch(0.70 0.19 25);
+    --radius:    14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
+  body {
+    font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings: "cv11", "ss01", "ss03";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    letter-spacing: -0.005em;
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, oklch(0.82 0.14 195 / 0.06), transparent 60%),
+      radial-gradient(900px 500px at 95% 10%, oklch(0.82 0.14 195 / 0.04), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; font-feature-settings: "ss01"; }
+  .serif { font-family: 'Instrument Serif', serif; }
+
+  /* ====== UTILITIES ====== */
+  .card {
+    background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-elev) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: var(--radius);
+    padding: 1px;
+    background: linear-gradient(180deg, oklch(1 0 0 / 0.06), transparent 40%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .btn {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    border: 1px solid var(--border-2);
+    background: var(--bg-card-2);
+    color: var(--fg);
+    padding: 9px 14px;
+    border-radius: 9px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all .15s ease;
+  }
+  .btn:hover { background: oklch(0.30 0.025 248); border-color: var(--border-2); }
+  .btn-primary {
+    background: var(--accent);
+    color: oklch(0.12 0.02 250);
+    border-color: transparent;
+    font-weight: 600;
+    box-shadow: 0 0 0 1px oklch(1 0 0 / 0.08) inset, 0 6px 20px -8px var(--accent-glow);
+  }
+  .btn-primary:hover {
+    background: oklch(0.86 0.14 195);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px oklch(1 0 0 / 0.12) inset, 0 10px 28px -10px var(--accent-glow);
+  }
+  .btn-ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--fg-mute);
+    padding: 6px 0;
+  }
+  .btn-ghost:hover { background: transparent; color: var(--fg); }
+
+  .input, .select, .textarea {
+    font-family: inherit;
+    font-size: 13.5px;
+    width: 100%;
+    background: oklch(0.16 0.02 248);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--fg);
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input::placeholder, .textarea::placeholder { color: var(--fg-faint); }
+  .input:focus, .select:focus, .textarea:focus {
+    border-color: oklch(0.82 0.14 195 / 0.5);
+    box-shadow: 0 0 0 3px oklch(0.82 0.14 195 / 0.14);
+  }
+  .textarea { resize: none; min-height: 64px; line-height: 1.5; }
+  .select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'><path d='M1 1l4 4 4-4' stroke='%23929AA3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+  }
+
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    display: inline-block;
+    position: relative;
+  }
+  .dot::after {
+    content: '';
+    position: absolute; inset: -3px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: .35;
+    animation: pulse 2.2s ease-out infinite;
+  }
+  .dot.ok   { background: var(--ok);   color: var(--ok); }
+  .dot.warn { background: var(--warn); color: var(--warn); }
+  .dot.err  { background: var(--err);  color: var(--err); }
+  .dot.mute { background: var(--fg-faint); color: var(--fg-faint); }
+  .dot.mute::after { display: none; }
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: .45; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--fg-mute);
+    background: oklch(0.22 0.02 248);
+    border: 1px solid var(--border);
+  }
+  .chip-filled {
+    background: oklch(0.82 0.14 195 / 0.10);
+    border-color: oklch(0.82 0.14 195 / 0.28);
+    color: oklch(0.92 0.06 195);
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--fg-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .hr { height: 1px; background: var(--border); border: 0; }
+
+  /* Spinner */
+  .spinner {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid oklch(0.82 0.14 195 / 0.2);
+    border-top-color: var(--accent);
+    animation: spin 0.9s linear infinite;
+    display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Grid ambient line */
+  .ambient-grid {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(oklch(1 0 0 / 0.015) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(1 0 0 / 0.015) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+    z-index: 0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: oklch(0.30 0.02 248); border-radius: 10px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: oklch(0.40 0.02 248); }
+
+  /* Tweaks panel */
+  .tweaks {
+    position: fixed;
+    right: 18px; bottom: 18px;
+    width: 260px;
+    background: oklch(0.20 0.02 248 / 0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    padding: 14px;
+    z-index: 100;
+    font-size: 12.5px;
+    display: none;
+  }
+  .tweaks.open { display: block; }
+  .tweaks .row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; }
+  .tweaks .row + .row { border-top: 1px solid var(--border); }
+  .seg {
+    display: inline-flex;
+    background: oklch(0.16 0.02 248);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+  }
+  .seg button {
+    background: transparent;
+    border: 0;
+    color: var(--fg-mute);
+    font-family: inherit; font-size: 11.5px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .seg button[data-active="true"] { background: var(--bg-card-2); color: var(--fg); }
+  .swatch {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+  .swatch[data-active="true"] { border-color: var(--fg); }
+</style>
+</head>
+<body>
+  <div class="ambient-grid"></div>
+  <div id="root"></div>
+
+  <!-- Tweaks panel — try accent colors, mobile view, density -->
+  <div class="tweaks" id="tweaks">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="mono" style="font-size:11px;color:var(--fg-dim);letter-spacing:.1em;">TWEAKS</div>
+      <div class="mono" style="font-size:10px;color:var(--fg-faint);">⌘T toggle</div>
+    </div>
+    <div class="row">
+      <span style="color:var(--fg-mute)">Accent</span>
+      <div style="display:flex;gap:8px;">
+        <div class="swatch" data-accent="teal"   data-active="true" style="background:oklch(0.82 0.14 195)"></div>
+        <div class="swatch" data-accent="amber"  style="background:oklch(0.82 0.14 75)"></div>
+        <div class="swatch" data-accent="violet" style="background:oklch(0.75 0.17 295)"></div>
+      </div>
+    </div>
+    <div class="row">
+      <span style="color:var(--fg-mute)">Viewport</span>
+      <div class="seg" id="seg-viewport">
+        <button data-vp="desktop" data-active="true">Desktop</button>
+        <button data-vp="mobile">Mobile</button>
+      </div>
+    </div>
+    <div class="row">
+      <span style="color:var(--fg-mute)">Hero hover</span>
+      <div class="seg" id="seg-hover">
+        <button data-hover="off" data-active="true">Off</button>
+        <button data-hover="on">On</button>
+      </div>
+    </div>
+    <div class="row">
+      <span style="color:var(--fg-mute)">Density</span>
+      <div class="seg" id="seg-density">
+        <button data-density="comfy" data-active="true">Comfy</button>
+        <button data-density="tight">Tight</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__TWEAKS = { "accent": "teal", "viewport": "desktop", "hover": "off", "density": "comfy" };
+  </script>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="./dai/icons.jsx"></script>
+  <script type="text/babel" src="./dai/topbar.jsx"></script>
+  <script type="text/babel" src="./dai/hero.jsx"></script>
+  <script type="text/babel" src="./dai/middle.jsx"></script>
+  <script type="text/babel" src="./dai/lower.jsx"></script>
+  <script type="text/babel" src="./dai/footer.jsx"></script>
+  <script type="text/babel" src="./dai/mobile.jsx"></script>
+  <script type="text/babel" src="./dai/app.jsx"></script>
+
+  <script>
+    // Tweaks panel wiring
+    (function () {
+      const panel = document.getElementById('tweaks');
+      const accentHues = { teal: 195, amber: 75, violet: 295 };
+
+      function applyAccent(name) {
+        const h = accentHues[name] ?? 195;
+        document.documentElement.style.setProperty('--accent', `oklch(0.82 0.14 ${h})`);
+        document.documentElement.style.setProperty('--accent-2', `oklch(0.72 0.16 ${h})`);
+        document.documentElement.style.setProperty('--accent-glow', `oklch(0.82 0.14 ${h} / 0.15)`);
+      }
+      function applyViewport(vp) { document.body.setAttribute('data-vp', vp); }
+      function applyHover(h) { document.body.setAttribute('data-hero-hover', h); }
+      function applyDensity(d) { document.body.setAttribute('data-density', d); }
+      function applyAll(t) { applyAccent(t.accent); applyViewport(t.viewport); applyHover(t.hover); applyDensity(t.density); }
+      applyAll(window.__TWEAKS);
+
+      function setSegActive(container, attr, val) {
+        container.querySelectorAll('button').forEach(b => {
+          b.dataset.active = (b.dataset[attr] === val) ? 'true' : 'false';
+        });
+      }
+
+      panel.querySelectorAll('.swatch').forEach(sw => {
+        sw.addEventListener('click', () => {
+          const val = sw.dataset.accent;
+          panel.querySelectorAll('.swatch').forEach(s => s.dataset.active = (s === sw) ? 'true' : 'false');
+          applyAccent(val);
+          Object.assign(window.__TWEAKS, { accent: val });
+        });
+      });
+
+      const segVp = document.getElementById('seg-viewport');
+      segVp.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        setSegActive(segVp, 'vp', b.dataset.vp);
+        applyViewport(b.dataset.vp);
+      });
+
+      const segHv = document.getElementById('seg-hover');
+      segHv.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        setSegActive(segHv, 'hover', b.dataset.hover);
+        applyHover(b.dataset.hover);
+      });
+
+      const segDn = document.getElementById('seg-density');
+      segDn.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        setSegActive(segDn, 'density', b.dataset.density);
+        applyDensity(b.dataset.density);
+      });
+
+      // ⌘T to toggle tweaks panel
+      document.addEventListener('keydown', e => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 't') {
+          e.preventDefault();
+          panel.classList.toggle('open');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "@dai/graph-server",
+  "version": "0.1.0",
+  "description": "Knowledge graph MCP server — connects people, topics, projects, notes, tasks, goals",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}

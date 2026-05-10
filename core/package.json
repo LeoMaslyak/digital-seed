@@ -1,0 +1,10 @@
+{
+  "name": "@dai/core",
+  "version": "0.1.0",
+  "description": "Digital Seed core library",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "lancedb": "^0.9.0"
+  }
+}
