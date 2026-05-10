@@ -76,6 +76,6 @@ Review this log periodically to understand what your AI is doing.
 
 ## Reporting Vulnerabilities
 
-Found a security issue? Email [security contact TBD] or open a private advisory on GitHub.
+Found a security issue? Open a private security advisory on GitHub for `LeoMaslyak/digital-seed`.
 
 Do NOT open a public issue for security vulnerabilities.

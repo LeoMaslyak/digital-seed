@@ -190,7 +190,7 @@ Member adds analysis
 |--------|------|-------|---------|
 | memory-server | stdio | read, append, search | user/MEMORY.md |
 | tasks-server | stdio | add, list, complete, update | data/tasks.json |
-| rag-server | stdio | rag_search, rag_index, rag_status | data/rag/ (LanceDB) |
+| rag-server | stdio | rag_search, rag_index, rag_status | data/rag/ (local JSON mirror, optional LanceDB) |
 | graph-server | stdio | graph_search, graph_add, graph_connect, graph_path | data/graph.json |
 
 All servers use stdio transport (no ports) — Claude Code connects via `.claude/settings.json`.

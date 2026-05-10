@@ -28,6 +28,16 @@ This document records what was changed in response.
   - `bun run seed search "query"`
 - Kept Digital Seed free-first and local-first: local JSON fallback retrieval remains available when LanceDB is not installed.
 
+## Second cleanup pass
+
+Additional cleanup after the first response:
+
+- Verified the previous commit was clean and pushed.
+- Tightened free-first local retrieval: `bun run seed index <folder>` now keeps a JSON search mirror so `bun run seed search "query"` can work without hosted vector infrastructure.
+- Updated free-first docs to show the exact index/search loop.
+- Updated architecture docs to describe the local JSON mirror plus optional LanceDB path.
+- Removed the remaining security-contact placeholder.
+
 ## Remaining alpha caveats
 
 - Some legacy aliases remain intentionally for compatibility, especially `case` as an alias for `project` in deck/Excel generators.

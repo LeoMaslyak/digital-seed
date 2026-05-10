@@ -34,17 +34,24 @@ Digital Seed repo
 
 This is enough to get value.
 
-## Optional free local semantic search
+## Local retrieval without paid infrastructure
 
-Semantic search means your assistant can search by meaning, not just exact words.
+Start with keyword retrieval. It is simple, local, and good enough for the first useful loop:
 
-Free options:
+```bash
+bun run seed index ~/Documents/Notes
+bun run seed search "what do I know about my goals?"
+```
+
+Digital Seed keeps a local JSON search mirror so this works without a hosted vector database. If local embeddings are available, it can also store vectors.
+
+Free semantic-search upgrades:
 
 - Ollama with `nomic-embed-text`
 - local embedding models through JavaScript/Python tooling
 - embedded local vector stores such as LanceDB or sqlite-vec
 
-If this sounds confusing, skip it at first. Digital Seed should still work.
+If those words sound confusing, skip them at first. Digital Seed should still work.
 
 ## Paid or external services are upgrades, not prerequisites
 

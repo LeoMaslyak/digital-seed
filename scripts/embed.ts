@@ -229,28 +229,34 @@ async function storeDocuments(docs: Array<{
   id: string; content: string; source: string; hash: string;
   embedding: number[]; indexedAt: string; chunkIndex: number;
 }>): Promise<void> {
-  if (useFallback) {
-    const store = loadFallbackStore();
-    const sources = new Set(docs.map(d => d.source));
-    store.documents = store.documents.filter(d => !sources.has(d.source));
-    for (const doc of docs) {
-      store.documents.push({
-        id: doc.id, content: doc.content, source: doc.source,
-        hash: doc.hash, embedding: doc.embedding, indexedAt: doc.indexedAt,
-      });
-    }
-    store.lastIndexed = new Date().toISOString();
-    saveFallbackStore(store);
-    return;
+  // Always maintain a tiny JSON mirror so `bun run seed search` works even
+  // when LanceDB is installed but the user wants simple local keyword search.
+  // This keeps Digital Seed free-first: no hosted vector DB and no paid API key
+  // is required for the first useful retrieval loop.
+  const fallbackStore = loadFallbackStore();
+  const fallbackSources = new Set(docs.map(d => d.source));
+  fallbackStore.documents = fallbackStore.documents.filter(d => !fallbackSources.has(d.source));
+  for (const doc of docs) {
+    fallbackStore.documents.push({
+      id: doc.id, content: doc.content, source: doc.source,
+      hash: doc.hash, embedding: doc.embedding, indexedAt: doc.indexedAt,
+    });
   }
+  fallbackStore.lastIndexed = new Date().toISOString();
+  saveFallbackStore(fallbackStore);
 
-  const records = docs.map(d => ({
+  if (useFallback) return;
+
+  const vectorDocs = docs.filter(d => d.embedding.length > 0);
+  if (vectorDocs.length === 0) return;
+
+  const records = vectorDocs.map(d => ({
     id: d.id, content: d.content, source: d.source, hash: d.hash,
     vector: d.embedding, indexedAt: d.indexedAt, chunkIndex: d.chunkIndex,
   }));
 
   // Remove old records for these sources
-  const sources = [...new Set(docs.map(d => d.source))];
+  const sources = [...new Set(vectorDocs.map(d => d.source))];
   if (table) {
     for (const src of sources) {
       try { await table.delete(`source = '${src.replace(/'/g, "''")}'`); } catch {}
@@ -295,7 +301,6 @@ async function indexAll(config: EmbedConfig, specificPath?: string): Promise<voi
 
         for (let i = 0; i < chunks.length; i++) {
           const embedding = await getEmbedding(chunks[i], config);
-          if (embedding.length === 0) { totalErrors++; continue; }
           docs.push({
             id: `${hash}-${i}`, content: chunks[i], source: file,
             hash, embedding, indexedAt: new Date().toISOString(), chunkIndex: i,
@@ -305,7 +310,8 @@ async function indexAll(config: EmbedConfig, specificPath?: string): Promise<voi
         if (docs.length > 0) {
           await storeDocuments(docs);
           totalIndexed++;
-          console.log(`  ✓ ${rel} (${chunks.length} chunks)`);
+          const keywordOnly = docs.every(d => d.embedding.length === 0);
+          console.log(`  ✓ ${rel} (${chunks.length} chunks${keywordOnly ? ", keyword-only" : ""})`);
         }
       } catch (e) {
         totalErrors++;
