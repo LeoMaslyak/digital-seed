@@ -3,71 +3,264 @@
   <desc id="desc">An animated seed grows into a glowing tree with roots, branches, leaves, and small lights representing context, memory, tools, and workflows.</desc>
   <style>
     :root { color-scheme: dark; }
+    * { transform-box: fill-box; }
     .bg { fill: url(#bg); }
-    .soil { fill: #24351f; opacity: .85; }
+    .halo { fill: url(#halo); opacity: 0; transform-origin: 600px 250px; animation: halo 12s ease-in-out infinite; }
+    .moon { fill: #d9f6ec; opacity: .5; }
+    .star { fill: #eafaf3; opacity: .2; animation: star 12s ease-in-out infinite; }
+    .soil { fill: url(#soil); opacity: .95; }
+    .soil-line { fill: none; stroke: #536d3e; stroke-width: 4; stroke-linecap: round; opacity: .55; }
+    .seed-shell { fill: url(#seed); stroke: #ffd98a; stroke-width: 2; transform-origin: 600px 394px; animation: seed 12s cubic-bezier(.4,0,.2,1) infinite; }
+    .sprout { fill: none; stroke: #9ef0a1; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 92; stroke-dashoffset: 92; animation: sprout 12s ease-in-out infinite; }
     .root, .trunk, .branch { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .root { stroke: #8b6f45; stroke-width: 7; opacity: .72; stroke-dasharray: 460; stroke-dashoffset: 460; animation: draw 2.2s ease forwards .35s; }
-    .trunk { stroke: #b88752; stroke-width: 16; stroke-dasharray: 620; stroke-dashoffset: 620; animation: draw 2.5s ease forwards 1.2s; }
-    .branch { stroke: #c99a64; stroke-width: 9; stroke-dasharray: 420; stroke-dashoffset: 420; animation: draw 2s ease forwards 2.1s; }
-    .seed { fill: #d8a85e; transform-origin: 600px 394px; animation: seedPulse 2s ease-in-out infinite alternate; }
-    .leaf { opacity: 0; transform-box: fill-box; transform-origin: center; animation: leafIn .75s cubic-bezier(.2,.8,.2,1) forwards; }
-    .spark { fill: #f7e7a0; opacity: 0; animation: twinkle 2.8s ease-in-out infinite; }
-    .label { fill: #d6efe6; font: 600 22px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .02em; opacity: 0; animation: fadeIn .9s ease forwards 4.2s; }
-    .small { fill: #9fc7bc; font: 500 15px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; opacity: 0; animation: fadeIn .9s ease forwards 4.5s; }
-    .ring { fill: none; stroke: #8df3d1; stroke-width: 2; opacity: 0; animation: ring 3s ease-in-out infinite; }
-    @keyframes draw { to { stroke-dashoffset: 0; } }
-    @keyframes fadeIn { to { opacity: 1; } }
-    @keyframes leafIn { 0% { opacity: 0; transform: scale(.2) rotate(-18deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
-    @keyframes twinkle { 0%, 100% { opacity: .05; transform: scale(.75); } 45% { opacity: .95; transform: scale(1.15); } }
-    @keyframes seedPulse { from { transform: scale(.98); filter: drop-shadow(0 0 0 #f7d37a); } to { transform: scale(1.05); filter: drop-shadow(0 0 18px #f7d37a); } }
-    @keyframes ring { 0% { opacity: 0; r: 8; } 35% { opacity: .5; } 100% { opacity: 0; r: 44; } }
+    .root { stroke: url(#rootStroke); stroke-width: 7; opacity: 0; stroke-dasharray: 520; stroke-dashoffset: 520; animation: rootDraw 12s ease-in-out infinite; }
+    .root.fine { stroke-width: 3.5; opacity: 0; stroke-dasharray: 260; stroke-dashoffset: 260; animation: rootDraw 12s ease-in-out infinite; }
+    .trunk { stroke: url(#wood); stroke-width: 18; stroke-dasharray: 650; stroke-dashoffset: 650; filter: drop-shadow(0 3px 3px rgba(0,0,0,.28)); animation: trunkDraw 12s cubic-bezier(.2,.8,.2,1) infinite; }
+    .bark { fill: none; stroke: #704923; stroke-width: 3; stroke-linecap: round; opacity: 0; stroke-dasharray: 70; stroke-dashoffset: 70; animation: bark 12s ease-in-out infinite; }
+    .branch { stroke: url(#woodLight); stroke-width: 9; stroke-dasharray: 470; stroke-dashoffset: 470; animation: branchDraw 12s cubic-bezier(.2,.8,.2,1) infinite; }
+    .branch.thin { stroke-width: 5.5; stroke-dasharray: 260; stroke-dashoffset: 260; }
+    .leaf { opacity: 0; transform-origin: center; animation: leafBloom 12s cubic-bezier(.2,.8,.2,1) infinite; }
+    .fruit { fill: #8df3d1; stroke: #eaffd5; stroke-width: 2; opacity: 0; transform-origin: center; animation: fruitPulse 12s ease-in-out infinite; }
+    .spark { fill: #ffe9a8; opacity: 0; transform-origin: center; animation: spark 12s ease-in-out infinite; }
+    .spark.alt { fill: #9dfce2; }
+    .ring { fill: none; stroke: #8df3d1; stroke-width: 2.5; opacity: 0; transform-origin: center; animation: ring 12s ease-out infinite; }
+    .care { opacity: 0; animation: careIn 12s ease-in-out infinite; }
+    .care-stroke { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .can { fill: #7bd8c6; stroke: #d7fff5; stroke-width: 4; }
+    .can-line { fill: none; stroke: #17463d; stroke-width: 4; opacity: .45; }
+    .drop { fill: #8fe9ff; opacity: 0; animation: drop 12s ease-in-out infinite; }
+    .sun { fill: #ffd56a; filter: drop-shadow(0 0 16px rgba(255,213,106,.7)); opacity: 0; animation: sun 12s ease-in-out infinite; }
+    .ray { fill: none; stroke: #ffe6a3; stroke-width: 7; opacity: 0; animation: ray 12s ease-in-out infinite; }
+    .hand { fill: none; stroke: #ffd3ac; stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; opacity: 0; animation: hand 12s ease-in-out infinite; }
+    .cycle { fill: none; stroke: #a9ffe1; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 8 14; opacity: 0; animation: cycle 12s ease-in-out infinite; }
+    .label { fill: #e4f8ef; font: 700 22px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; opacity: 0; animation: textCycle 12s ease-in-out infinite; }
+    .small { fill: #a8cfc3; font: 500 15px ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; opacity: 0; animation: textCycle 12s ease-in-out infinite; }
+
+    .d2 { animation-delay: .16s; } .d3 { animation-delay: .32s; } .d4 { animation-delay: .48s; }
+    .d5 { animation-delay: .64s; } .d6 { animation-delay: .8s; } .d7 { animation-delay: .96s; }
+
+    @keyframes seed {
+      0%, 9% { opacity: 1; transform: scale(.98) rotate(-16deg); filter: drop-shadow(0 0 0 rgba(255,217,138,0)); }
+      15%, 24% { opacity: 1; transform: scale(1.08) rotate(-10deg); filter: drop-shadow(0 0 18px rgba(255,217,138,.8)); }
+      32%, 76% { opacity: .18; transform: scale(.62) rotate(8deg); }
+      84%, 100% { opacity: 0; transform: scale(.36) rotate(22deg); }
+    }
+    @keyframes sprout {
+      0%, 12% { opacity: 0; stroke-dashoffset: 92; }
+      18%, 32% { opacity: 1; stroke-dashoffset: 0; }
+      60%, 80% { opacity: .35; stroke-dashoffset: 0; }
+      92%, 100% { opacity: 0; stroke-dashoffset: 92; }
+    }
+    @keyframes rootDraw {
+      0%, 12% { opacity: 0; stroke-dashoffset: 520; }
+      24%, 67% { opacity: .78; stroke-dashoffset: 0; }
+      78%, 100% { opacity: 0; stroke-dashoffset: -120; }
+    }
+    @keyframes trunkDraw {
+      0%, 22% { opacity: 0; stroke-dashoffset: 650; }
+      36%, 72% { opacity: 1; stroke-dashoffset: 0; }
+      86%, 100% { opacity: 0; stroke-dashoffset: -130; }
+    }
+    @keyframes branchDraw {
+      0%, 32% { opacity: 0; stroke-dashoffset: 470; }
+      46%, 74% { opacity: 1; stroke-dashoffset: 0; }
+      88%, 100% { opacity: 0; stroke-dashoffset: -90; }
+    }
+    @keyframes bark {
+      0%, 40% { opacity: 0; stroke-dashoffset: 70; }
+      50%, 74% { opacity: .5; stroke-dashoffset: 0; }
+      86%, 100% { opacity: 0; stroke-dashoffset: -30; }
+    }
+    @keyframes leafBloom {
+      0%, 40% { opacity: 0; transform: scale(.15) rotate(-22deg); }
+      50%, 71% { opacity: 1; transform: scale(1) rotate(0deg); }
+      78% { opacity: .9; transform: scale(1.04) rotate(4deg); }
+      90%, 100% { opacity: 0; transform: scale(.2) rotate(28deg); }
+    }
+    @keyframes fruitPulse {
+      0%, 54% { opacity: 0; transform: scale(.3); }
+      62%, 76% { opacity: 1; transform: scale(1); }
+      82% { opacity: .4; transform: scale(1.4); }
+      92%, 100% { opacity: 0; transform: scale(.2); }
+    }
+    @keyframes spark {
+      0%, 38% { opacity: 0; transform: scale(.2); }
+      46% { opacity: .95; transform: scale(1.2); }
+      62% { opacity: .35; transform: scale(.75); }
+      72% { opacity: 1; transform: scale(1.15); }
+      90%, 100% { opacity: 0; transform: scale(.2); }
+    }
+    @keyframes ring {
+      0%, 10% { opacity: 0; transform: scale(.2); }
+      18% { opacity: .5; transform: scale(1.15); }
+      28%, 100% { opacity: 0; transform: scale(1.85); }
+    }
+    @keyframes careIn {
+      0%, 8% { opacity: 0; transform: translateY(-8px); }
+      13%, 27% { opacity: 1; transform: translateY(0); }
+      34%, 100% { opacity: 0; transform: translateY(5px); }
+    }
+    @keyframes drop {
+      0%, 12% { opacity: 0; transform: translateY(-18px) scale(.6); }
+      18%, 28% { opacity: .95; transform: translateY(38px) scale(1); }
+      35%, 100% { opacity: 0; transform: translateY(64px) scale(.5); }
+    }
+    @keyframes sun {
+      0%, 22% { opacity: 0; transform: scale(.5); }
+      28%, 44% { opacity: 1; transform: scale(1); }
+      53%, 100% { opacity: 0; transform: scale(.72); }
+    }
+    @keyframes ray {
+      0%, 22% { opacity: 0; stroke-dasharray: 0 80; }
+      30%, 43% { opacity: .65; stroke-dasharray: 80 0; }
+      52%, 100% { opacity: 0; stroke-dasharray: 0 80; }
+    }
+    @keyframes hand {
+      0%, 46% { opacity: 0; transform: translateX(18px); }
+      52%, 65% { opacity: .9; transform: translateX(0); }
+      74%, 100% { opacity: 0; transform: translateX(-12px); }
+    }
+    @keyframes halo {
+      0%, 34% { opacity: 0; transform: scale(.5); }
+      48%, 72% { opacity: .8; transform: scale(1); }
+      90%, 100% { opacity: 0; transform: scale(.35); }
+    }
+    @keyframes cycle {
+      0%, 66% { opacity: 0; stroke-dashoffset: 80; transform: rotate(0deg); }
+      74%, 86% { opacity: .65; stroke-dashoffset: 0; transform: rotate(18deg); }
+      94%, 100% { opacity: 0; stroke-dashoffset: -80; transform: rotate(40deg); }
+    }
+    @keyframes textCycle {
+      0%, 12% { opacity: 0; transform: translateY(8px); }
+      20%, 76% { opacity: 1; transform: translateY(0); }
+      90%, 100% { opacity: 0; transform: translateY(-8px); }
+    }
+    @keyframes star {
+      0%, 100% { opacity: .14; }
+      45%, 75% { opacity: .55; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .halo, .star, .seed-shell, .sprout, .root, .trunk, .bark, .branch, .leaf, .fruit, .spark, .ring, .care, .drop, .sun, .ray, .hand, .cycle, .label, .small { animation: none; }
+      .seed-shell, .sprout, .root, .trunk, .bark, .branch, .leaf, .fruit, .spark, .halo, .label, .small { opacity: 1; stroke-dashoffset: 0; }
+      .care, .drop, .sun, .ray, .hand, .cycle, .ring { opacity: .65; }
+    }
   </style>
   <defs>
-    <radialGradient id="bg" cx="50%" cy="35%" r="80%">
-      <stop offset="0%" stop-color="#143c35"/>
-      <stop offset="45%" stop-color="#102620"/>
-      <stop offset="100%" stop-color="#08110f"/>
+    <radialGradient id="bg" cx="50%" cy="33%" r="80%">
+      <stop offset="0%" stop-color="#1b5145"/>
+      <stop offset="44%" stop-color="#102920"/>
+      <stop offset="100%" stop-color="#070f0d"/>
     </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#92ffe2" stop-opacity=".65"/>
+      <stop offset="52%" stop-color="#62e0a5" stop-opacity=".16"/>
+      <stop offset="100%" stop-color="#62e0a5" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="soil" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#314a28"/>
+      <stop offset=".55" stop-color="#20341d"/>
+      <stop offset="1" stop-color="#152313"/>
+    </linearGradient>
+    <linearGradient id="seed" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe0a2"/>
+      <stop offset=".45" stop-color="#d89f4f"/>
+      <stop offset="1" stop-color="#8b5b28"/>
+    </linearGradient>
+    <linearGradient id="rootStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d2a46a"/>
+      <stop offset="1" stop-color="#705432"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#8f5f32"/>
+      <stop offset=".5" stop-color="#bd8752"/>
+      <stop offset="1" stop-color="#e0b06e"/>
+    </linearGradient>
+    <linearGradient id="woodLight" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a36f3e"/>
+      <stop offset="1" stop-color="#dca96a"/>
+    </linearGradient>
     <linearGradient id="leafA" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#b8ffd9"/>
-      <stop offset="1" stop-color="#3ac983"/>
+      <stop offset="0" stop-color="#d8ffbc"/>
+      <stop offset=".48" stop-color="#75e68f"/>
+      <stop offset="1" stop-color="#28a76f"/>
     </linearGradient>
     <linearGradient id="leafB" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#e2ffb5"/>
-      <stop offset="1" stop-color="#6ad66e"/>
+      <stop offset="0" stop-color="#baffef"/>
+      <stop offset=".55" stop-color="#60dba3"/>
+      <stop offset="1" stop-color="#228b72"/>
     </linearGradient>
   </defs>
+
   <rect class="bg" width="1200" height="520" rx="34"/>
-  <path class="soil" d="M150 398c155-31 280-27 450-12 170 15 305 11 450-13 31-5 58 19 58 50v97H92v-71c0-25 22-46 58-51z"/>
+  <circle class="moon" cx="1014" cy="72" r="27"/>
+  <circle class="star" cx="159" cy="84" r="3"/>
+  <circle class="star d3" cx="246" cy="48" r="2.5"/>
+  <circle class="star d6" cx="911" cy="124" r="3.5"/>
+  <circle class="star d4" cx="1080" cy="168" r="2.5"/>
+  <circle class="halo" cx="600" cy="232" r="228"/>
 
-  <circle class="ring" cx="600" cy="388" r="8"/>
-  <ellipse class="seed" cx="600" cy="394" rx="27" ry="18" transform="rotate(-16 600 394)"/>
+  <path class="soil" d="M142 397c150-33 285-27 454-12 170 15 305 10 459-15 33-5 60 20 60 53v97H88v-70c0-26 21-47 54-53z"/>
+  <path class="soil-line" d="M128 402c164-25 305-21 467-6 167 15 330 9 487-14"/>
+  <path class="cycle" d="M494 429a120 52 0 0 0 212 1"/>
 
-  <path class="root" d="M600 390c-45 22-76 54-111 91M596 392c22 30 54 55 99 80M599 392c-15 38-18 72-13 110M575 428c-34 5-71 3-115-8M634 424c45 9 88 9 137-5"/>
-
-  <path class="trunk" d="M600 392c-8-58 2-111 25-162 16-35 25-73 5-119"/>
-  <path class="branch" d="M619 265c-51-28-105-42-169-37M624 240c51-35 104-50 178-43M620 190c-30-43-74-73-139-91M633 173c44-45 97-71 171-82M627 132c-5-42-28-75-67-103"/>
+  <circle class="ring" cx="600" cy="390" r="10"/>
+  <ellipse class="seed-shell" cx="600" cy="394" rx="28" ry="18"/>
+  <path class="sprout" d="M600 381c-2-24 8-47 31-67"/>
 
   <g>
-    <ellipse class="leaf" style="animation-delay:2.8s" fill="url(#leafA)" cx="438" cy="226" rx="30" ry="15" transform="rotate(-18 438 226)"/>
-    <ellipse class="leaf" style="animation-delay:3.0s" fill="url(#leafB)" cx="502" cy="100" rx="34" ry="16" transform="rotate(32 502 100)"/>
-    <ellipse class="leaf" style="animation-delay:3.1s" fill="url(#leafA)" cx="792" cy="196" rx="36" ry="17" transform="rotate(-28 792 196)"/>
-    <ellipse class="leaf" style="animation-delay:3.25s" fill="url(#leafB)" cx="812" cy="88" rx="32" ry="16" transform="rotate(22 812 88)"/>
-    <ellipse class="leaf" style="animation-delay:3.35s" fill="url(#leafA)" cx="557" cy="34" rx="29" ry="14" transform="rotate(-34 557 34)"/>
-    <ellipse class="leaf" style="animation-delay:3.45s" fill="url(#leafB)" cx="474" cy="229" rx="22" ry="11" transform="rotate(20 474 229)"/>
-    <ellipse class="leaf" style="animation-delay:3.55s" fill="url(#leafA)" cx="733" cy="121" rx="25" ry="12" transform="rotate(-12 733 121)"/>
+    <path class="root" d="M600 392c-53 21-83 58-120 98M598 394c27 33 66 58 118 85M599 393c-17 40-21 76-15 111M574 426c-37 7-79 5-129-9M632 424c49 11 96 10 150-5"/>
+    <path class="root fine d2" d="M530 456c-32 2-58 13-78 34M678 451c30 8 55 23 78 45M591 472c-16 7-31 19-45 36M638 463c20 4 38 13 55 27"/>
   </g>
 
   <g>
-    <circle class="spark" style="animation-delay:3.6s" cx="455" cy="178" r="5"/>
-    <circle class="spark" style="animation-delay:4.1s" cx="530" cy="70" r="4"/>
-    <circle class="spark" style="animation-delay:4.5s" cx="716" cy="75" r="5"/>
-    <circle class="spark" style="animation-delay:4.8s" cx="829" cy="158" r="4"/>
-    <circle class="spark" style="animation-delay:5.2s" cx="642" cy="50" r="4"/>
+    <path class="trunk" d="M600 392c-9-58 3-115 26-164 18-38 21-79 1-121"/>
+    <path class="bark" d="M611 359c22-28 15-59 33-88M590 332c-16-27-6-58-18-89M622 231c-13-29-7-60 2-91"/>
+    <path class="branch" d="M620 267c-54-31-110-43-181-35M626 242c53-38 112-54 187-46M621 195c-34-46-79-76-147-98M633 176c47-48 104-76 180-86M628 135c-3-42-27-78-70-110"/>
+    <path class="branch thin d2" d="M493 227c-38-12-72-10-104 4M742 207c29-18 64-24 103-18M520 116c-22-27-51-43-86-50M730 113c21-25 48-43 82-54"/>
   </g>
 
-  <text class="label" x="86" y="104">Start with a seed of context.</text>
-  <text class="small" x="88" y="137">Goals · preferences · notes · tools · safe recipes</text>
-  <text class="label" x="790" y="398">Grow only what is useful.</text>
-  <text class="small" x="792" y="431">Local first. Agent neutral. Carefully tended.</text>
+  <g>
+    <ellipse class="leaf" fill="url(#leafB)" cx="432" cy="230" rx="34" ry="16" transform="rotate(-16 432 230)"/>
+    <ellipse class="leaf d2" fill="url(#leafA)" cx="492" cy="98" rx="37" ry="17" transform="rotate(31 492 98)"/>
+    <ellipse class="leaf d3" fill="url(#leafB)" cx="806" cy="196" rx="39" ry="18" transform="rotate(-27 806 196)"/>
+    <ellipse class="leaf d4" fill="url(#leafA)" cx="812" cy="88" rx="35" ry="16" transform="rotate(22 812 88)"/>
+    <ellipse class="leaf d5" fill="url(#leafB)" cx="558" cy="35" rx="32" ry="15" transform="rotate(-33 558 35)"/>
+    <ellipse class="leaf d6" fill="url(#leafA)" cx="389" cy="231" rx="25" ry="12" transform="rotate(11 389 231)"/>
+    <ellipse class="leaf d7" fill="url(#leafB)" cx="848" cy="189" rx="24" ry="12" transform="rotate(17 848 189)"/>
+    <ellipse class="leaf d2" fill="url(#leafA)" cx="733" cy="119" rx="28" ry="13" transform="rotate(-12 733 119)"/>
+    <ellipse class="leaf d4" fill="url(#leafB)" cx="435" cy="66" rx="25" ry="12" transform="rotate(27 435 66)"/>
+    <ellipse class="leaf d6" fill="url(#leafA)" cx="844" cy="60" rx="25" ry="12" transform="rotate(-24 844 60)"/>
+  </g>
+
+  <g>
+    <circle class="fruit" cx="489" cy="208" r="8"/>
+    <circle class="fruit d2" cx="720" cy="163" r="7"/>
+    <circle class="fruit d4" cx="616" cy="92" r="7"/>
+    <circle class="spark" cx="454" cy="176" r="5"/>
+    <circle class="spark alt d2" cx="530" cy="70" r="4"/>
+    <circle class="spark d3" cx="714" cy="75" r="5"/>
+    <circle class="spark alt d4" cx="836" cy="156" r="4"/>
+    <circle class="spark d6" cx="642" cy="50" r="4"/>
+    <circle class="spark alt d7" cx="604" cy="188" r="3.5"/>
+  </g>
+
+  <g class="care" transform="translate(0 0)">
+    <path class="can" d="M242 178l80-21 21 75-80 21z"/>
+    <path class="can care-stroke can-line" d="M320 169c41-17 65-6 76 25M261 185l78-20M279 250c13 14 32 8 39-10"/>
+    <path class="drop d2" d="M394 244c10 17 18 29 18 40 0 11-8 19-18 19s-18-8-18-19c0-11 8-23 18-40z"/>
+    <path class="drop d4" d="M439 236c9 15 16 26 16 36 0 9-7 16-16 16s-16-7-16-16c0-10 7-21 16-36z"/>
+    <path class="drop d6" d="M482 227c8 13 14 23 14 31 0 9-6 15-14 15s-14-6-14-15c0-8 6-18 14-31z"/>
+  </g>
+
+  <g>
+    <circle class="sun" cx="940" cy="112" r="34"/>
+    <path class="ray" d="M900 165L762 277M920 176L805 314M962 176L890 318M984 158L947 292"/>
+  </g>
+
+  <path class="hand" d="M918 370c-22-6-45-4-68 7-19 9-42 8-62-2M855 376c7-24 19-41 36-52M806 377c12-20 25-33 40-41"/>
+
+  <text class="label" x="86" y="104">Care turns context into growth.</text>
+  <text class="small" x="88" y="137">Water it with notes. Give it light. Prune and repeat.</text>
+  <text class="label" x="792" y="397">A living tree of useful memory.</text>
+  <text class="small" x="794" y="430">Roots, branches, tools, and sparks cycle back into the seed.</text>
 </svg>
