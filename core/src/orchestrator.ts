@@ -39,7 +39,7 @@ import { runWithQuality, llmJudge, type LLMCallFn, type QualityReport } from "./
 
 export type SpecialistCategory =
   | "research"   // Web research, synthesis, source analysis
-  | "study"      // learning and knowledge work, project analysis, learning prep
+  | "learning"   // learning and knowledge work, project analysis, preparation
   | "email"      // Email drafting, triage, replies
   | "writing"    // Essays, reports, documents
   | "code"       // Programming, debugging, code review
@@ -118,13 +118,13 @@ const ROUTING_SIGNALS: Record<SpecialistCategory, RegExp[]> = {
   research: [
     /\b(research|find|look up|search for|what is|who is|explain|tell me about)\b/i,
     /\b(summarize this|overview of|background on|history of|how does|why does)\b/i,
-    /\b(source|article|paper|study|evidence|fact.?check|verify)\b/i,
+    /\b(source|article|paper|evidence|fact.?check|verify)\b/i,
   ],
-  study: [
-    /\b(case|digital-seed|professional|knowledge work|learning|domain|study|source|mentor)\b/i,
-    /\b(finance|strategy|marketing|accounting|operations|economics|ob)\b/i,
-    /\b(analyze this case|framework|swot|porter|bcg|3c|prepare for)\b/i,
-    /\b(assignment|homework|thesis|dissertation|academic)\b/i,
+  learning: [
+    /\b(digital-seed|knowledge work|learning|domain|source|mentor|project)\b/i,
+    /\b(finance|strategy|marketing|accounting|operations|economics)\b/i,
+    /\b(analyze this project|framework|swot|porter|bcg|prepare for)\b/i,
+    /\b(prepare|learn|understand|learning plan)\b/i,
   ],
   email: [
     /\b(email|write an email|draft an email|reply to|send a message)\b/i,
@@ -516,7 +516,7 @@ function getDefaultConfig(category: SpecialistCategory): AgentConfig {
 function getCategoryDescription(category: SpecialistCategory): string {
   const descriptions: Record<SpecialistCategory, string> = {
     research: "Web research, synthesis, and source analysis",
-    study: "learning and knowledge work, project analysis, and learning prep",
+    learning: "learning and knowledge work, project analysis, and learning prep",
     email: "Email drafting, triage, and replies",
     writing: "Essays, reports, and structured documents",
     code: "Programming, debugging, and code review",
@@ -536,7 +536,7 @@ function buildRoutingReason(
 }
 
 function initScores(): Record<SpecialistCategory, number> {
-  return { research: 0, study: 0, email: 0, writing: 0, code: 0, "life-admin": 0, general: 0 };
+  return { research: 0, learning: 0, email: 0, writing: 0, code: 0, "life-admin": 0, general: 0 };
 }
 
 function clamp(n: number): number {

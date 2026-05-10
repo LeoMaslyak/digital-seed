@@ -72,7 +72,7 @@ Use these categories when routing work:
 - `strategy` — decisions, tradeoffs, business/project direction
 - `finance` — models, analysis, valuation, budgeting
 - `operations` — process, systems, execution, workflows
-- `learning` — study plans, understanding topics, skill building
+- `learning` — learning plans, understanding topics, skill building
 - `life-admin` — schedules, tasks, logistics, personal ops
 - `general` — anything else
 

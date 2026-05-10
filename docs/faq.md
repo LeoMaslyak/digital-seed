@@ -96,7 +96,7 @@ bun run marketplace publish my-pattern  # generates PR to share with everyone
 ## Collaboration
 
 **Q: How does the learning group feature work?**
-Each member runs their own kit instance. You add your analysis to the shared `collab/study-groups/<group>/members/<you>.md` file. The system auto-merges everyone's contributions into `context.md`. Your personal files (`user/`, `data/`) are never part of the merge.
+Each member runs their own kit instance. You add your analysis to the shared `collab/learning-groups/<group>/members/<you>.md` file. The system auto-merges everyone's contributions into `context.md`. Your personal files (`user/`, `data/`) are never part of the merge.
 
 **Q: What's the pre-commit hook doing?**
 Before every `git commit`, it scans staged files for: email addresses, phone numbers, API keys, absolute file paths, and password literals. If it finds any in `collab/` files, the commit is blocked. This prevents accidental personal data leaks into shared content.

@@ -49,8 +49,10 @@ function run(script: string, scriptArgs: string[]): void {
 function walkFiles(dir: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
   for (const entry of readdirSync(dir)) {
-    if ([".git", "node_modules", "exports", "data/rag"].includes(entry)) continue;
+    if ([".git", "node_modules", "exports", "data", "logs"].includes(entry)) continue;
     const full = join(dir, entry);
+    const rel = full.startsWith(ROOT) ? full.slice(ROOT.length + 1) : full;
+    if (rel === "data/rag" || rel.startsWith("data/rag/")) continue;
     const st = statSync(full);
     if (st.isDirectory()) walkFiles(full, out);
     else if (st.isFile()) out.push(full);
@@ -106,6 +108,8 @@ function privacyScan(): void {
   const risky = [
     ...denyTerms.map((term) => new RegExp(`\\b${escapeRegExp(term)}\\b`, "i")),
     /passport\s*[:=]/i,
+    /(?:email|mail)\s*[:=]\s*[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i,
+    /(?:phone|mobile|tel)\s*[:=]\s*\+?\d[\d\s().-]{8,}\d/i,
     /ghp_[A-Za-z0-9_]+/,
     /sk-[A-Za-z0-9]{20,}/,
     /BEGIN (RSA|OPENSSH) PRIVATE KEY/,

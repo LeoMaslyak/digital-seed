@@ -9,7 +9,7 @@
 - `bcg-matrix` — Portfolio analysis with SBU mapping
 - `competitive-dynamics` — Competitor profiling, VRIO, competitive interaction
 
-**Agent override:** `study.yaml` — Strategy-tuned study specialist
+**Agent override:** `learning.yaml` — Strategy-tuned learning specialist
 
 **Templates:** `project-analysis.md`, `learning-prep.md`
 

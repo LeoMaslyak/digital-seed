@@ -14,7 +14,7 @@ The recommended approach is the Gmail MCP server:
       "command": "npx",
       "args": ["-y", "@anthropic/mcp-gmail"],
       "env": {
-        "GMAIL_CREDENTIALS_PATH": "~/.config/dai/gmail-credentials.json"
+        "GMAIL_CREDENTIALS_PATH": "~/.config/digital-seed/gmail-credentials.json"
       }
     }
   }
@@ -28,7 +28,7 @@ The recommended approach is the Gmail MCP server:
 3. Enable the Gmail API
 4. Create OAuth 2.0 credentials (Desktop application)
 5. Download the credentials JSON
-6. Save to `~/.config/dai/gmail-credentials.json`
+6. Save to `~/.config/digital-seed/gmail-credentials.json`
 7. First run will open a browser for authorization
 
 ### Usage
@@ -42,5 +42,5 @@ The recommended approach is the Gmail MCP server:
 ## Security Notes
 
 - **Never auto-send** — always review AI-drafted emails before sending
-- OAuth tokens are stored locally in `~/.config/dai/`
+- OAuth tokens are stored locally in `~/.config/digital-seed/`
 - Revoke access anytime at [Google Account Permissions](https://myaccount.google.com/permissions)

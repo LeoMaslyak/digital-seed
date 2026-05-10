@@ -10,7 +10,7 @@
 *(2–3 sentences: what is the decision the protagonist faces?)*
 
 ## 2. Financial Position
-*(Key metrics from the case: revenue, EBITDA, debt, margins)*
+*(Key metrics from the source material: revenue, EBITDA, debt, margins)*
 
 | Metric | Value | YoY |
 |--------|-------|-----|

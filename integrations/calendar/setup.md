@@ -12,7 +12,7 @@ Connect your Google Calendar so your AI knows your schedule.
       "command": "npx",
       "args": ["-y", "mcp-google-calendar"],
       "env": {
-        "GOOGLE_CALENDAR_CREDENTIALS": "~/.config/dai/calendar-credentials.json"
+        "GOOGLE_CALENDAR_CREDENTIALS": "~/.config/digital-seed/calendar-credentials.json"
       }
     }
   }
@@ -23,13 +23,13 @@ Connect your Google Calendar so your AI knows your schedule.
 
 1. Enable Calendar API in [Google Cloud Console](https://console.cloud.google.com)
 2. Create OAuth 2.0 credentials
-3. Save to `~/.config/dai/calendar-credentials.json`
+3. Save to `~/.config/digital-seed/calendar-credentials.json`
 4. Authorize on first run
 
 ### Usage
 
 ```
 "What's on my calendar this week?"
-"Schedule a study session for Thursday at 3pm"
+"Schedule a project review for Thursday at 3pm"
 "Find a free slot for a 1-hour meeting this week"
 ```

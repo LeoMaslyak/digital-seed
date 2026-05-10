@@ -43,9 +43,8 @@ Additional cleanup after the first response:
 
 ## Remaining alpha caveats
 
-- Some legacy aliases remain intentionally for compatibility, especially `case` as an alias for `project` in deck/Excel generators.
+- Some legacy aliases remain intentionally for compatibility, especially the legacy project alias in deck/Excel generators.
 - Some specialist packs still contain finance/strategy/project-analysis language. They should be reframed as optional examples, not the default product identity.
-- The dashboard is now less misleading, but still an alpha demo. It should not be the main landing surface until it is fully driven by real setup state.
 - Full TypeScript verification is still blocked by missing optional MCP/dev dependencies in this checkout, not only by source syntax.
 
 ## Promotion guidance

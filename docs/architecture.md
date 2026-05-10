@@ -65,7 +65,7 @@
 │  data/tasks.json  data/precedents.json  logs/                  │
 │                                                                 │
 │  Shared (git-tracked — safe to push)                           │
-│  collab/projects/  collab/study-groups/                        │
+│  collab/projects/  collab/learning-groups/                        │
 │  patterns/  packs/  agents/                                    │
 │                                                                 │
 │  Indexed (local cache — not pushed)                            │
@@ -81,7 +81,7 @@
 
 Three-layer routing for every request:
 
-1. **Router** — Keyword scoring + hard-intent overrides classify requests into specialist categories: `research`, `study`, `email`, `writing`, `code`, `life-admin`, `general`
+1. **Router** — Keyword scoring + hard-intent overrides classify requests into specialist categories: `research`, `learning`, `email`, `writing`, `code`, `life-admin`, `general`
 2. **Specialist** — Load YAML config from `agents/<category>.yaml` → adopt system prompt, tools, patterns
 3. **Quality Gate** — Cheap model evaluates output on 4 dimensions (0–1 each). If below threshold, retry with feedback. Up to `maxRetries` iterations.
 
@@ -149,7 +149,7 @@ Wired into `autonomy.ts`: notify-level tasks auto-downgrade to silent when sleep
 ### Typical request
 ```
 User message
-    → orchestrator classifies (research/study/code/etc.)
+    → orchestrator classifies (research/learning/code/etc.)
     → loads specialist YAML (agents/<category>.yaml)
     → builds prompt with patterns + tools
     → agent generates response
@@ -171,7 +171,7 @@ Scheduler triggers run-task.ts
     → daily digest consolidates everything
 ```
 
-### Study group collaboration
+### Learning group collaboration
 ```
 Member adds analysis
     → addStudyGroupContribution() → members/<handle>.md
@@ -227,8 +227,8 @@ digital-seed/
 │
 ├── agents/                ← Specialist YAML configs
 │   ├── research.yaml
-│   ├── study.yaml
-│   ├── finance-study.yaml  (installed with pack:finance)
+│   ├── learning.yaml
+│   ├── finance-learning.yaml  (installed with pack:finance)
 │   └── ...
 │
 ├── patterns/              ← Prompt patterns (Fabric-style)
@@ -243,7 +243,7 @@ digital-seed/
 │
 ├── collab/                ← Git-tracked shared content
 │   ├── projects/
-│   └── study-groups/
+│   └── learning-groups/
 │
 ├── scripts/               ← CLI tools
 │   ├── seed.ts             Unified entry point

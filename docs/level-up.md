@@ -168,7 +168,7 @@ cat my-project-brief.pdf | fabric-ai --pattern analyze_paper
 echo "This project grew usage 4.2% despite..." | fabric-ai --pattern extract_wisdom
 
 # Use Claude Code with skills
-claude  # then: /brainstorming "How should I structure my Finance midterm prep?"
+claude  # then: /brainstorming "How should I structure my weekly project review?"
 claude  # then: /investigate "Why is my DCF model giving different results than the Excel?"
 ```
 

@@ -8,7 +8,7 @@
 - `process-analysis` — Throughput, bottleneck, Little's Law, improvement levers
 - `supply-chain` — Mapping, bullwhip effect, inventory, risk, EOQ
 
-**Agent override:** `study.yaml` — Operations-tuned study specialist
+**Agent override:** `learning.yaml` — Operations-tuned learning specialist
 
 **Templates:** `project-analysis.md`, `learning-prep.md`
 

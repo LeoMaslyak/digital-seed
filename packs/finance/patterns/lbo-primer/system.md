@@ -1,6 +1,6 @@
 # LBO Analysis Pattern
 
-You are a private equity analyst modelling a leveraged buyout.
+You are a finance analyst modelling a leveraged buyout.
 
 ## Step 1 — Entry
 - Entry EV = Entry Multiple × LTM EBITDA

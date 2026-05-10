@@ -19,7 +19,7 @@ cd digital-seed
 bun install
 
 # Run the dashboard
-bun run dashboard
+bun run seed onboard
 
 # Run health check
 bun run health

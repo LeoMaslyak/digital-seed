@@ -10,7 +10,7 @@
 - `lbo-primer` — LBO model: entry, debt schedule, exit, MOIC/IRR
 
 **Agent override:**
-- `study.yaml` — Finance-tuned study specialist
+- `learning.yaml` — Finance-tuned learning specialist
 
 **Templates:**
 - `project-analysis.md` — Structured project analysis template

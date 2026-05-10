@@ -11,7 +11,7 @@ Clarity about what you don't want is often more useful than another list of thin
 
 *(What would look like "success" to others but isn't your priority?)*
 
-- *(e.g., maximizing GPA at the expense of learning)*
+- *(e.g., optimizing a metric that no longer matters at the expense of real progress)*
 - *(e.g., networking events that don't lead anywhere real)*
 - *(e.g., doing everything — I'd rather go deep on fewer things)*
 

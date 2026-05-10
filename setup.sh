@@ -461,7 +461,7 @@ USEREOF
   } > "$SCRIPT_DIR/user/GOALS.md"
 
   echo -e "  ${GREEN}✓${NC} user/GOALS.md written with your goals"
-  bun run scripts/seed-graph.ts --name "$user_name" --goal "$goal_near" --vision "$goal_vision" --current "$goal_current" --packs "finance,strategy,operations" 2>/dev/null || true
+  bun run scripts/seed-graph.ts --name "$user_name" --goal "$goal_near" --vision "$goal_vision" --current "$goal_current" --packs "general" 2>/dev/null || true
   echo ""
 }
 

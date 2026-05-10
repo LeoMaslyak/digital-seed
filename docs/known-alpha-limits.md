@@ -8,7 +8,7 @@ Digital Seed is a repo you run locally. It does not provide hosted accounts, cen
 
 ## Not a dashboard product
 
-The old local dashboard is archived as an experimental reference. If you want a visual dashboard, use a mature open-source dashboard and adapt it. See [`dashboard-options.md`](dashboard-options.md).
+Digital Seed does not ship a built-in dashboard. If you want a visual dashboard, use a mature open-source dashboard and adapt it. See [`dashboard-options.md`](dashboard-options.md).
 
 ## Integrations are recipes first
 

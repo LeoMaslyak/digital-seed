@@ -28,7 +28,7 @@ packs/<name>/
     <pattern-name>/
       system.md      ← prompt instructions for this pattern
   agents/
-    study.yaml       ← agent override (domain-specific study specialist)
+    learning.yaml       ← agent override (domain-specific learning specialist)
   templates/
     project-analysis.md    ← structured project analysis template
     learning-prep.md     ← formula sheet and learning strategy
