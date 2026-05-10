@@ -34,7 +34,7 @@
       "setup": "integrations/obsidian/setup.md"
     },
     "gmail": {
-      "package": "@anthropic/mcp-gmail",
+      "package": "example-gmail-mcp-server",
       "description": "Gmail read, search, draft, send",
       "setup": "integrations/email/setup.md"
     },

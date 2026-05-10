@@ -6,7 +6,7 @@ It is **git-tracked** and safe to commit — no personal data lives here.
 ## What lives here
 
 - `projects/` — shared project notes, decisions, and tasks
-- `study-groups/` — project analysis analysis and group context
+- `study-groups/` — shared analysis and group context
 
 ## What stays personal (never committed)
 
@@ -24,19 +24,19 @@ The pre-commit hook enforces this boundary automatically.
 bun run collab hook install
 
 # Create a shared project
-bun run collab create "Sample Project" --desc "Strategy project analysis" --members alice,bob
+bun run collab create "Sample Project" --desc "Shared project workspace" --members alice,bob
 
 # Add a note
 bun run collab note sample-project "Key context: current project has three open decisions..." --author alice
 
 # Create a learning group
-bun run collab group create "Finance Group A" --domain "Finance I" --topic "Project Analysis"
+bun run collab group create "Project Circle" --domain "Product" --topic "Launch Plan"
 
 # Add your analysis
-bun run collab group add finance-group-a alice "DCF terminal value assuming 2% growth..."
+bun run collab group add project-circle alice "Key risk: users may not understand the first setup step."
 
 # See the merged context
-bun run collab group show finance-group-a
+bun run collab group show project-circle
 
 # Check for personal data before committing
 bun run collab check

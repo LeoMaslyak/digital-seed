@@ -27,7 +27,6 @@ const FONT = "Calibri";
 
 const TEMPLATES: Record<string, string> = {
   project: "general project analysis (Title, Situation, Analysis, Options, Recommendation, Q&A)",
-  case: "legacy alias for project analysis",
   strategy: "Strategy presentation (Title, Market, Competitive, Options, Recommendation)",
   finance: "Finance presentation (Title, Overview, DCF, Comparables, Investment Thesis)",
 };
@@ -390,7 +389,7 @@ function defaultCaseContent(): CaseContent {
     title: {
       company: "[Company Name]",
       subtitle: "Project Analysis Analysis",
-      domain: "Strategy / Finance I",
+      domain: "Strategy / Finance",
       date: today(),
       team: "Team Members",
     },
@@ -504,7 +503,7 @@ function defaultFinanceContent(): FinanceContent {
     title: {
       company: "[Company Name]",
       subtitle: "Financial Analysis & Valuation",
-      domain: "Finance I",
+      domain: "Finance",
       date: today(),
       team: "Team Members",
     },
@@ -541,9 +540,9 @@ function defaultFinanceContent(): FinanceContent {
     thesis: {
       statement: "BUY — 25% upside to fair value of €48/share based on blended DCF and comparables",
       bullets: [
-        "Bull case (€58): Margin expansion to peer median + successful product launch = 45% upside",
-        "Base case (€48): Moderate growth, gradual margin improvement = 25% upside",
-        "Bear case (€32): Margin stagnation, competitive pressure = 16% downside",
+        "Upside scenario (€58): Margin expansion to peer median + successful product launch = 45% upside",
+        "Base scenario (€48): Moderate growth, gradual margin improvement = 25% upside",
+        "Downside scenario (€32): Margin stagnation, competitive pressure = 16% downside",
       ],
     },
   };
@@ -554,7 +553,7 @@ function defaultFinanceContent(): FinanceContent {
 function buildFillPrompt(template: string, topicName: string): string {
   const dateStr = today();
 
-  if (template === "project" || template === "case") {
+  if (template === "project") {
     return `You are generating content for an professional project analysis presentation about: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exact structure:
 {
@@ -598,7 +597,7 @@ Make content specific to the topic with realistic numbers and clear, domain-awar
   return `You are generating content for an professional finance/valuation presentation about: "${topicName}".
 Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exact structure:
 {
-  "title": { "company": "Company Name", "subtitle": "Valuation topic", "domain": "Finance I", "date": "${dateStr}" },
+  "title": { "company": "Company Name", "subtitle": "Valuation topic", "domain": "Finance", "date": "${dateStr}" },
   "overview": { "bullets": ["4 specific bullets about financial performance with real numbers"] },
   "dcf": {
     "headers": ["Metric", "2026E", "2027E", "2028E", "2029E", "Terminal"],
@@ -622,7 +621,7 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) with this exa
     ],
     "alignRight": [1,2,3,4]
   },
-  "thesis": { "statement": "BUY/HOLD/SELL — clear thesis with target price", "bullets": ["Bull case", "Base case", "Bear case"] }
+  "thesis": { "statement": "BUY/HOLD/SELL — clear thesis with target price", "bullets": ["Upside scenario", "Base scenario", "Downside scenario"] }
 }
 Use realistic financial data appropriate for the company/sector. Include actual peer companies.`;
 }
@@ -716,7 +715,6 @@ export async function generateDeck(
   const useFill = options?.fill && options?.topicName;
 
   switch (template) {
-    case "case":
     case "project": {
       const content = useFill
         ? await fillContent("project", options!.topicName!, defaultCaseContent, options?.webContext)

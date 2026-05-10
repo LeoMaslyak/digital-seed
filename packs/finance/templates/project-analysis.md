@@ -1,6 +1,6 @@
 # Finance Project Analysis — [Company Name]
 
-**Domain:** Finance I / II
+**Domain:** Finance / II
 **Date:**
 **Team:**
 

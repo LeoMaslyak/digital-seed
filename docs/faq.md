@@ -27,12 +27,7 @@ See [governance.md](governance.md) for a full guide to the personal context file
 You need to be comfortable running terminal commands. The setup wizard handles configuration — no coding required to use it. You'll need basic familiarity with a text editor to edit your personal context files.
 
 **Q: What does it cost?**
-The kit is free and open source. You pay only for AI model API usage:
-- Anthropic Claude Sonnet: ~$3/M input tokens, ~$15/M output tokens
-- OpenAI GPT-4o: similar pricing
-- **Ollama (local)**: completely free — runs on your machine
-
-Typical professional user usage: $5–15/month with Claude.
+The kit is free and open source. Costs depend on the AI agent or model provider you choose. Subscription-based tools may not require separate API keys; API-based tools charge according to the provider's current pricing. Ollama/local models can run without model API costs, subject to your hardware.
 
 **Q: Which AI agent should I use?**
 Digital Seed does not recommend one agent for everyone. Claude Code is strong for terminal/project work; Cursor and Windsurf are strong editor-based options; OpenClaw and Hermes are useful for always-on assistant workflows. See `docs/agent-chooser.md` and choose based on how you work.
@@ -81,7 +76,7 @@ bun run setup
 | Operations | Process Analysis, Supply Chain | Operations specialist | Project workflow, learning prep |
 
 **Q: Can I modify the pack patterns?**
-Yes — they're just markdown files in `patterns/<name>/system.md`. Edit them directly. Your changes don't affect other club members' installations.
+Yes — they're just markdown files in `patterns/<name>/system.md`. Edit them directly. Your changes don't affect other users' installations.
 
 **Q: How do I create my own pattern?**
 ```bash
@@ -96,7 +91,7 @@ bun run marketplace publish my-pattern  # generates PR to share with everyone
 ## Collaboration
 
 **Q: How does the learning group feature work?**
-Each member runs their own kit instance. You add your analysis to the shared `collab/learning-groups/<group>/members/<you>.md` file. The system auto-merges everyone's contributions into `context.md`. Your personal files (`user/`, `data/`) are never part of the merge.
+Each member runs their own kit instance. You add your analysis to the shared `collab/study-groups/<group>/members/<you>.md` file. The system auto-merges everyone's contributions into `context.md`. Your personal files (`user/`, `data/`) are never part of the merge.
 
 **Q: What's the pre-commit hook doing?**
 Before every `git commit`, it scans staged files for: email addresses, phone numbers, API keys, absolute file paths, and password literals. If it finds any in `collab/` files, the commit is blocked. This prevents accidental personal data leaks into shared content.

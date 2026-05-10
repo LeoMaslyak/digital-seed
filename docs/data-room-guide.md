@@ -17,34 +17,43 @@ It should not contain private, school-specific, employer-specific, or copyrighte
 ## Recommended folder structure
 
 ```text
-Digital Seed — Public Starter Kit/
+Digital Seed — Public Starter Kit v0.3/
 ├── 00 Start Here/
+│   ├── START HERE.md
 │   ├── README — What This Is.md
-│   ├── 10-Minute Setup.md
+│   ├── First 15 Minutes.md
+│   ├── Let an AI Agent Install It.md
 │   └── First Session Prompt.md
-├── 01 Presentation/
-│   ├── Digital Seed — Intro Deck.pdf
-│   └── Digital Seed — Intro Deck source.pptx
-├── 02 Learning Materials/
-│   ├── Personal AI Infrastructure Primer.md
-│   ├── Context Files Explained.md
-│   ├── Memory and Privacy.md
-│   ├── Skill Packs and Patterns.md
-│   └── Examples of Good First Prompts.md
+├── 01 Visual Story/
+│   ├── Digital Seed — Magical Tree.svg
+│   └── README.md
+├── 02 Guides/
+│   ├── Free First Setup.md
+│   ├── Agent Chooser.md
+│   ├── Architecture Map.md
+│   ├── Integration Recipes.md
+│   ├── Dashboard Options.md
+│   └── Known Alpha Limits.md
 ├── 03 Templates/
 │   ├── USER.template.md
 │   ├── COMPASS.template.md
 │   ├── GOALS.template.md
 │   ├── DOMAINS.template.md
 │   ├── PREFERENCES.template.md
-│   └── ANTI-GOALS.template.md
-├── 04 Demos/
-│   ├── Demo Script — Build Your First Assistant.md
-│   └── Demo Output — Example Planning Session.md
-└── 05 Advanced/
-    ├── Connecting Notes and Documents.md
-    ├── Building Your Own Skill Pack.md
-    └── Roadmap Ideas.md
+│   ├── ANTI-GOALS.template.md
+│   └── MEMORY.template.md
+├── 04 Recipes/
+│   ├── Recipes Overview.md
+│   ├── obsidian.md
+│   ├── google-drive.md
+│   ├── telegram-bot.md
+│   ├── openclaw-agent.md
+│   ├── hermes-agent.md
+│   ├── claude-code-project.md
+│   └── github-repo-assistant.md
+└── 05 Audit and Safety/
+    ├── Governance.md
+    └── Audit Response.md
 ```
 
 ## Must exclude

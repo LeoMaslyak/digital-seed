@@ -6,7 +6,7 @@ Pre-built bundles of patterns, agent overrides, and templates for community doma
 
 | Pack | Domains | Patterns | Key Frameworks |
 |------|---------|----------|----------------|
-| `finance` | Finance I & II | dcf-analysis, ratio-analysis, lbo-primer | DCF, Comps, LBO, DuPont |
+| `finance` | Finance workflows | dcf-analysis, ratio-analysis, lbo-primer | DCF, Comps, LBO, DuPont |
 | `strategy` | Strategic decisions and option analysis | five-forces, bcg-matrix, competitive-dynamics | Tradeoffs, risks, positioning |
 | `operations` | Operations Management, Supply Chain | process-analysis, supply-chain | Little's Law, EOQ, TOC |
 

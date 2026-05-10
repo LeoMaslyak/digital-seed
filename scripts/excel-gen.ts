@@ -20,7 +20,6 @@ const TEMPLATES: Record<string, string> = {
   dcf: "Discounted Cash Flow model (Assumptions, Projections, Valuation, Sensitivity)",
   ratios: "Financial ratios template (Liquidity, Profitability, Leverage, Efficiency)",
   project: "general project analysis data table (company, financials, ratios, notes)",
-  case: "legacy alias for project analysis",
 };
 
 function today(): string {
@@ -502,7 +501,7 @@ async function fillExcelContent(wb: ExcelJS.Workbook, template: string, topicNam
 
   if (template === "dcf") applyDCFFill(wb, parsed as DCFAssumptions);
   else if (template === "ratios") applyRatiosFill(wb, parsed as RatiosFill);
-  else if (template === "case" || template === "project") applyCaseFill(wb, parsed as CaseFill);
+  else if (template === "project") applyCaseFill(wb, parsed as CaseFill);
 
   console.log("✅ AI-generated assumptions applied");
 }
@@ -521,7 +520,6 @@ export async function generateExcel(template: string, outputDir: string, options
     case "ratios":
       buildRatios(wb);
       break;
-    case "case":
     case "project":
       buildCase(wb);
       break;
