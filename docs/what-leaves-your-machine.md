@@ -6,7 +6,7 @@ The important caveat is that **your AI agent and optional integrations may send 
 
 ## By default, Digital Seed itself does not upload your files
 
-A fresh clone plus the first-run path stays local:
+A fresh clone plus the first-run path keeps your personal data local:
 
 ```bash
 bun install
@@ -16,6 +16,8 @@ bun run seed first-prompt
 ```
 
 Those commands read local files and print local guidance. They do not create an account, sync your notes, upload your `user/` folder, or send telemetry to this project.
+
+One honest nuance: `bun install` itself fetches package tarballs from the public npm registry over the network — that is how any package manager works. It does **not** send your personal files, prompts, or `user/` content anywhere. If you need to audit what gets pulled, see `package.json` and `bun.lock`.
 
 ## What may leave your machine
 

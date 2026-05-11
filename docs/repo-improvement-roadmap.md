@@ -37,16 +37,18 @@ Milestone 4 has shipped at the repo level. External-user validation is still nee
 5. **External validation loop** — still open
    - Issue templates and PR template are in place from Milestone 3; first outside issues/PRs still pending.
    - Treat first external walkthroughs as validation, not as proof yet.
+   - 2026-05-11: ran a simulated three-persona hostile audit (`docs/simulated-external-user-audit-2026-05-11.md`) and fixed the P0/P1 install-path contradictions it surfaced. This is a sanity check, not real external validation.
 
 ## Immediate next sprint — Milestone 5 prep
 
 Now that the surface is coherent, the next gate is the run to a 1.0 candidate. Focus areas:
 
 1. Supported-platform proof on macOS + Linux (and an honest Windows/WSL stance).
-2. External tester walkthroughs — invite 3–5 people to run the first-15-minute path cold.
-3. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it.
+2. **Real** external tester walkthroughs — invite 3–5 people to run the first-15-minute path cold. Simulated persona audits do not substitute.
+3. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it. (One pass on 2026-05-11 clarified the `bun install` network nuance based on a simulated skeptic.)
 4. Audit again for maintainer-only assumptions that sneak into beginner docs.
 5. Decide whether any ADVANCED commands should be deprecated or split out before 1.0.
+6. Address remaining P2 items from `docs/simulated-external-user-audit-2026-05-11.md` (CONTRIBUTING repo-shape gaps, ordering ambiguity in `seed onboard` step 3, privacy-scan deny-list commentary).
 
 ## Completed Milestone 3 open-source usability work
 

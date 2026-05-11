@@ -101,15 +101,24 @@ Start with one folder. For free vs. paid stacks, see [Free-First Setup](free-fir
 
 ## 8. Other useful commands
 
+Beginner-safe checks:
+
 ```bash
-bun run health        # Local setup health
-bun run tokens        # Token usage report
-bun run digest        # Summarize pending activity
-bun run marketplace   # Browse skill packs and patterns
-bun run seed          # Digital Seed helper CLI (all subcommands)
+bun run seed doctor          # Local setup health
+bun run seed privacy-scan    # Flag common private leftovers
+bun run seed recipe list     # Browse integration recipes
+bun run seed                 # See the full taxonomy (beginner / advanced / maintainer)
 ```
 
-If you want a visual dashboard, Digital Seed intentionally does not bundle one. See [Dashboard Options](dashboard-options.md).
+Advanced / maintainer commands (skip on day one):
+
+```bash
+bun run tokens        # Token usage report (maintainer)
+bun run digest        # Summarize pending activity (advanced)
+bun run marketplace   # Browse skill packs and patterns (maintainer)
+```
+
+These exist but are deliberately not part of the first-15-minute promise. Run `bun run seed help` for the labeled beginner / advanced / maintainer taxonomy. Visual dashboards are intentionally not bundled; see [Dashboard Options](dashboard-options.md).
 
 ## 9. Privacy reminder
 

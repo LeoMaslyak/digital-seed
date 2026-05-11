@@ -16,7 +16,7 @@ Current usability scorecard:
 - **Docs / trust / safety:** ~80% — examples, troubleshooting, known limits, privacy caveats, and a dedicated “what leaves your machine?” trust page.
 - **Open-source contributor readiness:** ~80% — tightened contributor guide, issue templates, PR template, and external-user reporting flow are in place; needs real contributor validation.
 - **Product coherence:** ~80% — beginner / advanced / maintainer surfaces are explicitly labeled in CLI help and README; recipes are labeled official alpha-supported vs experimental/adapt-yourself.
-- **External validation:** ~20–30% — real outside-user walkthroughs have not happened yet.
+- **External validation:** ~25–30% — real outside-user walkthroughs have not happened yet. One simulated hostile-persona pass (`docs/simulated-external-user-audit-2026-05-11.md`) caught a small batch of beginner-path P0/P1 contradictions, but a simulation is not a substitute for real outside testers.
 
 Overall assessment: **~80% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
 
@@ -38,6 +38,7 @@ Shipped and verified:
 - Health output now distinguishes clean pass from pass-with-warnings.
 - Markdown link checker exists locally and in CI.
 - Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
+- Simulated external-user audit: three hostile fresh-user personas walked through README → first-15-minutes → CLI help (`docs/simulated-external-user-audit-2026-05-11.md`). P0/P1 contradictions in the beginner install path were fixed in the same pass. This is *not* a substitute for real outside-tester walkthroughs.
 
 Current public data room:
 
@@ -174,10 +175,11 @@ Exit criteria:
 Focus: prep for Milestone 5 — 1.0 candidate.
 
 1. Run the first-15-minute path cold on a clean macOS and a clean Linux machine; capture any friction.
-2. Invite 3–5 external testers to walk through onboarding and report where they got stuck.
+2. Invite 3–5 **real** external testers to walk through onboarding and report where they got stuck. Simulated persona audits are useful for cleanup but cannot replace real friction.
 3. Decide whether any ADVANCED commands should be deprecated, renamed, or split into a separate "labs" surface before 1.0.
 4. Tighten `what-leaves-your-machine.md` with whatever real users surface as confusing.
 5. Keep collecting outside-user friction from issues and PRs to validate Milestones 3 and 4.
+6. Periodically re-run a simulated hostile-persona audit (cheap) but treat it strictly as a sanity check, not validation.
 
 ## Next audit gate
 

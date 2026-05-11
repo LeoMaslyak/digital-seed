@@ -36,7 +36,9 @@ bun install
 bun run seed onboard
 ```
 
-The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful. If you prefer a guided interactive setup wizard, run `./setup.sh` after cloning instead of `bun install`.
+The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
+
+The `bun install` + `bun run seed onboard` path above is the canonical 15-minute experience. A heavier alternative — `./setup.sh` — exists as a guided wizard that also collects API keys, picks a setup profile, and asks about email/calendar/database integrations; it goes past day one and is **not** required to use Digital Seed. Use it only if you want that hand-holding now.
 
 ```bash
 claude          # or: cursor .  · windsurf .  · another terminal-capable agent

@@ -1,6 +1,8 @@
-# Installing Claude Code — Complete Beginner's Guide
+# Installing Bun and Claude Code — Complete Beginner's Guide
 
-> **Never used a terminal before?** This guide is for you. We'll walk through every step on Windows and macOS. Takes about 10 minutes.
+> **Never used a terminal before?** This guide is for you. We'll walk through every step on macOS and Windows. Takes about 10 minutes.
+>
+> **Important:** Digital Seed's scripts require **Bun** as the runtime. Running them with plain `node` is not supported. We install Bun first, then Claude Code on top of it.
 
 ---
 
@@ -31,37 +33,41 @@ yourname@MacBook-Pro ~ %
 ```
 That's the terminal prompt. This is where you'll type commands.
 
-### Step 2 — Install Node.js (via Homebrew)
+### Step 2 — Install Bun
 
-First, check if Homebrew is already installed:
+Bun is the JavaScript runtime Digital Seed uses. It is free, open source, and runs entirely on your machine.
+
+Paste this into the terminal and press Enter:
+
 ```bash
-brew --version
+curl -fsSL https://bun.sh/install | bash
 ```
 
-If it says `command not found`, install Homebrew first:
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-Follow the prompts — it may ask for your password (normal, nothing will be shown as you type).
+When the installer finishes, reload your shell so the `bun` command becomes available:
 
-Then install Node.js:
 ```bash
-brew install node
+exec $SHELL -l
 ```
 
 Verify it worked:
+
 ```bash
-node --version   # should show v18 or higher
-npm --version    # should show a number
+bun --version   # should print 1.x or newer
 ```
+
+If you see a version number, Bun is installed.
 
 ### Step 3 — Install Claude Code
 
+Claude Code is Anthropic's official terminal-capable AI agent. Install it as a Bun global:
+
 ```bash
-npm install -g @anthropic-ai/claude-code
+bun install -g @anthropic-ai/claude-code
 ```
 
 You may see yellow warning messages about version upgrades — safe to ignore.
+
+> Heads up: running `claude` connects to Anthropic's API and sends the prompts (and any files you explicitly include) to their servers. That is how the agent works. Digital Seed itself does not send your files anywhere — see [What Leaves Your Machine?](what-leaves-your-machine.md).
 
 ### Step 4 — Log In (mandatory)
 
@@ -118,38 +124,27 @@ C:\Users\YourName>
 
 If you see `C:\`, close that window and open Ubuntu from the Start Menu instead.
 
-### Step 3 — Install nvm and Node.js
+### Step 3 — Install Bun
 
-Inside the Ubuntu terminal, paste this:
+Inside the Ubuntu terminal, install Bun:
+
 ```bash
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -fsSL https://bun.sh/install | bash
+exec $SHELL -l
+bun --version   # should print 1.x or newer
 ```
 
-Then activate nvm without restarting (paste the whole block):
-```bash
-export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-```
-
-Now install Node.js:
-```bash
-nvm install --lts && nvm use --lts
-```
-
-Verify:
-```bash
-node --version   # should show v18 or higher
-npm --version    # should show a number
-```
-
-> If you get a Windows npm error referencing C:\Users\...\AppData\Roaming\npm — ignore it. You have a separate Windows-native npm that won't interfere as long as you stay inside Ubuntu.
+If `bun --version` prints a number, Bun is installed.
 
 ### Step 4 — Install Claude Code
 
 ```bash
-npm install -g @anthropic-ai/claude-code
+bun install -g @anthropic-ai/claude-code
 ```
 
 Yellow warnings about version upgrades — safe to ignore.
+
+> Heads up: running `claude` connects to Anthropic's API and sends the prompts (and any files you explicitly include) to their servers. That is how the agent works. Digital Seed itself does not send your files anywhere — see [What Leaves Your Machine?](what-leaves-your-machine.md).
 
 ### Step 5 — Log In (mandatory — do not skip)
 
@@ -175,19 +170,30 @@ If you see a prompt or welcome message, you're set.
 
 ---
 
-## Now Set Up the Digital Seed
+## Now Set Up Digital Seed
 
-Once Claude Code is running, go back to [getting-started.md](getting-started.md) and continue from Step 1 — Clone.
+With Bun installed and Claude Code working, continue with the canonical
+short path: [First 15 Minutes](first-15-minutes.md).
+
+The condensed version:
+
+```bash
+git clone https://github.com/LeoMaslyak/digital-seed.git
+cd digital-seed
+bun install
+bun run seed onboard
+```
 
 ---
 
 ## Troubleshooting
 
-**`nvm: command not found` after installing nvm**
-nvm needs activation in each new session until restart. Run:
+**`bun: command not found` after install**
+Reload your shell:
 ```bash
-export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+exec $SHELL -l
 ```
+Or open a new terminal window. If `bun` is still missing, see [troubleshooting.md](troubleshooting.md) → "Bun is missing or the wrong version."
 
 **`ETIMEDOUT` when running `claude`**
 You haven't logged in yet. Always run `claude login` before first use.
@@ -202,10 +208,5 @@ Then try `claude` again.
 **Ubuntu terminal shows C:\ style paths**
 You are in PowerShell or Command Prompt, not WSL. Close and open Ubuntu from the Start Menu.
 
-**Node version below 18**
-```bash
-nvm install --lts && nvm use --lts
-```
-
 **Still stuck?**
-Post in the Digital Seed contributors channel with: your OS, exact error message, and which step you're on.
+Open an issue on GitHub using the [docs confusion template](https://github.com/LeoMaslyak/digital-seed/issues/new/choose). Include your OS, the exact error message, and which step you were on.
