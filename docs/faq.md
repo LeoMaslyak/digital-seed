@@ -15,7 +15,7 @@ Start with COMPASS.md — that's the one with the most leverage. DOMAINS.md is w
 It does a tiered scan at session start: a lightweight summary pass first, then loads full detail only for files relevant to your current request. This keeps context loading fast and token-efficient.
 
 **Q: Can I share my `user/` files with collaborators?**
-No — and the system is designed to prevent it. All `user/` files are gitignored and the pre-commit hook blocks accidental leaks. For collaboration, use `collab/` instead.
+No — and the system is designed to discourage it. The four files you fill in (`USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`) are gitignored; the three starter templates (`COMPASS.md`, `ANTI-GOALS.md`, `DOMAINS.md`) are tracked, so run `bun run seed privacy-scan` before pushing forks and install the optional pre-commit hook with `bun run seed hooks install`. See [SECURITY.md](../SECURITY.md#data-storage) for the full trust boundary. For collaboration, use `collab/` instead.
 
 See [governance.md](governance.md) for a full guide to the personal context files.
 
@@ -36,7 +36,7 @@ Digital Seed does not recommend one agent for everyone. Claude Code is strong fo
 Not directly — ChatGPT doesn't support MCP. You can copy patterns manually, but you won't get the full infrastructure benefits.
 
 **Q: Is my data private?**
-Yes. All personal files (`user/`, `data/`, `logs/`) are gitignored — they never leave your machine. The pre-commit hook prevents accidental leaks. API calls go directly from your machine to your chosen provider.
+Mostly. `data/`, `logs/`, and the four personal `user/*.md` files (`USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`) are gitignored. Three other `user/` files (`COMPASS.md`, `ANTI-GOALS.md`, `DOMAINS.md`) ship as tracked starter templates — if you fill them with personal content in a fork, `git status` will not warn you. Run `bun run seed privacy-scan` before pushing, and optionally install the pre-commit hook with `bun run seed hooks install`. API calls go directly from your machine to your chosen provider. See [SECURITY.md](../SECURITY.md) and [what-leaves-your-machine.md](what-leaves-your-machine.md).
 
 **Q: Can I use this offline?**
 Yes for local operations. See [offline-mode.md](offline-mode.md) and set `offline: true` in `config/config.yaml` to disable network-dependent tasks.
@@ -58,10 +58,7 @@ Choose Ollama during setup for a fully local, free setup. Install Ollama from [o
 Yes. Configure as many as you want in `.env`. The routing system will use the appropriate one per task.
 
 **Q: How do I re-run setup after changing API keys?**
-```bash
-bun run setup
-# Or edit .env directly (it's just a text file)
-```
+`.env` is just a text file — edit it directly. If you originally used the optional wizard, `bun run setup` re-runs it.
 
 ---
 
@@ -94,7 +91,7 @@ bun run marketplace publish my-pattern  # generates PR to share with everyone
 Each member runs their own kit instance. You add your analysis to the shared `collab/study-groups/<group>/members/<you>.md` file. The system auto-merges everyone's contributions into `context.md`. Your personal files (`user/`, `data/`) are never part of the merge.
 
 **Q: What's the pre-commit hook doing?**
-Before every `git commit`, it scans staged files for: email addresses, phone numbers, API keys, absolute file paths, and password literals. If it finds any in `collab/` files, the commit is blocked. This prevents accidental personal data leaks into shared content.
+The hook is opt-in — install it once with `bun run seed hooks install` (or via the optional `./setup.sh` wizard). Once installed, before every `git commit` it scans staged files for: email addresses, phone numbers, API keys, absolute file paths, and password literals. If it finds any in `collab/` files, the commit is blocked. See [SECURITY.md](../SECURITY.md#pre-commit-secret-hook).
 
 **Q: Can I bypass the pre-commit hook?**
 Yes: `git commit --no-verify`. Use this only in emergencies — the hook is there to protect you.

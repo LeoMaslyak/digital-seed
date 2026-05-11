@@ -62,7 +62,7 @@ Shipped 2026-05-11 (Milestone 5 repo-side prep):
 Open (Milestone 5 real-validation work, treated as the actual gate):
 
 1. **Real** external tester walkthroughs — invite 3–5 people to run the first-15-minute path cold. Simulated persona audits do not substitute. **Open — P0 per the 2026-05-11 hostile 1.0 audit.**
-2. One green CI release-check cycle on a tag commit (no tag has been cut yet, even at `0.4.0-alpha`). **Open — P0 per the 2026-05-11 hostile 1.0 audit.**
+2. One green CI release-check cycle on a tag commit (no tag has been cut yet, even at `0.4.1-alpha`). **Open — P0 per the 2026-05-11 hostile 1.0 audit.**
 3. Cold runs of the first-15-minute path on a clean macOS *and* a clean Linux machine; capture friction in issues.
 4. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it. (One pass on 2026-05-11 clarified the `bun install` network nuance based on a simulated skeptic.)
 5. Audit again for maintainer-only assumptions that sneak into beginner docs.
@@ -174,7 +174,7 @@ Next gate before a larger public push:
 
 - Run the hostile production-alpha audit in `docs/hostile-audit-production-alpha-prompt.md`.
 - Fix any P0 findings from that audit.
-- Decide whether to tag/publish `v0.4.0-alpha` after audit fixes.
+- Decide whether to tag/publish `v0.4.1-alpha` after audit fixes.
 
 Remaining P1 polish after the hostile audit:
 

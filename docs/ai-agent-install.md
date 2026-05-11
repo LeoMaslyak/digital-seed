@@ -45,7 +45,7 @@ of the first-15-minute path.
 Ask it:
 
 ```text
-Run bun run health and explain what is missing in plain English. Do not guess. Read the relevant docs before proposing fixes.
+Run bun run seed doctor and explain what is missing in plain English. Do not guess. Read the relevant docs before proposing fixes.
 ```
 
 ## What the agent should not do automatically

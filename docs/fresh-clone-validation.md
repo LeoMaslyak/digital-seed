@@ -33,7 +33,7 @@ Gates run in a clean directory with **only the tracked files**, no prior `node_m
 Expected behaviour on a clean clone before any user setup:
 
 - **User context** is reported as `1/4 core` — `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md` are tracked; `USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md` are intentionally gitignored and created during onboard. This is a `⚠️` warning, not a `❌` failure.
-- **Security hooks** show `Run setup.sh to install` — git hooks are installed by `setup.sh`, not by `bun install`. Also a warning.
+- **Security hooks** show `Not installed — run: bun run seed hooks install` — the pre-commit hook is opt-in and not part of `bun install`. Also a warning. (`./setup.sh` installs it as part of the optional wizard.)
 - **AI provider** depends on the host: if `claude` CLI is on PATH or an `.env` exists, the gate passes; otherwise it warns. Health-check never exits non-zero, so CI is unaffected.
 - All other gates should report `✅`.
 

@@ -6,7 +6,7 @@ Copy/paste this into a fresh Claude Code or terminal-capable agent session.
 We are continuing work on Digital Seed at /Users/leozealous/digital-seed.
 
 Current status:
-- Repo is broader-alpha ready at `0.4.0-alpha`, not 1.0.
+- Repo is public-alpha ready at `0.4.1-alpha`, not 1.0.
 - Current estimate: ~72% of “100% usable OSS project”.
 - Latest commits:
   - `11bc586 Improve beginner production readiness`

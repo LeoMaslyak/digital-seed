@@ -27,7 +27,7 @@ bun install
 bun run seed onboard
 ```
 
-Prefer a guided wizard? Run `./setup.sh` after cloning instead of `bun install`.
+Prefer a guided wizard? After `bun install`, run `./setup.sh` instead of `bun run seed onboard` for the longer setup that also collects API keys and integration choices. See [Setup Wizard](../setup-wizard.md).
 
 Then open the folder in an AI agent you trust:
 

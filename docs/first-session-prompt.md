@@ -1,6 +1,6 @@
 # First Session Prompt
 
-Paste this into your AI agent after running setup:
+Paste this into your AI agent after running `bun install` and `bun run seed onboard` (or the optional `./setup.sh` wizard):
 
 ```text
 You are helping me set up Digital Seed as my personal AI operating system.

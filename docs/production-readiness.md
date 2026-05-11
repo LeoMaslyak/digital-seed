@@ -39,7 +39,7 @@ Shipped and verified:
 - Markdown link checker exists locally and in CI.
 - Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
 - Simulated external-user audit: three hostile fresh-user personas walked through README → first-15-minutes → CLI help (`docs/simulated-external-user-audit-2026-05-11.md`). P0/P1 contradictions in the beginner install path were fixed in the same pass. This is *not* a substitute for real outside-tester walkthroughs.
-- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest — do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). Two P0s remain (real external testers; one green CI cycle on the tag commit) and one P1 contradiction in `docs/ai-agent-install.md` was fixed in the same pass. Recommendation: stay at `0.4.0-alpha`.
+- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest — do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). Two P0s remain (real external testers; one green CI cycle on the tag commit) and one P1 contradiction in `docs/ai-agent-install.md` was fixed in the same pass. Repo subsequently shipped a public-alpha readiness pass and now sits at `0.4.1-alpha`; the 1.0 gates remain open.
 
 Current public data room:
 
