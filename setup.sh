@@ -530,25 +530,38 @@ configure_agent() {
 # ─── Step 7: Setup Git hooks ───
 
 setup_git_hooks() {
-  # Pre-commit hook to prevent secret leaks
+  # Pre-commit hook to prevent secret leaks. Mirrors `bun run seed hooks install`.
+  # Patterns require an actual key-shaped suffix so documentation about
+  # patterns does not trigger the block. Only added lines are scanned.
   local hooks_dir="$SCRIPT_DIR/.git/hooks"
   mkdir -p "$hooks_dir"
   cat > "$hooks_dir/pre-commit" << 'HOOKEOF'
 #!/usr/bin/env bash
-# Prevent committing secrets
+# Digital Seed pre-commit secret-scan hook.
+# Installed by: ./setup.sh (or: bun run seed hooks install)
+# Best-effort scan of staged additions for likely API keys / private keys.
+
+ADDED=$(git diff --cached --diff-filter=ACM | grep -E '^\+' | grep -v '^\+\+\+')
+if [ -z "$ADDED" ]; then exit 0; fi
+
 PATTERNS=(
-  'ANTHROPIC_API_KEY=sk-'
-  'OPENAI_API_KEY=sk-'
-  'GOOGLE_API_KEY=AI'
-  'sk-ant-'
-  'sk-proj-'
+  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*["'\'']?sk-[A-Za-z0-9_-]{20,}'
+  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*["'\'']?sk-[A-Za-z0-9_-]{20,}'
+  'GOOGLE_API_KEY[[:space:]]*=[[:space:]]*["'\'']?AI[A-Za-z0-9_-]{20,}'
+  'sk-ant-[A-Za-z0-9_-]{24,}'
+  'sk-proj-[A-Za-z0-9_-]{24,}'
+  'ghp_[A-Za-z0-9]{30,}'
+  'BEGIN (RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY'
 )
 
 for pattern in "${PATTERNS[@]}"; do
-  if git diff --cached --diff-filter=ACM | grep -qE "$pattern"; then
-    echo "❌ BLOCKED: Found what looks like an API key in staged files."
-    echo "   Pattern matched: $pattern"
-    echo "   Remove the secret and use .env instead."
+  if echo "$ADDED" | grep -Eq "$pattern"; then
+    echo ""
+    echo "❌ BLOCKED by Digital Seed pre-commit hook:"
+    echo "   A staged addition matches a likely-secret pattern: $pattern"
+    echo "   Move the secret to .env (git-ignored) and commit again."
+    echo "   To override (not recommended): git commit --no-verify ..."
+    echo ""
     exit 1
   fi
 done

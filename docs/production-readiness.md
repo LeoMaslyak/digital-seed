@@ -265,8 +265,8 @@ The release-check enforces this. Do not bump just one.
 
 ### Until then
 
-The current honest version is `0.4.0-alpha`. Do not change it without
-either (a) tagging an `0.4.x-alpha` follow-up patch with a clear
+The current honest version is `0.4.1-alpha`. Do not change it without
+either (a) tagging another `0.4.x-alpha` follow-up patch with a clear
 justification in `CHANGELOG.md`, or (b) cutting `1.0.0-rc.1` with the
 discipline above. There is no in-between.
 
@@ -300,8 +300,9 @@ evidence.
 
 ## Release recommendation
 
-Current honest status: `0.4.0-alpha`, broader-alpha ready with Milestone 5
-repo-side prep shipped.
+Current honest status: `0.4.1-alpha`, broader-alpha ready with Milestone 5
+repo-side prep shipped and a consolidated simulated public-alpha audit
+applied (see [`simulated-public-alpha-readiness-2026-05-11.md`](simulated-public-alpha-readiness-2026-05-11.md)).
 
 Do **not** call this `1.0` (or even `1.0.0-rc.1`) until:
 

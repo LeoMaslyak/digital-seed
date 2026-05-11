@@ -207,9 +207,25 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     "   user/COMPASS.md   direction, values, priorities",
     "   user/GOALS.md     what you are trying to accomplish",
     "",
+    dim("   How to open these:"),
+    dim("   - In your editor (recommended): open the digital-seed folder in VS Code,"),
+    dim("     Cursor, Windsurf, or any editor, then click each file under user/."),
+    dim("   - From the terminal: `open user/USER.md` (macOS) or"),
+    dim("     `xdg-open user/USER.md` (Linux). On any system, `code user/USER.md`"),
+    dim("     works if VS Code or Cursor is on PATH."),
+    dim("   Rough notes are fine. You can come back and edit any time."),
+    "",
     h("3. Open your agent in this folder and paste the first prompt"),
     `   ${cmd("claude")}  ${dim("# or: cursor .  · windsurf .  · another terminal-capable agent")}`,
     `   ${cmd("bun run seed first-prompt")}`,
+    "",
+    dim("   Two-pane / copy-paste flow:"),
+    dim("   - Pane A (this shell): run `bun run seed first-prompt`. The full prompt prints."),
+    dim("   - Pane B (your agent): in a second terminal tab (or split pane), run"),
+    dim("     `claude` (or `cursor .` / `windsurf .`) from inside this folder."),
+    dim("   - Copy the printed prompt from Pane A, paste it into the agent in Pane B,"),
+    dim("     and let it interview you. No keyboard tricks required — just select the"),
+    dim("     text in your terminal and copy/paste."),
     "",
     h("4. Optional — index one notes folder for local search"),
     `   ${cmd("bun run seed index ~/Documents/Notes")}`,
@@ -283,11 +299,20 @@ function printFirstPrompt(): void {
   const firstWinPath = join(ROOT, "user", "FIRST-WIN.md");
   const hasFirstWin = existsSync(firstWinPath);
   const base = "Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.";
-  if (hasFirstWin) {
-    console.log(`${base} Start from user/FIRST-WIN.md — help me finish that specific win before suggesting anything else.`);
-  } else {
-    console.log(base);
-  }
+  const prompt = hasFirstWin
+    ? `${base} Start from user/FIRST-WIN.md — help me finish that specific win before suggesting anything else.`
+    : base;
+
+  const header = USE_ANSI ? `${ANSI.bold}${ANSI.mint}# Copy the prompt below and paste it into your AI agent${ANSI.reset}` : "# Copy the prompt below and paste it into your AI agent";
+  const subHeader = USE_ANSI ? `${ANSI.dim}# (open a terminal in this folder and run \`claude\`, or \`cursor .\`, or \`windsurf .\` — then paste.)${ANSI.reset}` : "# (open a terminal in this folder and run `claude`, or `cursor .`, or `windsurf .` — then paste.)";
+  const ruler = USE_ANSI ? `${ANSI.dim}----- copy from below this line -----${ANSI.reset}` : "----- copy from below this line -----";
+  const endRuler = USE_ANSI ? `${ANSI.dim}----- copy from above this line -----${ANSI.reset}` : "----- copy from above this line -----";
+
+  console.log(header);
+  console.log(subHeader);
+  console.log(ruler);
+  console.log(prompt);
+  console.log(endRuler);
 }
 
 function privacyScan(): void {
@@ -322,14 +347,55 @@ function privacyScan(): void {
       if (rx.test(text)) { hits.push(`${rel}: ${rx}`); break; }
     }
   }
-  if (hits.length === 0) {
+
+  // Extra check: tracked user/*.md templates that look filled-in.
+  // Heuristic only — flags lines like "Name: Real Name" or "Email: ..." in any
+  // user/*.md template still in the working tree. False positives are fine;
+  // the check is meant as a "did you mean to commit this?" nudge before pushing.
+  const trackedTemplates = ["user/COMPASS.md", "user/ANTI-GOALS.md", "user/DOMAINS.md"];
+  const fillIndicators = [
+    /^\s*-\s*\*\*Name:\*\*\s+\S/i,
+    /^\s*-\s*Name:\s+\S/i,
+    /^\s*-\s*Email:\s+\S/i,
+    /^\s*-\s*Phone:\s+\S/i,
+    /^\s*-\s*\*\*Email:\*\*\s+\S/i,
+    /^\s*-\s*\*\*Phone:\*\*\s+\S/i,
+  ];
+  const templateWarnings: string[] = [];
+  for (const rel of trackedTemplates) {
+    const full = join(ROOT, rel);
+    if (!existsSync(full)) continue;
+    let text = "";
+    try { text = readFileSync(full, "utf-8"); } catch { continue; }
+    const lines = text.split(/\r?\n/);
+    for (const line of lines) {
+      if (fillIndicators.some((rx) => rx.test(line))) {
+        templateWarnings.push(`${rel}: looks filled in (e.g., '${line.trim().slice(0, 80)}')`);
+        break;
+      }
+    }
+  }
+
+  if (hits.length === 0 && templateWarnings.length === 0) {
     console.log("✅ Privacy scan clean: no common private leftovers found.");
-  } else {
-    console.log("⚠️ Privacy scan found items to review:\n");
+    return;
+  }
+  if (hits.length > 0) {
+    console.log("⚠️  Privacy scan found items to review:\n");
     for (const h of hits.slice(0, 50)) console.log(`  - ${h}`);
     if (hits.length > 50) console.log(`  …and ${hits.length - 50} more`);
-    process.exit(1);
   }
+  if (templateWarnings.length > 0) {
+    console.log("");
+    console.log("ℹ️  Tracked user/* templates that look filled in (warning, not blocking):");
+    for (const w of templateWarnings) console.log(`  - ${w}`);
+    console.log("");
+    console.log("   These files are git-tracked starter templates. If you put real personal");
+    console.log("   content into one, decide whether to keep it private (move the content to");
+    console.log("   user/USER.md / GOALS.md / MEMORY.md / PREFERENCES.md, which are ignored)");
+    console.log("   or to reset the template to its starter form before pushing.");
+  }
+  if (hits.length > 0) process.exit(1);
 }
 
 
@@ -381,14 +447,128 @@ function localSearch(query: string): void {
   }
 }
 
+function preCommitHookBody(): string {
+  // Patterns require an actual key-shaped suffix so that documentation
+  // mentioning the prefix (e.g., in SECURITY.md or this hook source) does not
+  // trigger the block. Only +-added lines are scanned, so a deletion does not
+  // re-flag a removed reference.
+  return `#!/usr/bin/env bash
+# Digital Seed pre-commit secret-scan hook.
+# Installed by: bun run seed hooks install
+# Best-effort scan of staged additions for likely API keys / private keys.
+
+ADDED=$(git diff --cached --diff-filter=ACM | grep -E '^\\+' | grep -v '^\\+\\+\\+')
+if [ -z "$ADDED" ]; then exit 0; fi
+
+PATTERNS=(
+  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*[\\\"'\\'']?sk-[A-Za-z0-9_-]{20,}'
+  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*[\\\"'\\'']?sk-[A-Za-z0-9_-]{20,}'
+  'GOOGLE_API_KEY[[:space:]]*=[[:space:]]*[\\\"'\\'']?AI[A-Za-z0-9_-]{20,}'
+  'sk-ant-[A-Za-z0-9_-]{24,}'
+  'sk-proj-[A-Za-z0-9_-]{24,}'
+  'ghp_[A-Za-z0-9]{30,}'
+  'BEGIN (RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY'
+)
+
+for pattern in "\${PATTERNS[@]}"; do
+  if echo "$ADDED" | grep -Eq "$pattern"; then
+    echo ""
+    echo "❌ BLOCKED by Digital Seed pre-commit hook:"
+    echo "   A staged addition matches a likely-secret pattern: $pattern"
+    echo "   Move the secret to .env (git-ignored) and commit again."
+    echo "   To override (not recommended): git commit --no-verify ..."
+    echo ""
+    exit 1
+  fi
+done
+
+exit 0
+`;
+}
+
+function hooksInstall(options: { force?: boolean } = {}): void {
+  const gitDir = join(ROOT, ".git");
+  if (!existsSync(gitDir)) {
+    console.error("❌ This folder is not a git working tree (no .git directory found).");
+    console.error("   Clone the repo with git before installing hooks.");
+    process.exit(1);
+  }
+  const hooksDir = join(gitDir, "hooks");
+  mkdirSync(hooksDir, { recursive: true });
+  const target = join(hooksDir, "pre-commit");
+  if (existsSync(target) && !options.force) {
+    const current = readFileSync(target, "utf-8");
+    if (current.includes("Digital Seed pre-commit secret-scan hook")) {
+      console.log("✅ Digital Seed pre-commit hook already installed at .git/hooks/pre-commit");
+      console.log("   Pass --force to overwrite.");
+      return;
+    }
+    console.log("⚠️  A non-Digital-Seed pre-commit hook is already installed.");
+    console.log(`   Path: ${target}`);
+    console.log("   Re-run with --force to replace it (your existing hook will be overwritten).");
+    process.exit(1);
+  }
+  writeFileSync(target, preCommitHookBody(), "utf-8");
+  try {
+    const { chmodSync } = require("fs");
+    chmodSync(target, 0o755);
+  } catch (err) {
+    console.error(`⚠️  Wrote the hook but could not chmod +x: ${err instanceof Error ? err.message : String(err)}`);
+  }
+  console.log("✅ Installed Digital Seed pre-commit secret-scan hook.");
+  console.log(`   Location: .git/hooks/pre-commit`);
+  console.log("   It will refuse commits that contain obvious API-key patterns.");
+  console.log("   Remove anytime with: rm .git/hooks/pre-commit");
+}
+
+function preCommitHookInstalled(): boolean {
+  // Accept any executable pre-commit hook. setup.sh and `seed hooks install`
+  // produce different bodies; both qualify as "installed" for the
+  // onboard/doctor warning. `seed hooks install --force` still uses the
+  // Digital-Seed-specific marker to decide whether to overwrite safely.
+  const target = join(ROOT, ".git/hooks/pre-commit");
+  return existsSync(target);
+}
+
+function recipeDescription(entry: string): string {
+  // Extract a one-line description from the first non-heading paragraph of the
+  // recipe's README. Falls back to a generic label if the file is missing.
+  const readme = join(ROOT, "recipes", entry, "README.md");
+  if (!existsSync(readme)) return "(no README — adapt yourself)";
+  let text = "";
+  try { text = readFileSync(readme, "utf-8"); } catch { return "(could not read README)"; }
+  const lines = text.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (trimmed.startsWith("#")) continue;
+    if (trimmed.startsWith(">")) continue;
+    if (trimmed.startsWith("```")) continue;
+    // First narrative line — return its first sentence, capped at 90 chars.
+    const sentenceMatch = trimmed.match(/^(.{1,200}?[\.!?])(\s|$)/);
+    const sentence = (sentenceMatch ? sentenceMatch[1] : trimmed).replace(/\*+/g, "");
+    return sentence.length > 90 ? sentence.slice(0, 87) + "..." : sentence;
+  }
+  return "(no description in README)";
+}
+
 function recipe(args: string[]): void {
   const recipesDir = join(ROOT, "recipes");
   if (args[0] === "list" || !args[0]) {
     console.log("Digital Seed recipes:\n");
-    for (const entry of readdirSync(recipesDir).filter(x => x !== "README.md").sort()) {
-      console.log(`  - ${entry}`);
+    const entries = readdirSync(recipesDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+      .filter((name) => !name.startsWith("_") && !name.startsWith("."))
+      .sort();
+    const maxLen = entries.reduce((acc, e) => Math.max(acc, e.length), 0);
+    for (const entry of entries) {
+      const padded = entry.padEnd(maxLen, " ");
+      console.log(`  - ${padded}  ${recipeDescription(entry)}`);
     }
-    console.log("\nOpen one with: open recipes/<name>/README.md");
+    console.log("\nRead one with: open recipes/<name>/README.md");
+    console.log("Each recipe explains what it connects to, what stays local, and what to do first.");
+    console.log("Recipe template (for contributors): recipes/_template/README.md");
     return;
   }
   const name = args[0];
@@ -424,6 +604,8 @@ BEGINNER — first 15 minutes
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed recipe list             List integration recipes
+  bun run seed hooks install           Install pre-commit secret-scan hook
+  bun run seed hooks status            Show pre-commit hook status
 
   Optional flags on the beginner path:
   bun run seed onboard --write-first-win        Create user/FIRST-WIN.md if missing
@@ -483,11 +665,34 @@ else if (cmd === "rate")    { run("scripts/marketplace.ts", ["rate", ...rest]); 
 else if (cmd === "patterns"){ run("scripts/marketplace.ts", ["list"]); }
 else if (cmd === "packs")   { run("scripts/marketplace.ts", ["list", "--packs-only"]); }
 else if (cmd === "doctor")  { run("scripts/health-check.ts", rest); }
+else if (cmd === "hooks") {
+  const sub = rest[0];
+  if (sub === "install") {
+    hooksInstall({ force: rest.includes("--force") });
+  } else if (sub === "status" || !sub) {
+    if (preCommitHookInstalled()) {
+      console.log("✅ Digital Seed pre-commit hook is installed.");
+    } else {
+      console.log("⚠️  Pre-commit hook is NOT installed.");
+      console.log("   Install with: bun run seed hooks install");
+    }
+  } else {
+    console.error(`Unknown hooks subcommand: ${sub}`);
+    console.log("Try: bun run seed hooks install");
+    process.exit(1);
+  }
+}
 else if (cmd === "onboard" || cmd === "init") {
   if (rest.includes("--write-first-win")) {
     writeFirstWin({ force: rest.includes("--force") });
   } else {
     printOnboard({ plain: rest.includes("--plain") });
+    if (!preCommitHookInstalled()) {
+      console.log("");
+      console.log("ℹ️  Optional security step: the pre-commit secret-scan hook is not installed.");
+      console.log("   Install with: bun run seed hooks install");
+      console.log("   It blocks commits that contain obvious API-key patterns.");
+    }
   }
 }
 else if (cmd === "intro") {

@@ -17,17 +17,22 @@ curl -fsSL https://bun.sh/install | bash
 bun install -g @anthropic-ai/claude-code
 ```
 
-## 2. Clone and run setup
+## 2. Clone and install
+
+The canonical path is:
 
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
-./setup.sh
+bun install
+bun run seed onboard
 ```
 
-Or ask a terminal-capable AI agent to install it: [AI Agent Install](ai-agent-install.md).
+That is the same 15-minute path the README leads with. Use it unless you have a specific reason not to.
 
-The setup wizard checks your tools, asks about your AI provider, creates your first context files, and installs dependencies. See [Setup Wizard](setup-wizard.md) for what it touches.
+`./setup.sh` is an **optional** guided wizard for people who want hand-holding through API keys, profile selection, and email/calendar/database integration choices. It goes past day one and is not required. See [Setup Wizard](setup-wizard.md) for what it touches if you decide to run it later.
+
+Prefer to let an agent run the install for you? See [AI Agent Install](ai-agent-install.md).
 
 ## 3. Run the canonical onboarding path
 

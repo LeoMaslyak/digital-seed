@@ -26,6 +26,12 @@ function usage(): void {
   console.log(`
 Web & Research CLI
 
+⚠ Network disclosure: \`fetch\`, \`scrape\`, \`bulk\`, and \`research\` route
+   requests through https://r.jina.ai/ . The URL you ask to fetch and any
+   search query you type are sent to that endpoint. See:
+   docs/what-leaves-your-machine.md → "Digital Seed's own network calls".
+   These commands are NOT part of the 15-minute beginner path.
+
 COMMANDS
   bun run seed web fetch <url>                     Fetch URL as AI-readable markdown
   bun run seed web fetch <url> --summarize         Fetch + AI summary

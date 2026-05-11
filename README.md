@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/LeoMaslyak/digital-seed/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoMaslyak/digital-seed/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-alpha-orange.svg)]()
+[![Status](https://img.shields.io/badge/status-alpha-orange.svg)](docs/known-alpha-limits.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 </div>
@@ -29,6 +29,14 @@ Digital Seed is a small repo of editable context files plus a CLI that walks you
 
 ## Start in 15 minutes
 
+**Prerequisites (one-time):**
+
+- **Git** — to clone the repo (most systems have it; install via `xcode-select --install` on macOS or your distro's package manager on Linux).
+- **Bun** — the JS runtime Digital Seed uses (`curl -fsSL https://bun.sh/install | bash`, then `exec $SHELL -l`). Plain `node` is not supported. See [Troubleshooting → Bun is missing](docs/troubleshooting.md#bun-is-missing-or-the-wrong-version) if `bun --version` does not work.
+- **A terminal-capable AI agent** — Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or another agent that can run shell commands in this folder. New to terminals? Let [an AI agent install it for you](docs/ai-agent-install.md).
+
+Then:
+
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
@@ -38,7 +46,9 @@ bun run seed onboard
 
 The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
 
-The `bun install` + `bun run seed onboard` path above is the canonical 15-minute experience. A heavier alternative — `./setup.sh` — exists as a guided wizard that also collects API keys, picks a setup profile, and asks about email/calendar/database integrations; it goes past day one and is **not** required to use Digital Seed. Use it only if you want that hand-holding now.
+**Canonical path:** `bun install` + `bun run seed onboard`. That is the supported 15-minute experience.
+
+`./setup.sh` is an **optional** guided wizard that goes past day one — it also asks about API keys, picks a setup profile, and walks through email/calendar/database integrations. You do **not** need to run it to use Digital Seed. Run it only if you want that hand-holding now and understand it will prompt you for things the canonical path does not.
 
 ```bash
 claude          # or: cursor .  · windsurf .  · another terminal-capable agent
@@ -131,6 +141,7 @@ Reference:
 - [Release Checklist](docs/release-checklist.md) — maintainer release gate
 - [Fresh-Clone Validation](docs/fresh-clone-validation.md) — clean-environment smoke test
 - [Audit Response](docs/audit-response-2026-05-10.md) — cleanup status
+- [Public-Alpha Readiness Audit](docs/simulated-public-alpha-readiness-2026-05-11.md) — consolidated 2026-05-11 simulated audit (the fixes shipped in `0.4.1-alpha`)
 
 ## Privacy model
 
@@ -141,6 +152,10 @@ Important caveat: the AI model or agent you use may send prompts and selected fi
 ## Repository status
 
 Digital Seed is alpha software. It is useful today, but it is intentionally a starter kit rather than a finished consumer app. Expect to customize it.
+
+## Contributing & code of conduct
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contributor flow and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations. Security issues should go through a private GitHub security advisory — see [SECURITY.md](SECURITY.md).
 
 ## License
 

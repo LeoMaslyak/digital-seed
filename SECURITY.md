@@ -1,83 +1,106 @@
 # Security Model
 
-> Your personal AI infrastructure handles sensitive data. This document explains our security architecture.
+> Your personal AI infrastructure handles sensitive data. This document explains, honestly, what Digital Seed does and does not protect.
 
 For a plain-language privacy boundary, start with [What Leaves Your Machine?](docs/what-leaves-your-machine.md).
 
-## Threat Model
+## Threat model
 
-| Threat | Mitigation |
-|--------|-----------|
-| API key leakage | `.env` git-ignored, pre-commit hooks scan for key patterns |
-| Data exfiltration | All storage is local files — no cloud sync by default |
-| Cross-user data access | Every instance is fully isolated — no shared components |
-| Malicious MCP servers | Only install servers from trusted sources; review permissions |
-| Secret in commit history | Pre-commit hooks block patterns matching known key formats |
-| Prompt injection via files | Context files are user-controlled; MCP servers validate inputs |
+| Threat | Mitigation in this repo |
+|--------|------------------------|
+| API key leakage | `.env` is git-ignored; an optional pre-commit hook scans staged diffs for common key patterns. The hook is **not** installed by `bun install` — see below. |
+| Data exfiltration by Digital Seed itself | All local commands read/write local files only. `bun install` fetches packages from the public npm registry; `bun run seed web search` (advanced) calls `r.jina.ai`. Both are documented in [What Leaves Your Machine?](docs/what-leaves-your-machine.md). |
+| Cross-user data access | Every instance is an isolated local folder. There is no shared backend. |
+| Malicious or buggy MCP servers | MCP servers run as ordinary local processes with whatever permissions you start them with — Digital Seed does not sandbox them. Only install MCP servers from sources you trust and review their code. |
+| Secret in commit history | The optional pre-commit hook blocks staged diffs containing known key prefixes (`sk-ant-`, `sk-proj-`, etc.) and obvious `*_API_KEY=` lines. It is best-effort, not exhaustive. |
+| Prompt injection via files | Context files in `user/` are user-controlled. AI agents that read them will inherit whatever the files say — treat content from third parties as untrusted. |
 
-## Data Storage
+## Data storage
 
 All data stays on your machine:
 
-```
-.env                    # API keys (git-ignored)
-config/config.yaml      # Configuration (git-ignored)
-user/                   # Your personal context (git-ignored)
-data/                   # Runtime data (git-ignored)
-logs/                   # Audit logs (git-ignored)
-```
+| Path | What it holds | Git-tracked? |
+|------|---------------|-------------|
+| `.env` | API keys | **ignored** |
+| `config/config.yaml`, `config/autonomy.yaml`, `config/token-budget.json` | Local configuration | **ignored** |
+| `user/USER.md`, `user/GOALS.md`, `user/MEMORY.md`, `user/PREFERENCES.md` | Filled-in personal context (you edit these) | **ignored** by `.gitignore` |
+| `user/COMPASS.md`, `user/ANTI-GOALS.md`, `user/DOMAINS.md`, `user/README.md` | Starter **templates** that ship with the repo | **tracked** (they are templates, not your data) |
+| `data/`, `logs/`, `exports/` | Runtime data and exports | **ignored** |
 
-**Nothing is sent anywhere by Digital Seed's default local commands** except to the model providers or integrations you explicitly use. See [What Leaves Your Machine?](docs/what-leaves-your-machine.md) for the practical data-boundary checklist.
+**Honest trust-boundary nuance:** the four ignored `user/*.md` files (`USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`) cover the files you are most likely to fill in with personal information. The other three (`COMPASS.md`, `ANTI-GOALS.md`, `DOMAINS.md`) ship as **starter templates** and are tracked. If you fork Digital Seed and put real personal content into a tracked template, **`git status` will not warn you and a casual `git commit -a` will commit it.** Run `bun run seed privacy-scan` before pushing.
 
-## API Key Management
+A maintainer-side check inside `privacy-scan` looks for obvious personal content in tracked `user/*.md` files and warns when a template appears to have been filled in.
 
-- Store keys only in `.env` (never in code or config files)
-- Use a **dedicated API key** for this project (easy to rotate/revoke)
-- The pre-commit hook blocks commits containing patterns like `sk-ant-`, `sk-proj-`, etc.
-- Never share your `.env` file
+## API key management
 
-## MCP Server Security
+- Store keys only in `.env` (never in code, Markdown, or `config/` files).
+- Prefer a **dedicated key** for this project so you can revoke/rotate it without disrupting other tools.
+- Install the pre-commit hook (see next section). It is best-effort and not a substitute for review.
+- Never share your `.env` file.
 
-MCP servers act as bridges between your AI agent and external services. Each server:
+## Pre-commit secret hook
 
-- Runs locally on your machine
-- Only accesses the services you configure
-- Has no network access beyond what you grant
-- Can be individually enabled/disabled
+The pre-commit hook is **not** active by default after `bun install`. To install it:
 
-**Before installing a community MCP server:**
-1. Review the source code
-2. Check for excessive permission requests
-3. Prefer servers with active maintenance and community trust
-4. Pin to specific versions when possible
-
-## Audit Logging
-
-Every significant AI action is logged to `logs/audit.jsonl`:
-
-```json
-{
-  "timestamp": "2026-05-10T10:00:00Z",
-  "action": "email.draft",
-  "summary": "Drafted reply to john@example.com",
-  "model": "claude-sonnet-4-6",
-  "tokens": 1250
-}
+```bash
+bun run seed hooks install
 ```
 
-Review this log periodically to understand what your AI is doing.
+That command writes a hook to `.git/hooks/pre-commit` and makes it executable. `bun run seed doctor` and `bun run seed onboard` warn when the hook is missing.
 
-## Best Practices
+You can also install the hook by running the optional setup wizard (`./setup.sh`), which sets it up as part of its broader configuration. The canonical 15-minute path does not run the wizard; the explicit `seed hooks install` command exists so you do not need the wizard just to get the secret-scan hook.
 
-1. **Review before sending** — Never let AI send emails/messages without your review
-2. **Rotate keys** — Change API keys periodically (quarterly is reasonable)
-3. **Keep updated** — `git pull` to get security patches
-4. **Minimal permissions** — Only enable integrations you actually use
-5. **Separate concerns** — Don't store work and personal data in the same instance
-6. **Backup context** — Periodically back up `user/` and `data/` directories
+## MCP server security
 
-## Reporting Vulnerabilities
+MCP servers act as bridges between your AI agent and other tools or files. In Digital Seed:
+
+- They run as **ordinary local processes**, not sandboxed virtual machines.
+- They have whatever filesystem and network access the user account running them has — Digital Seed does **not** restrict their network calls.
+- They can be individually enabled or disabled in your agent's MCP config.
+
+Before installing a community MCP server:
+
+1. Review the source code (or skip it).
+2. Look for excessive permission requests or unexplained network calls.
+3. Prefer servers with active maintenance and visible community trust.
+4. Pin to specific versions when possible.
+
+## Audit logging — honest status
+
+> **Status: not implemented yet.**
+
+Some early drafts of this repo planned a `logs/audit.jsonl` stream that would record every significant AI action. **That stream does not exist today.** The local CLI commands (`seed onboard`, `seed doctor`, `seed first-prompt`, `seed privacy-scan`, `seed index`, `seed search`, `seed recipe list`) do not write a structured audit log.
+
+If you need auditability today, rely on:
+
+- your AI agent or provider's own usage/conversation logs,
+- shell history,
+- `git log` for repo changes,
+- the source code of any command you run.
+
+If or when Digital Seed adds real audit logging, this section will be replaced with what it actually records, where, and how to read it.
+
+## What leaves your machine
+
+Digital Seed's own commands stay local with a small number of explicit exceptions. The exceptions are documented in [What Leaves Your Machine?](docs/what-leaves-your-machine.md). Highlights:
+
+- `bun install` fetches packages from the public npm registry (no personal data).
+- `bun run seed web fetch <url>` / `bun run seed web search "query"` (advanced commands, not part of the 15-minute path) call `r.jina.ai` to render web pages.
+- `bun run seed drive ...` (maintainer-only) talks to Google Drive via the `gog` wrapper.
+- Anything you paste into your AI agent goes to that provider; that is independent of Digital Seed.
+
+## Best practices
+
+1. **Review before sending.** Treat draft outputs as drafts — read AI-written emails, messages, or commits before they leave your machine.
+2. **Rotate keys** periodically (quarterly is a reasonable default).
+3. **Keep updated.** `git pull` to receive security and privacy fixes.
+4. **Minimal permissions.** Enable only the integrations you actually use.
+5. **Separate concerns.** Do not mix work and personal data inside a single instance unless you accept the blast radius.
+6. **Backup context.** Periodically back up `user/` and `data/` (locally — not to a public service).
+7. **Privacy scan before pushing public forks.** `bun run seed privacy-scan` catches common leftovers but is not a guarantee.
+
+## Reporting vulnerabilities
 
 Found a security issue? Open a private security advisory on GitHub for `LeoMaslyak/digital-seed`.
 
-Do NOT open a public issue for security vulnerabilities.
+Do **not** open a public issue for security vulnerabilities.

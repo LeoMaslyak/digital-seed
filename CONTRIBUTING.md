@@ -37,10 +37,10 @@ git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 bun install
 bun run seed onboard --plain
-bun run health
+bun run seed doctor
 ```
 
-Bun is required. Running the scripts with plain `node` is not supported.
+Bun is required. Running the scripts with plain `node` is not supported. (`bun run health` is an alias for `bun run seed doctor` and is fine to use in scripts.)
 
 ## Repo shape
 
@@ -78,12 +78,14 @@ Recipes should be safe by default:
 - avoid paid services in the first-run path,
 - use fictional examples and placeholder credentials only.
 
+**Start from the template.** Copy [`recipes/_template/README.md`](recipes/_template/README.md) into a new `recipes/<your-slug>/README.md` and fill in every section. New recipes ship as **Experimental / adapt-yourself**; see [`docs/integration-recipes.md`](docs/integration-recipes.md) for the status legend.
+
 ### Code changes
 
 Keep code PRs focused. Include the smallest useful verification set:
 
 ```bash
-bun run health
+bun run seed doctor          # local setup health (alias: bun run health)
 bun run seed privacy-scan
 bun run check:links
 ```
@@ -131,3 +133,5 @@ Maintainers should prefer boring, beginner-safe changes:
 ## Code of conduct
 
 Be kind. Be concrete. Assume contributors are learning, and make the repo easier for the next person.
+
+The full Code of Conduct lives in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Report Code-of-Conduct issues via a [private GitHub security advisory](https://github.com/LeoMaslyak/digital-seed/security/advisories/new), the same channel used for security issues.

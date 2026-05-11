@@ -3,25 +3,38 @@
 All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
+
+(No new changes since `0.4.1-alpha`.)
+
+## [0.4.1-alpha] - 2026-05-11
 ### Added
-- `docs/supported-platforms.md` — explicit stance: macOS + Linux supported in CI, WSL2 best-effort, Windows-native out of scope.
-- `docs/demo-transcript.md` — fictional first 15-minute walkthrough that readers can skim before cloning.
-- `docs/first-useful-outcomes.md` — concrete first-win shapes (weekly plan, project priority list, notes search, first draft, weekly reflection) plus shapes to defer.
-- `docs/hostile-1.0-readiness-audit-prompt.md` — reusable pre-1.0 audit prompt that asks "would calling this 1.0 be dishonest?" and focuses on blockers, not polish.
-- `docs/hostile-1.0-readiness-audit-2026-05-11.md` — first run of the hostile 1.0 audit. Verdict: **1.0 would be dishonest — do not tag yet.** Two open P0s (real external testers; one green CI cycle on the tag commit) and one P1 fixed in the same pass.
+- `bun run seed hooks install` — installs the pre-commit secret-scan hook into `.git/hooks/pre-commit`. `bun run seed onboard` warns when the hook is missing. The hook is no longer something only `setup.sh` can install.
+- `bun run seed hooks status` — reports whether the Digital Seed pre-commit hook is currently installed.
+- `recipes/_template/README.md` — boilerplate for new integration recipes. Linked from `recipes/README.md` and `CONTRIBUTING.md`.
+- `.github/ISSUE_TEMPLATE/config.yml` — disables blank issues and points contributors at the docs-confusion template (used as the "ask a question" path) and the GitHub security advisory flow.
+- `CODE_OF_CONDUCT.md` — Contributor Covenant-style baseline. Linked from `README.md` and `CONTRIBUTING.md`.
+- `docs/simulated-public-alpha-readiness-2026-05-11.md` — consolidates findings from four isolated hostile audits run on `0.4.0-alpha` and records the P0/P1 fixes that became this release.
 
 ### Changed
-- `docs/production-readiness.md` now includes a "Release candidate discipline" section with explicit `1.0.0-rc.1` and `1.0.0` gates, honest red flags, and the version-bump rule (`package.json` ↔ `CHANGELOG.md` ↔ release checklist).
-- Milestone 5 in `docs/production-readiness.md` is annotated as "prep in progress" with shipped repo-side prep and the open real-validation gates.
-- `docs/release-checklist.md` points to the RC discipline section and the hostile 1.0 audit prompt for any 1.0-flavored tag.
-- `docs/repo-improvement-roadmap.md` lists Milestone 5 repo-side prep as shipped and frames the remaining work as real-user validation; the two open P0s from the 2026-05-11 1.0 audit are now explicitly labeled.
-- `docs/known-alpha-limits.md` now links to the supported-platforms doc.
-- README guides section adds the demo transcript, first useful outcomes, and supported platforms entries.
-- `docs/first-15-minutes.md` links to the demo transcript and first-useful-outcomes doc from the head and "Stop there" sections.
-- `docs/ai-agent-install.md` agent prompt now uses the canonical `bun install` + `bun run seed onboard` path instead of `./setup.sh`, narrows the day-one context files to USER/COMPASS/GOALS with "rough notes are fine" guidance, and points at `bun run seed first-prompt` as the entry point. Fixes the same class of beginner-path contradiction the simulated external-user audit fixed in `docs/install-claude-code.md`.
+- **README** now leads "Start in 15 minutes" with an explicit Prerequisites block (Git, Bun, terminal-capable AI agent) and links to troubleshooting + AI-agent install. The canonical path is restated as `bun install` + `bun run seed onboard`, with `./setup.sh` explicitly framed as the optional guided wizard. The status badge now links to `docs/known-alpha-limits.md` instead of an empty URL.
+- **`docs/getting-started.md`** no longer suggests `./setup.sh` as the primary install step. It now leads with the canonical `bun install` + `bun run seed onboard` path; `setup.sh` is described as optional hand-holding.
+- **`bun run seed onboard --plain`** explains, with terminal-anxious users in mind, how to open the three core context files (editor, `open`, `xdg-open`, `code`) and walks through the two-pane / copy-paste flow for `bun run seed first-prompt`.
+- **`bun run seed first-prompt`** now prints a clear "copy the prompt below" header with delimiter rulers so beginners do not paste the wrong text.
+- **`bun run seed recipe list`** prints a one-line description for each recipe (extracted from the recipe's README) instead of a slug-only blind pick. Lists the `recipes/_template/README.md` location for contributors.
+- **`SECURITY.md`** rewritten for honesty: clarifies which `user/*.md` files are tracked starter templates vs. ignored personal data, documents that the pre-commit hook is opt-in via `bun run seed hooks install`, removes the unsubstantiated "every action logged to `logs/audit.jsonl`" claim (no such log is produced today), and clarifies that MCP servers are ordinary local processes with no Digital-Seed sandbox.
+- **`docs/what-leaves-your-machine.md`** adds a complete table of Digital Seed's own outbound network calls: the npm registry during `bun install`, `r.jina.ai` during `bun run seed web ...`, Google Drive during maintainer `seed drive ...` commands, and the GitHub repo during `seed update`. The 15-minute beginner path does not hit any of these except npm.
+- **`bun run seed web`** usage banner now includes a first-use Jina disclosure pointing at the network-calls doc.
+- **`bun run seed privacy-scan`** adds a non-blocking warning for tracked `user/*.md` templates that look filled in (likely-personal `Name:`, `Email:`, `Phone:` lines).
+- **`bun run seed doctor` / `bun run health`** updated to recommend `bun run seed hooks install` when the pre-commit hook is missing (was: "Run setup.sh to install").
+- **PR template** restructured into scoped groups (docs-only, code, privacy, visual assets, release-impacting). Fresh-clone harness and visual-qa are now explicitly optional unless the relevant scope applies.
+- **CONTRIBUTING.md** prefers `bun run seed doctor` as the canonical local health command and notes `bun run health` is an alias. Adds the recipe template pointer.
+- **`user/README.md`** is honest about which templates are tracked (`COMPASS.md`, `ANTI-GOALS.md`, `DOMAINS.md`) vs. which user files are ignored (`USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`), and warns about putting real content in tracked templates.
+- **`.github/workflows/ci.yml`** now triggers on `v*` tag pushes and pins `oven-sh/setup-bun@v2` to `bun-version: 1.3.8` instead of `latest`.
+- **`docs/release-checklist.md`** tag instruction bumped to `v0.4.1-alpha`.
 
 ### Notes
-- Version stays at `0.4.0-alpha`. Repo is broader-alpha ready with Milestone 5 *prep* shipped; real external-tester validation and a green CI cycle on a tag commit are still required before any `1.0.0-rc.1` consideration.
+- This is a documentation and developer-experience polish release. It does not change the alpha trust contract: real external-tester walkthroughs and a green CI cycle on a tag commit are still required before any `1.0.0-rc.1` consideration. See `docs/production-readiness.md`.
+- No new dependencies. No new external services exercised on the beginner path.
 
 ## [0.4.0-alpha] - 2026-05-11
 ### Added

@@ -97,7 +97,7 @@ check("Patterns", () => {
 check("Security hooks", () => {
   const hook = join(ROOT, ".git/hooks/pre-commit");
   const exists = existsSync(hook);
-  return { ok: exists, detail: exists ? "Pre-commit hook installed" : "Run setup.sh to install" };
+  return { ok: exists, detail: exists ? "Pre-commit hook installed" : "Not installed — run: bun run seed hooks install" };
 });
 
 // Print results

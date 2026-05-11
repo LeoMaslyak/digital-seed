@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or help getting started
+    url: https://github.com/LeoMaslyak/digital-seed/issues/new?template=docs_confusion.yml
+    about: |
+      Stuck on the first 15 minutes, or unsure whether something is a bug or expected
+      behavior? Use the "Docs confusion" template — it lets you describe what was
+      unclear without forcing it into the bug-report shape. (Discussions are not
+      enabled on this repo yet.)
+  - name: Security issue (private disclosure)
+    url: https://github.com/LeoMaslyak/digital-seed/security/advisories/new
+    about: |
+      Found a vulnerability? Please open a private security advisory instead of a
+      public issue. See SECURITY.md for full disclosure guidance.
