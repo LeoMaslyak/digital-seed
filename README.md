@@ -115,6 +115,8 @@ Reference:
 - [Architecture Map](docs/architecture-map.md) — how the moving parts fit together
 - [Dashboard Options](docs/dashboard-options.md) — visual dashboards Digital Seed does not bundle
 - [Known Alpha Limits](docs/known-alpha-limits.md) — what you should not expect yet
+- [Production Readiness](docs/production-readiness.md) — public-ready gaps and release criteria
+- [Release Checklist](docs/release-checklist.md) — maintainer release gate
 - [Audit Response](docs/audit-response-2026-05-10.md) — cleanup status
 
 ## Privacy model

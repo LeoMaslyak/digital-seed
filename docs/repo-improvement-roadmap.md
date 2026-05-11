@@ -22,16 +22,26 @@ This is the current practical backlog for making Digital Seed feel more polished
    - `first-15-minutes.md` is the canonical short path.
    - `getting-started.md` and `setup-wizard.md` now defer to it instead of duplicating.
 
-6. **Release packaging**
-   - Add a small release checklist covering health, privacy scan, visual QA, data room sync, and README screenshots.
-   - Consider a GitHub Release once the data room is updated.
+6. ~~**Release packaging draft**~~ ✅
+   - `docs/release-checklist.md` now captures maintainer checks, visual QA, and data room publishing.
+
+## Production-stable roadmap
+
+See `docs/production-readiness.md` for the current public-alpha status and exact P0/P1/P2 gap list.
+
+Highest-priority remaining work:
+
+1. Fresh-clone test from a clean directory.
+2. CI decision / GitHub Actions for health, privacy scan, and visual QA.
+3. Cross-platform smoke check for macOS/Linux terminal behavior.
+4. Data room publish fallback that can upload without deleting old shared files.
+5. README final tightening before a larger announcement.
 
 ## Later, not urgent
 
-- Add short terminal recordings to docs once GitHub asset strategy is settled.
 - Add a small examples gallery for different user profiles: student, founder, investor, researcher.
 - Add optional templates for weekly planning and project review.
-- Add CI for health/privacy scans if GitHub Actions is acceptable for the repo.
+- Add terminal demo media to docs only if repo size budget allows.
 
 ## Non-goals for now
 

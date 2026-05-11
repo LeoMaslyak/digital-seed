@@ -2,6 +2,19 @@
 
 All notable changes to Digital Seed will be documented in this file.
 
+## [0.3.1-alpha] - 2026-05-11
+### Added
+- Premium generated Digital Seed hero loop with GitHub-dark edge blending, bushier fruit-bearing mature canopy, MP4/WebM/GIF/still/SVG fallbacks, and documented generation notes.
+- Terminal-native `bun run seed intro` visual plus `bun run seed onboard --plain`.
+- Public data room publisher: `bun run seed drive publish-data-room`.
+- Visual QA guardrail: `bun run seed visual-qa`.
+- Production readiness and release checklist docs.
+
+### Changed
+- README now leads with the 15-minute promise and the live public data room.
+- Beginner docs now defer to the first-15-minute path instead of duplicating it.
+- Public data room moved to a clean folder owned by the publishing account.
+
 ## [0.3.0-alpha] - 2026-05-10
 ### Changed
 - Repositioned Digital Seed as a free-first, local-first, agent-neutral starter kit.
