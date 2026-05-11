@@ -118,6 +118,7 @@ Reference:
 - [Architecture Map](docs/architecture-map.md) — how the moving parts fit together
 - [Dashboard Options](docs/dashboard-options.md) — visual dashboards Digital Seed does not bundle
 - [Known Alpha Limits](docs/known-alpha-limits.md) — what you should not expect yet
+- [What Leaves Your Machine?](docs/what-leaves-your-machine.md) — local-first privacy and external-data boundaries
 - [Production Readiness](docs/production-readiness.md) — public-ready gaps and release criteria
 - [Release Checklist](docs/release-checklist.md) — maintainer release gate
 - [Fresh-Clone Validation](docs/fresh-clone-validation.md) — clean-environment smoke test
@@ -127,7 +128,7 @@ Reference:
 
 Digital Seed is local-first. Your personal files live on your machine. The kit does not require you to upload private notes to a hosted service.
 
-Important caveat: the AI model or agent you use may send prompts and selected file contents to its provider. Read your provider’s terms and be intentional about what files you expose.
+Important caveat: the AI model or agent you use may send prompts and selected file contents to its provider. Read [What Leaves Your Machine?](docs/what-leaves-your-machine.md), check your provider’s terms, and be intentional about what files you expose.
 
 ## Repository status
 

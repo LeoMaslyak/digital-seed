@@ -4,40 +4,58 @@ This is the current practical backlog for making Digital Seed feel more polished
 
 ## Current milestone sequence
 
-Current assessment: **~72% of 100% usable OSS project**. Digital Seed is broader-alpha ready, but not production-grade / 1.0 yet.
+Current assessment: **~78% of 100% usable OSS project**. Digital Seed is broader-alpha ready, but not production-grade / 1.0 yet.
 
 See `docs/production-readiness.md` for the full production-grade definition. The short version:
 
 1. **Beginner trust + first win** — examples gallery, optional `FIRST-WIN.md`, better first prompt, health warning semantics, day-one guidance.
 2. **Release engineering** — link checker, CI link gate, fresh-clone CI smoke, version consistency check, data-room dry-run gate, release-check command.
-3. **Open-source usability** — tightened contributing guide, troubleshooting doc, issue templates, PR template, command taxonomy.
-4. **Product coherence** — beginner vs advanced vs maintainer-only command surfaces; official vs experimental recipes.
+3. **Open-source usability** — shipped for alpha: tightened contributing guide, troubleshooting doc, issue templates, PR template, trust page, command taxonomy.
+4. **Product coherence** — next: beginner vs advanced vs maintainer-only command surfaces; official vs experimental recipes.
 5. **1.0 candidate** — supported-platform proof, external tester walkthroughs, precise privacy/security explanation, no maintainer-only beginner assumptions.
 
-## Immediate next sprint — Milestone 3 open-source usability
+## Immediate next sprint — Milestone 4 product coherence
 
-1. **Contributor guide tightening**
-   - Rewrite/tighten `CONTRIBUTING.md` for first-time external contributors.
-   - Explain the simplest contribution paths: docs fixes, examples, recipes, bug reports.
+Milestone 3 open-source usability has shipped for alpha. The next sprint should keep Digital Seed focused rather than letting optional power-user tooling crowd the beginner story.
 
-2. **Issue templates**
-   - Add `.github/ISSUE_TEMPLATE/bug_report.yml`.
-   - Add `.github/ISSUE_TEMPLATE/docs_confusion.yml`.
-   - Add `.github/ISSUE_TEMPLATE/integration_recipe_request.yml`.
+1. **Beginner surface review**
+   - Re-read README, `docs/first-15-minutes.md`, and `bun run seed help` as a brand-new user.
+   - Keep the first-run promise limited to context files, onboard, first prompt, privacy scan, local index/search, and recipes.
 
-3. **PR template**
-   - Add `.github/pull_request_template.md` with privacy, docs, `bun run check:links`, and `bun run seed release-check --skip-fresh-clone` reminders.
+2. **Advanced command labeling**
+   - Ensure scheduler, digest, export/import, marketplace, Drive publishing, release tooling, and repo-bot style commands are clearly advanced or maintainer-only.
+   - Avoid presenting optional integrations as prerequisites.
 
-4. **External-user trust polish**
-   - Add or improve a short security/privacy trust page focused on “what data leaves your machine?”
-   - Cross-link from README, known alpha limits, and troubleshooting.
+3. **Recipe classification**
+   - Decide which recipes are official alpha-supported versus experimental/community-maintained.
+   - Add status labels where needed.
 
-5. **Maintainer/contributor flow**
-   - If useful, add `docs/open-source-maintainer-guide.md` or a concise section in `CONTRIBUTING.md` for release/review expectations.
+4. **External validation loop**
+   - Use the new issue templates and PR template to collect real outside-user friction.
+   - Treat first outside issues/PRs as validation for Milestone 3, not as proof yet.
 
-6. **Roadmap cleanup after implementation**
-   - Mark Milestone 3 items shipped once templates/docs are in place.
-   - Keep Milestone 4 product-coherence cleanup as the next target.
+5. **Roadmap cleanup after implementation**
+   - Mark Milestone 4 items shipped only after command surfaces and recipe boundaries feel coherent to a fresh user.
+
+## Completed Milestone 3 open-source usability work
+
+1. ~~**Contributor guide tightening**~~ ✅
+   - `CONTRIBUTING.md` now explains first-time contribution paths, repo shape, docs/recipe/code expectations, privacy rules, and maintainer review posture.
+
+2. ~~**Issue templates**~~ ✅
+   - Added `.github/ISSUE_TEMPLATE/bug_report.yml`.
+   - Added `.github/ISSUE_TEMPLATE/docs_confusion.yml`.
+   - Added `.github/ISSUE_TEMPLATE/integration_recipe_request.yml`.
+
+3. ~~**PR template**~~ ✅
+   - Added `.github/pull_request_template.md` with privacy, docs, check, release-check, and fresh-clone reminders.
+
+4. ~~**External-user trust polish**~~ ✅
+   - Added `docs/what-leaves-your-machine.md`.
+   - Cross-linked it from README, SECURITY, troubleshooting, and known alpha limits.
+
+5. ~~**Maintainer/contributor flow**~~ ✅
+   - Kept the maintainer guidance concise inside `CONTRIBUTING.md` instead of adding another doc.
 
 ## Completed Milestone 2 release-engineering work
 
@@ -127,9 +145,9 @@ Next gate before a larger public push:
 
 Remaining P1 polish after the hostile audit:
 
-- Open-source contributor package: issue templates, PR template, tightened contributor guide.
-- Security/privacy trust page focused on data boundaries.
 - Product-coherence cleanup for advanced/legacy commands.
+- Real outside-user validation of the new contributor and issue flows.
+- Continue sharpening security/privacy docs as integrations mature.
 
 ## Later, not urgent
 

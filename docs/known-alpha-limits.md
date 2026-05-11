@@ -31,7 +31,7 @@ OpenClaw, Hermes, Telegram bots, scheduled tasks, and background automation are 
 
 ## You still need judgment
 
-Digital Seed helps structure context and workflows. It does not remove the need to review AI output, protect private data, or understand what external tools are allowed to do.
+Digital Seed helps structure context and workflows. It does not remove the need to review AI output, protect private data, or understand what external tools are allowed to do. For the practical data boundary, read [What Leaves Your Machine?](what-leaves-your-machine.md).
 
 ## Current best use case
 

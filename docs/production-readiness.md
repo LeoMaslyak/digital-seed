@@ -4,21 +4,21 @@ Digital Seed is production-stable for public use as an alpha: a new user can clo
 
 It is **not** 1.0 yet. The next objective is to turn the useful alpha into a production-grade, easy-to-use open-source project for strangers.
 
-## Current status: broader-alpha ready (~72% toward production-grade OSS usability)
+## Current status: broader-alpha ready (~78% toward production-grade OSS usability)
 
-Digital Seed is no longer in “make it work” mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode.
+Digital Seed is no longer in “make it work” mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode. Milestone 3 open-source usability is now shipped at the repo level; it still needs real outside-contributor use to prove the flow.
 
 Current usability scorecard:
 
 - **Core concept / positioning:** ~90% — clear local-first personal AI context starter kit.
 - **First-run beginner path:** ~80% — alpha-stranger usable, still needs real-user walkthroughs.
 - **Release engineering:** ~75% — unified release check, CI smoke, link/version checks, fresh-clone validation; needs repeated real release practice.
-- **Docs / trust / safety:** ~70% — examples, troubleshooting, known limits, privacy caveats; needs sharper “what data leaves your machine?” and security polish.
-- **Open-source contributor readiness:** ~50% — biggest remaining structured gap: issue templates, PR template, contributor flow.
+- **Docs / trust / safety:** ~80% — examples, troubleshooting, known limits, privacy caveats, and a dedicated “what leaves your machine?” trust page.
+- **Open-source contributor readiness:** ~80% — tightened contributor guide, issue templates, PR template, and external-user reporting flow are in place; needs real contributor validation.
 - **Product coherence:** ~65% — beginner surface is cleaner, but advanced/legacy commands still need clearer product boundaries.
 - **External validation:** ~20–30% — real outside-user walkthroughs have not happened yet.
 
-Overall assessment: **~72% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
+Overall assessment: **~78% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
 
 Shipped and verified:
 
@@ -110,13 +110,16 @@ Exit criteria:
 
 Goal: outside contributors/users can understand, debug, and extend it.
 
-Must ship:
+Status: shipped for alpha. Needs real outside issues/PRs before being considered production-grade.
 
-- Tightened `CONTRIBUTING.md` for first contributors.
-- `docs/troubleshooting.md` covering Bun, Python/Pillow, Claude/Cursor/Windsurf, Drive/gog, privacy scan false positives, and fresh-clone failures.
+Shipped:
+
+- Tightened `CONTRIBUTING.md` for first-time external contributors.
+- `docs/troubleshooting.md` covers Bun, Python/Pillow, Claude/Cursor/Windsurf, Drive/gog, privacy scan false positives, fresh-clone failures, and CI failures.
 - Issue templates for bug report, docs confusion, and integration recipe request.
-- PR template with privacy/release checks.
-- Clear beginner / advanced / maintainer-only command taxonomy.
+- PR template with privacy, docs, link-check, release-check, and fresh-clone reminders.
+- Dedicated trust page: `docs/what-leaves-your-machine.md`.
+- Clear beginner / advanced / maintainer-only command taxonomy in CLI help.
 
 Exit criteria:
 
@@ -167,14 +170,13 @@ Exit criteria:
 
 ## Immediate next sprint
 
-Focus: Milestone 3 — open-source usability.
+Focus: Milestone 4 — product coherence.
 
-1. Tighten `CONTRIBUTING.md` for first-time contributors.
-2. Add GitHub issue templates: bug report, docs confusion, integration recipe request.
-3. Add PR template with privacy, docs, link-check, and release-check reminders.
-4. Add `docs/open-source-maintainer-guide.md` or equivalent contributor/maintainer flow if needed.
-5. Polish `docs/troubleshooting.md` and `docs/known-alpha-limits.md` from an external-user perspective.
-6. Add a short security/privacy trust page focused on “what data leaves your machine?” if scope allows.
+1. Review `bun run seed help` and README command surfaces from a brand-new-user perspective.
+2. Keep the beginner surface limited to context files, onboard, first prompt, privacy scan, local index/search, and recipes.
+3. Move or label advanced/legacy commands more aggressively where they still feel like first-run obligations.
+4. Decide which recipes are official versus experimental.
+5. Keep collecting real outside-user friction from issues and PRs to validate Milestone 3.
 
 ## Next audit gate
 

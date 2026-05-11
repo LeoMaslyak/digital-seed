@@ -1,0 +1,48 @@
+name: Docs confusion
+description: Report unclear, missing, contradictory, or too-advanced documentation
+title: "Docs: "
+labels: [documentation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when the docs made you hesitate, sent you to the wrong place, or assumed context you did not have.
+  - type: input
+    id: page
+    attributes:
+      label: Page or section
+      placeholder: "README.md, docs/first-15-minutes.md, docs/troubleshooting.md, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: confusion
+    attributes:
+      label: What was confusing?
+      placeholder: "I expected this page to explain..., but it said..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What would have helped?
+      placeholder: "A short example / a command / a warning / a link to..."
+    validations:
+      required: true
+  - type: dropdown
+    id: reader-type
+    attributes:
+      label: Reader context
+      options:
+        - New user trying the first 15-minute path
+        - Contributor trying to edit docs or recipes
+        - Maintainer preparing a release
+        - Advanced user wiring integrations
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Would you like to contribute a fix?
+      options:
+        - label: I may be able to open a docs PR if someone confirms the intended wording.

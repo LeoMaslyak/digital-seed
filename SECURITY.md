@@ -2,6 +2,8 @@
 
 > Your personal AI infrastructure handles sensitive data. This document explains our security architecture.
 
+For a plain-language privacy boundary, start with [What Leaves Your Machine?](docs/what-leaves-your-machine.md).
+
 ## Threat Model
 
 | Threat | Mitigation |
@@ -25,7 +27,7 @@ data/                   # Runtime data (git-ignored)
 logs/                   # Audit logs (git-ignored)
 ```
 
-**Nothing is sent anywhere** except to the model providers you explicitly configure, for the purpose of AI inference.
+**Nothing is sent anywhere by Digital Seed's default local commands** except to the model providers or integrations you explicitly use. See [What Leaves Your Machine?](docs/what-leaves-your-machine.md) for the practical data-boundary checklist.
 
 ## API Key Management
 

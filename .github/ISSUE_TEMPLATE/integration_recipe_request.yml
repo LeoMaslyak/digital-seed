@@ -1,0 +1,59 @@
+name: Integration recipe request
+description: Request a safe recipe for connecting Digital Seed to another tool or workflow
+title: "Recipe: "
+labels: [recipe, integration]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Recipes should stay optional, privacy-aware, and beginner-safe. Please describe the workflow before asking for automation.
+  - type: input
+    id: tool
+    attributes:
+      label: Tool or service
+      placeholder: "Obsidian, Google Drive, Telegram, Notion, local folder, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: What workflow are you trying to enable?
+      placeholder: "I want Digital Seed / my agent to help me..."
+    validations:
+      required: true
+  - type: dropdown
+    id: data-type
+    attributes:
+      label: What kind of data is involved?
+      options:
+        - Public or fictional data
+        - Personal notes/context
+        - Work documents
+        - Messages/email/calendar
+        - Credentials/API access
+        - Other sensitive data
+        - Not sure
+    validations:
+      required: true
+  - type: checkboxes
+    id: actions
+    attributes:
+      label: What should the recipe do?
+      options:
+        - label: Read local files or folders
+        - label: Search/index local content
+        - label: Draft text for human review
+        - label: Upload or publish files
+        - label: Send messages or email
+        - label: Delete, archive, or modify external data
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety expectations
+      description: What confirmations, read-only defaults, or privacy warnings should the recipe include?
+      placeholder: "It should start read-only and require confirmation before..."
+  - type: textarea
+    id: references
+    attributes:
+      label: Useful references
+      description: Link to API docs, existing setup docs, or comparable recipes if you have them.

@@ -1,0 +1,75 @@
+name: Bug report
+description: Report a command, setup step, or repo behavior that is not working
+title: "Bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Please include enough detail that someone can reproduce the issue from a fresh clone.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the failure, including the exact command or action.
+      placeholder: "I ran `bun run seed onboard` and..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: "I expected..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Use a fresh clone if possible.
+      placeholder: |
+        1. git clone ...
+        2. bun install
+        3. bun run ...
+        4. See error ...
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant output
+      description: Paste error output, `bun run seed doctor`, or CI logs. Remove secrets and private paths first.
+      render: shell
+  - type: input
+    id: os
+    attributes:
+      label: OS / environment
+      placeholder: "macOS 15, Ubuntu 24.04, WSL2, etc."
+    validations:
+      required: true
+  - type: input
+    id: bun-version
+    attributes:
+      label: Bun version
+      placeholder: "bun --version"
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Which surface is affected?
+      options:
+        - First 15-minute path / onboarding
+        - Docs or examples
+        - Local index/search
+        - Optional integration recipe
+        - Release or maintainer tooling
+        - CI / GitHub Actions
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed secrets, tokens, private notes, and personal data from the pasted output.
+          required: true

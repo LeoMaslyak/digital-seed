@@ -3,6 +3,8 @@
 Common problems and what to try. If something here is wrong or missing, open an issue or a PR.
 
 > Quick sanity check first: `bun run seed doctor`. It catches most setup problems and tells you what to install.
+>
+> If your question is privacy-related, read [What Leaves Your Machine?](what-leaves-your-machine.md) before connecting an AI agent or optional integration.
 
 ## Bun is missing or the wrong version
 
