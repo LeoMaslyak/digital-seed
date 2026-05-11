@@ -2,7 +2,41 @@
 
 This is the current practical backlog for making Digital Seed feel more polished and useful without turning it into a heavyweight platform.
 
-## Highest leverage next steps
+## Current milestone sequence
+
+See `docs/production-readiness.md` for the full production-grade definition. The short version:
+
+1. **Beginner trust + first win** — examples gallery, optional `FIRST-WIN.md`, better first prompt, health warning semantics, day-one guidance.
+2. **Release engineering** — link checker, CI link gate, fresh-clone CI smoke, version consistency check, data-room dry-run gate, release-check command.
+3. **Open-source usability** — tightened contributing guide, troubleshooting doc, issue templates, PR template, command taxonomy.
+4. **Product coherence** — beginner vs advanced vs maintainer-only command surfaces; official vs experimental recipes.
+5. **1.0 candidate** — supported-platform proof, external tester walkthroughs, precise privacy/security explanation, no maintainer-only beginner assumptions.
+
+## Immediate recommended sprint
+
+1. **Examples gallery**
+   - Add `docs/examples/` with fictional student, founder/operator, researcher/investor, and freelancer/consultant profiles.
+   - Link it from README and `docs/first-15-minutes.md`.
+
+2. **First-win onboarding**
+   - Add `bun run seed onboard --write-first-win`.
+   - Write `user/FIRST-WIN.md` only after explicit user confirmation / flag usage.
+   - Let `bun run seed first-prompt` reference the first-win file when present.
+
+3. **Markdown link checker**
+   - Add local script for root/docs/recipes Markdown links.
+   - Wire it into package scripts and CI.
+
+4. **Health warning semantics**
+   - Change health summary to distinguish pass, pass-with-warnings, and failure.
+
+5. **Troubleshooting guide**
+   - Add `docs/troubleshooting.md` covering Bun, Python/Pillow, AI agent CLIs, Drive/gog, privacy scan false positives, and fresh-clone failures.
+
+6. **Command taxonomy cleanup**
+   - Start by separating beginner commands from advanced / maintainer-only commands in help output.
+
+## Completed high-leverage alpha work
 
 1. ~~**Data room publishing path**~~ ✅
    - `bun run seed drive publish-data-room` syncs the public folder from local sources.

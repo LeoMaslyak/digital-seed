@@ -50,3 +50,6 @@ jobs:
 
       - name: First prompt
         run: bun run seed first-prompt
+
+      - name: Markdown link check
+        run: bun run check:links

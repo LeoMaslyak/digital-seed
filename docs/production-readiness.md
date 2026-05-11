@@ -1,8 +1,10 @@
 # Production Readiness
 
-Digital Seed is now production-stable for public use as an alpha: a new user can clone it, run the first-15-minute path, create local context, and optionally use the public data room. CI runs the gate stack on macOS + Linux, the fresh-clone path is repeatable, and the data room publisher tolerates locked legacy files. It remains intentionally an alpha starter kit, not a polished consumer app.
+Digital Seed is production-stable for public use as an alpha: a new user can clone it, run the first-15-minute path, create local context, and optionally use the public data room. CI runs the gate stack on macOS + Linux, the fresh-clone path is repeatable, and the data room publisher tolerates locked legacy files.
 
-## Current status: production-stable alpha
+It is **not** 1.0 yet. The next objective is to turn the useful alpha into a production-grade, easy-to-use open-source project for strangers.
+
+## Current status: broader-alpha ready
 
 Shipped and verified:
 
@@ -11,66 +13,141 @@ Shipped and verified:
 - `bun run seed onboard --plain` supports no-animation/no-color environments.
 - `bun run seed intro` provides the locked terminal visual direction.
 - Hero visual is generated, documented, GitHub-dark embedded, and checked by visual QA.
-- Mature hero phase now has a visibly bushier canopy plus fruit nodes.
 - Public Google Drive data room is live and refreshed from local sources.
-- `bun run seed drive publish-data-room` publishes the data room manifest.
+- `bun run seed drive publish-data-room --dry-run --account lm@avantgaera.com` passes against the clean public folder.
 - `bun run seed visual-qa` checks hero dimensions, duration, loop flag, edge color, and seam.
 - Beginner docs are mostly consolidated around `docs/first-15-minutes.md`.
 - Health and privacy scans pass locally.
+- Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
 
 Current public data room:
 
 <https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG>
 
-## Production-ready definition
+## Production-grade definition
 
-Digital Seed should be considered production-ready for public use when these are all true:
+Digital Seed should be considered production-grade open source when these are all true:
 
-1. **First-run reliability** — a fresh user can clone, install, run `bun run seed onboard`, `bun run seed doctor`, and `bun run seed first-prompt` without hand-holding on macOS/Linux.
-2. **Safety clarity** — docs consistently explain what stays local, what is optional, and what requires explicit user permission.
-3. **No private residue** — privacy scan passes and README/docs contain no private, project-internal, or founder-specific leftovers.
-4. **Release repeatability** — visual assets, data room sync, health checks, privacy scan, and changelog update are captured in a release checklist.
-5. **Automated guardrails** — at minimum, CI runs health/privacy/visual-QA or clearly documents why CI is deferred.
-6. **Support expectations** — alpha limits, security reporting, contribution flow, and known unsupported setups are explicit.
+1. **Beginner first win** — a stranger can understand the project in 60 seconds and get one useful outcome in 15 minutes without premature complexity.
+2. **First-run reliability** — a fresh user can clone, install, run `bun run seed onboard`, `bun run seed doctor`, and `bun run seed first-prompt` without hand-holding on macOS/Linux.
+3. **Safety clarity** — docs consistently explain what stays local, what is optional, what leaves the machine, and what requires explicit permission.
+4. **No private residue** — privacy scan passes and README/docs contain no private, project-internal, or founder-specific leftovers.
+5. **Release repeatability** — visual assets, data room sync, health checks, privacy scan, link checks, fresh-clone validation, and changelog update are captured in automated or checklist gates.
+6. **Open-source usability** — issue templates, PR template, contributing guide, troubleshooting guide, and command taxonomy make it easy for external users to report problems and contribute.
+7. **Product coherence** — beginner commands stay simple; advanced/legacy commands are clearly separated from the first-run path.
+8. **Support expectations** — alpha limits, security reporting, contribution flow, supported platforms, and unsupported setups are explicit.
 
-## Remaining blockers before production-stable
+## Milestones to production-grade OSS
 
-### P0 — must fix before calling it production-stable
+### Milestone 1 — Beginner trust + first win
 
-All P0 items have shipped. Recap:
+Goal: a stranger understands what to do and gets one useful result quickly.
 
-- **Release checklist** — `docs/release-checklist.md` covers health, privacy, visual QA, data room dry-run/live sync, README/docs review, changelog, tag.
-- **Fresh-clone test** — `scripts/fresh-clone-check.sh` and `docs/fresh-clone-validation.md`. Verified on macOS 25.4 arm64 with bun 1.3.8.
-- **Cross-platform smoke** — CI runs the gate stack on `ubuntu-latest` and `macos-latest` (`.github/workflows/ci.yml`).
-- **CI** — `.github/workflows/ci.yml` runs `bun install`, `bun run health`, `bun run seed privacy-scan`, `bun run seed visual-qa`, `bun run seed onboard --plain`, and `bun run seed first-prompt` on every push and PR.
-- **Data room publish hardening** — `scripts/publish-data-room.ts` ships `--no-delete`, `--replace-strategy {delete,skip-delete}`, and `--strict`. The default delete strategy now warns and falls back per-file on permission errors instead of hard-failing.
+Must ship:
 
-### P1 — should fix before a larger public announcement
+- Examples gallery with fictional profiles: student, founder/operator, researcher/investor, freelancer/consultant.
+- Optional onboarding output such as `bun run seed onboard --write-first-win`, writing `user/FIRST-WIN.md` after confirmation.
+- `seed first-prompt` support for the chosen first win.
+- Health output semantics: `passed`, `passed with warnings`, `failed`.
+- README / first-15-minutes “day one / not day one” guidance.
 
-- **README tightening pass:** ✅ — first screen now leads with 15-minute promise, quick start, data room callout, and who-this-is-for/not-for, in that order. CI badge added.
-- **Link checker:** add a simple local docs link check for Markdown links and Drive/data-room references.
-- **Examples gallery:** add 2-3 tiny user profiles: student, founder, researcher/investor. Each should show which context files to edit first.
-- **Onboarding UX polish:** make `seed onboard` optionally write a local checklist file, e.g. `user/FIRST-WIN.md`, after user confirmation.
-- **Version metadata:** align `package.json`, changelog, README badges, and release tag for the next alpha.
+Exit criteria:
 
-### P2 — nice later
+- A new user can pick an example, edit three context files, write a first win, and paste a first prompt with no extra docs.
+- `bun run health` no longer says “All checks passed” when warnings exist.
 
-- Add terminal-demo GIF/MP4 under docs if repo size budget allows.
-- Add optional weekly planning and project review templates.
-- Add more robust local search ranking or optional semantic search path.
-- Add integration-specific validation for recipes.
+### Milestone 2 — Release engineering
+
+Goal: releases are boring and repeatable.
+
+Must ship:
+
+- Local Markdown link checker.
+- Link checker in CI.
+- Fresh-clone harness, or equivalent packaging smoke, in CI.
+- Version consistency check for `package.json`, changelog, docs, and tags.
+- Data-room dry-run gate.
+- One maintainer release command/check, e.g. `bun run seed release-check`.
+
+Exit criteria:
+
+- Release gate can be run locally and in CI without remembering scattered commands.
+- A failed link/version/data-room check blocks release confidence.
+
+### Milestone 3 — Open-source usability
+
+Goal: outside contributors/users can understand, debug, and extend it.
+
+Must ship:
+
+- Tightened `CONTRIBUTING.md` for first contributors.
+- `docs/troubleshooting.md` covering Bun, Python/Pillow, Claude/Cursor/Windsurf, Drive/gog, privacy scan false positives, and fresh-clone failures.
+- Issue templates for bug report, docs confusion, and integration recipe request.
+- PR template with privacy/release checks.
+- Clear beginner / advanced / maintainer-only command taxonomy.
+
+Exit criteria:
+
+- A user can file a good issue without prior context.
+- A contributor can make a docs/recipe PR without asking how the repo works.
+
+### Milestone 4 — Product coherence
+
+Goal: Digital Seed feels focused rather than like a broad toolbox.
+
+Must decide and implement:
+
+- Which commands remain in the beginner surface.
+- Which commands move to advanced/help sections.
+- Which recipes are official vs experimental.
+- Whether Excel/deck/digest/scheduler/web tools belong in the public main surface or advanced/legacy sections.
+
+Recommendation:
+
+- Keep the public surface brutally simple: context files, onboard, first prompt, privacy scan, local index/search, and recipes.
+- Treat everything else as advanced until real users ask for it.
+
+Exit criteria:
+
+- `bun run seed help` is beginner-safe.
+- Advanced commands are discoverable but not part of the first-run promise.
+
+### Milestone 5 — 1.0 candidate
+
+Goal: stable enough to recommend widely, not merely alpha-useful.
+
+Must have:
+
+- Reliable install on supported macOS + Linux versions.
+- Clear Windows/WSL stance.
+- CI green across supported platforms.
+- No known P0/P1 docs contradictions.
+- Security/privacy page strong enough for skeptical users.
+- At least 5 external tester walkthroughs or equivalent fresh-user sessions.
+- Changelog + semver discipline.
+- Public examples/demo transcript using fictional data.
+- Precise “what data leaves your machine?” explanation.
+- No maintainer-only assumptions in the beginner path.
+
+Exit criteria:
+
+- Tagging `1.0.0` would feel honest, not aspirational.
+
+## Immediate recommended sprint
+
+1. Add examples gallery.
+2. Add `FIRST-WIN.md` onboarding write path.
+3. Add Markdown link checker + CI gate.
+4. Fix health warning semantics.
+5. Add troubleshooting guide.
+6. Start command taxonomy cleanup.
 
 ## Next audit gate
 
-Before a broader alpha announcement, run the hostile production-alpha audit in `docs/hostile-audit-production-alpha-prompt.md`. The expected result should be either "ready for broader alpha announcement" or a short P0 fix list.
+Before calling Digital Seed production-grade or tagging a 1.0 candidate, run another hostile audit focused on external-user usability, not just alpha release gates.
 
 ## Release recommendation
 
-Do not call this `1.0`. With the P0 list complete, the honest next release is `0.4.0-alpha`:
+Current honest status: `0.4.0-alpha`, broader-alpha ready.
 
-- CI runs the gate stack on macOS + Linux.
-- `scripts/fresh-clone-check.sh` makes the clean-environment smoke test repeatable.
-- Data room publishing tolerates locked legacy files instead of hard-failing.
-- README first screen is focused on outcome, install, and first prompt.
-
-P1 items (link checker, examples gallery, onboarding `FIRST-WIN.md` write, version metadata alignment) remain optional polish before a larger public announcement.
+Do **not** call this `1.0` until the production-grade milestones above are complete and validated with external-user walkthroughs.

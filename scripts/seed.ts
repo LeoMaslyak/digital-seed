@@ -218,15 +218,76 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     h("5. Pick one recipe and stop"),
     `   ${cmd("bun run seed recipe list")}`,
     "",
+    h("Optional — write a first-win prompt"),
+    `   ${cmd("bun run seed onboard --write-first-win")}  ${dim("# creates user/FIRST-WIN.md if missing")}`,
+    "",
     dim("Rule: do not connect email, messaging, or cloud automation until the local workflow is useful."),
-    dim("Full guide: docs/first-15-minutes.md"),
+    dim("Full guide: docs/first-15-minutes.md · Examples: docs/examples/README.md"),
   ];
   const text = lines.join("\n");
   console.log(plain || !USE_ANSI ? stripAnsi(text) : text);
 }
 
+function firstWinTemplate(): string {
+  return `# First Win
+
+> Goal: one boring, real first win this week. Edit this file freely — your assistant will read it.
+
+Pick **one** outcome you can finish in under an hour. Resist scope creep.
+
+## The win
+
+_What is the smallest useful thing your assistant can help with this week?_
+
+Examples (delete the ones that do not apply, replace the rest):
+
+- Draft a one-page weekly plan for myself.
+- Summarize three documents I have not had time to read.
+- Turn rough meeting notes into a clean recap.
+- Outline a draft of <thing I keep putting off>.
+
+## Why this one
+
+_One or two sentences. The "why" is what stops the assistant from over-engineering._
+
+## What "done" looks like
+
+_A specific, recognizable end state. If you cannot describe "done", the win is still too vague._
+
+## Constraints
+
+- Time budget: under an hour of my time.
+- No new tools, no new accounts, no new automations.
+- Stay inside this repo and any local folders I already have.
+
+## Notes after attempting it
+
+_Fill this in after. What worked, what did not, what to try next._
+`;
+}
+
+function writeFirstWin(options: { force?: boolean } = {}): void {
+  const target = join(ROOT, "user", "FIRST-WIN.md");
+  if (existsSync(target) && !options.force) {
+    console.log(`user/FIRST-WIN.md already exists — leaving it alone.`);
+    console.log(`Use --force to overwrite (this replaces your edits).`);
+    return;
+  }
+  mkdirSync(dirname(target), { recursive: true });
+  writeFileSync(target, firstWinTemplate(), "utf-8");
+  console.log(`✅ Wrote user/FIRST-WIN.md`);
+  console.log(`   Open it, pick one boring real win, then run: bun run seed first-prompt`);
+}
+
 function printFirstPrompt(): void {
-  console.log("Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.");
+  const firstWinPath = join(ROOT, "user", "FIRST-WIN.md");
+  const hasFirstWin = existsSync(firstWinPath);
+  const base = "Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.";
+  if (hasFirstWin) {
+    console.log(`${base} Start from user/FIRST-WIN.md — help me finish that specific win before suggesting anything else.`);
+  } else {
+    console.log(base);
+  }
 }
 
 function privacyScan(): void {
@@ -350,44 +411,40 @@ function usage(): void {
   console.log(`
 Digital Seed — Personal AI Infrastructure
 
-PATTERNS
-  bun run seed install <id>            Install pattern or pack
-  bun run seed install pack:finance    Install Finance skill pack
-  bun run seed publish <pattern-dir>   Publish pattern (opens PR flow)
-  bun run seed rate <id> <1-5>         Rate a pattern
-  bun run seed patterns                Browse all patterns
-  bun run seed packs                   Browse skill packs
+Start here. The five commands in BEGINNER are enough for the first 15 minutes.
+Everything below that is optional. Don't add tools until the local loop is useful.
 
-BEGINNER SETUP
-  bun run seed doctor                  Friendly setup health check
+BEGINNER — start here
   bun run seed onboard                 Show the first 15-minute path (animated)
   bun run seed onboard --plain         Same path, no animation or color
-  bun run seed intro                   Show the terminal Digital Seed intro
+  bun run seed onboard --write-first-win    Create user/FIRST-WIN.md (skip if it exists)
+  bun run seed onboard --write-first-win --force    Overwrite user/FIRST-WIN.md
+  bun run seed doctor                  Friendly setup health check
   bun run seed first-prompt            Print the first agent prompt
   bun run seed privacy-scan            Check for common private leftovers
-  bun run seed visual-qa               Check hero GIF dimensions/loop/seam
+  bun run seed visual-qa               Verify the hero GIF still loops cleanly
+
+OPTIONAL — recipes & local search
   bun run seed recipe list             List integration recipes
   bun run seed recipe openclaw init    Draft OpenClaw setup context
   bun run seed recipe hermes init      Draft Hermes setup context
   bun run seed index <folder>          Build local retrieval index
+  bun run seed search "<query>"        Search your local retrieval index
+  bun run seed intro                   Show the animated terminal intro
 
-COLLABORATION
+ADVANCED — power-user workflows
   bun run seed collab create <name>    New shared project
   bun run seed collab group create ..  New shared learning group
   bun run seed collab export <id>      Export project/group to markdown
   bun run seed collab summary          Overview of all collab activity
   bun run seed collab [...]            All collab commands
 
-DAILY DIGEST
   bun run seed digest                  Today's digest (markdown)
   bun run seed digest --text           Plain text (Telegram-safe)
   bun run seed digest --deliver        Generate + deliver
 
-REPO LEARNING
   bun run seed learn owner/repo        Index a GitHub repo for search
-  bun run seed search "<query>"        Search your local retrieval index
 
-WEB & RESEARCH
   bun run seed web fetch <url>                     Fetch URL as AI-readable markdown
   bun run seed web fetch <url> --summarize         Fetch + AI summary
   bun run seed web scrape <url> --selector h2      Extract CSS-selected elements
@@ -395,31 +452,36 @@ WEB & RESEARCH
   bun run seed web bulk urls.txt --download        Batch download files
   bun run seed web research "<query>"              Web research + AI summary
 
-FILE MANAGEMENT
   bun run seed drive upload <file>                 Upload file to Google Drive
   bun run seed drive download <url>                Download file locally
   bun run seed drive download <url> --drive        Download + upload to Google Drive
   bun run seed drive bulk urls.txt --drive         Bulk download → Google Drive
   bun run seed drive publish-data-room             Sync public data room to Drive
 
-ANALYSIS
-  bun run seed excel dcf|ratios|project   Generate Excel template
-  bun run seed excel dcf --fill --topic 'Sample project'  AI-generated assumptions
-  bun run seed excel dcf --fill --topic 'Sample project' --web    Fetch live web context before AI fill
-  bun run seed excel                   List available templates
-  bun run seed deck project|strategy|finance  Generate slide deck (rich layouts)
-  bun run seed deck project --fill --topic 'project roadmap'  Claude-generated content
-  bun run seed deck project --fill --topic 'Sample project' --web    Same for slide decks
-  bun run seed deck project --fill --topic 'Sample project' --format google-slides  Upload to Google Slides
-  bun run seed deck                    List available templates
+  bun run seed excel dcf|ratios|project            Generate Excel template
+  bun run seed excel dcf --fill --topic '...'      AI-generated assumptions
+  bun run seed excel dcf --fill --topic '...' --web    Fetch live web context first
+  bun run seed excel                               List Excel templates
+  bun run seed deck project|strategy|finance       Generate slide deck (rich layouts)
+  bun run seed deck project --fill --topic '...'   Claude-generated content
+  bun run seed deck project --fill --topic '...' --web    Same with web context
+  bun run seed deck project --fill --topic '...' --format google-slides    Upload to Google Slides
+  bun run seed deck                                List deck templates
 
-SYSTEM
-  bun run seed update                  Check and apply updates
-  bun run seed update --yes            Skip confirmation
   bun run seed status                  Activity state + offline mode
   bun run seed schedule                View pending/upcoming tasks
   bun run seed schedule clear          Remove completed tasks
   bun run seed task <name>             Run an autonomous task
+
+MAINTAINER / RELEASE
+  bun run seed install <id>            Install pattern or pack
+  bun run seed install pack:finance    Install Finance skill pack
+  bun run seed publish <pattern-dir>   Publish pattern (opens PR flow)
+  bun run seed rate <id> <1-5>         Rate a pattern
+  bun run seed patterns                Browse all patterns
+  bun run seed packs                   Browse skill packs
+  bun run seed update                  Check and apply updates
+  bun run seed update --yes            Skip confirmation
   bun run seed tokens                  Token usage report
   bun run seed health                  System health check
 `.trim());
@@ -437,7 +499,13 @@ else if (cmd === "rate")    { run("scripts/marketplace.ts", ["rate", ...rest]); 
 else if (cmd === "patterns"){ run("scripts/marketplace.ts", ["list"]); }
 else if (cmd === "packs")   { run("scripts/marketplace.ts", ["list", "--packs-only"]); }
 else if (cmd === "doctor")  { run("scripts/health-check.ts", rest); }
-else if (cmd === "onboard" || cmd === "init") { printOnboard({ plain: rest.includes("--plain") }); }
+else if (cmd === "onboard" || cmd === "init") {
+  if (rest.includes("--write-first-win")) {
+    writeFirstWin({ force: rest.includes("--force") });
+  } else {
+    printOnboard({ plain: rest.includes("--plain") });
+  }
+}
 else if (cmd === "intro") {
   const framesArg = rest.find((arg) => arg.startsWith("--frames="));
   const delayArg = rest.find((arg) => arg.startsWith("--delay="));

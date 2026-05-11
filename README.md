@@ -99,8 +99,10 @@ bun run seed recipe list      # Show integration recipes
 Beginner path:
 
 - [First 15 Minutes](docs/first-15-minutes.md) — the canonical short path
+- [Examples Gallery](docs/examples/README.md) — fictional student, founder, researcher, and freelancer profiles
 - [Getting Started](docs/getting-started.md) — extended walkthrough with optional extras
 - [AI Agent Install](docs/ai-agent-install.md) — let a terminal-capable agent install it for you
+- [Troubleshooting](docs/troubleshooting.md) — when something does not work
 
 Reference:
 

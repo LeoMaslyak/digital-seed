@@ -108,6 +108,13 @@ for (const c of checks) {
   console.log(`  ${icons[c.status]} ${c.name}: ${c.detail}`);
 }
 const failures = checks.filter((c) => c.status === "fail");
-console.log(
-  `\n${failures.length === 0 ? "All checks passed." : `${failures.length} check(s) need attention.`}\n`
-);
+const warnings = checks.filter((c) => c.status === "warn");
+let summary: string;
+if (failures.length > 0) {
+  summary = `${failures.length} check(s) failed.`;
+} else if (warnings.length > 0) {
+  summary = `Checks passed with warnings (${warnings.length}).`;
+} else {
+  summary = "All checks passed.";
+}
+console.log(`\n${summary}\n`);

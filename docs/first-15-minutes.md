@@ -10,6 +10,8 @@ This is the smallest useful Digital Seed path. Do this before adding dashboards,
 
 By the end, your AI agent should know enough about you to help with one real problem this week.
 
+> Want a head start? The [Examples Gallery](examples/README.md) shows fictional student, founder, researcher, and freelancer profiles — copy the shape that fits your situation.
+
 ## 1. Check the setup
 
 ```bash
@@ -61,6 +63,16 @@ Choose one integration path only. Good starting choices:
 - GitHub repo assistant, if your work is code/project-heavy
 - Google Drive, if your useful files live there
 - OpenClaw or Hermes only if you want always-on behavior later
+
+## Optional: write a first-win prompt
+
+If you want a place to capture *the* boring real win for this week, run:
+
+```bash
+bun run seed onboard --write-first-win
+```
+
+This creates `user/FIRST-WIN.md` (only if missing — pass `--force` to overwrite). Edit it, then run `bun run seed first-prompt` again. The prompt now includes a pointer to that file so your agent works on the specific win you wrote down.
 
 ## Stop there
 

@@ -23,7 +23,8 @@
     "repo-bot": "bun run scripts/repo-bot.ts",
     "status": "bun run scripts/health-check.ts",
     "update": "bun run scripts/update.ts",
-    "seed": "bun run scripts/seed.ts"
+    "seed": "bun run scripts/seed.ts",
+    "check:links": "bun run scripts/check-markdown-links.ts"
   },
   "dependencies": {
     "@mozilla/readability": "^0.5.0",
