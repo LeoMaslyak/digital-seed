@@ -1,14 +1,14 @@
-# Getting Started with Digital Seed
+# Getting Started
 
-Digital Seed helps you create a personal AI operating system: a local workspace where your assistant can understand your goals, remember useful context, and help you build workflows around your own life and work.
+This is the extended walkthrough. If you just want to get to "one useful first win," follow [First 15 Minutes](first-15-minutes.md) instead.
 
 ## 1. Install prerequisites
 
 You need:
 
 - Git
-- Bun or Node.js 20+
-- An AI agent such as Claude Code, Cursor, Windsurf, OpenClaw, or another MCP-compatible tool
+- Bun (or Node.js 20+)
+- An AI agent: Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or another MCP-compatible tool
 
 Recommended:
 
@@ -19,51 +19,54 @@ bun install -g @anthropic-ai/claude-code
 
 ## 2. Clone and run setup
 
-You can do this yourself:
-
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 ./setup.sh
 ```
 
-Or ask a terminal-capable AI agent to install it for you. See [Let an AI Agent Install Digital Seed For You](ai-agent-install.md).
+Or ask a terminal-capable AI agent to install it: [AI Agent Install](ai-agent-install.md).
 
-The setup wizard checks your tools, asks about your AI provider, creates your first context files, and installs dependencies.
+The setup wizard checks your tools, asks about your AI provider, creates your first context files, and installs dependencies. See [Setup Wizard](setup-wizard.md) for what it touches.
 
-For the shortest path after setup, run:
+## 3. Run the canonical onboarding path
 
 ```bash
-bun run seed onboard
+bun run seed onboard          # animated
+bun run seed onboard --plain  # no animation or color
 ```
 
-## 3. Follow the first 15-minute path
-
-Use [First 15 Minutes](first-15-minutes.md) as the default path. The point is to get one real win before adding optional infrastructure.
+The five-step path is the same as [First 15 Minutes](first-15-minutes.md). Stop after step five until something is actually useful.
 
 ## 4. Fill the core context files
 
-Start with:
+Start with these. Rough notes are fine.
 
 - `user/USER.md` — who you are
 - `user/COMPASS.md` — what matters and what direction you want to move in
 - `user/GOALS.md` — what you are trying to accomplish
 - `user/DOMAINS.md` — projects, responsibilities, work areas, learning areas
 
-Do not try to make these perfect. A rough first draft is enough. The assistant can improve them with you.
+Customize later:
 
-## 5. Start your agent
+- `user/PREFERENCES.md` — communication style, defaults, annoyances
+- `user/ANTI-GOALS.md` — what you do not want to optimize for
+- `user/MEMORY.md` — durable lessons and decisions
+
+## 5. Start your agent in this folder
 
 ```bash
 claude
 # or: cursor .
 ```
 
-Then ask:
+Then paste:
 
 ```text
 Read my USER.md, COMPASS.md, GOALS.md, and DOMAINS.md. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.
 ```
+
+`bun run seed first-prompt` prints the short version of this prompt.
 
 ## 6. Use it on real work immediately
 
@@ -87,37 +90,31 @@ What repeating problem in my work would be easiest to automate first?
 
 ## 7. Add notes and documents
 
-You can connect an Obsidian vault or index local folders for search. Start small: one notes folder, one project folder, or one exported document set.
+Local-first indexing is free:
 
 ```bash
 bun run seed index ~/Documents/Notes
 bun run seed search "what do my notes say about my goals?"
 ```
 
-## 8. Explore useful commands
+Start with one folder. For free vs. paid stacks, see [Free-First Setup](free-first-setup.md).
+
+## 8. Other useful commands
 
 ```bash
-bun run health       # Check local setup health
-bun run tokens       # Token usage report
-bun run digest       # Summarize pending activity
-bun run marketplace  # Browse skill packs and patterns
-bun run seed         # Digital Seed helper CLI
+bun run health        # Local setup health
+bun run tokens        # Token usage report
+bun run digest        # Summarize pending activity
+bun run marketplace   # Browse skill packs and patterns
+bun run seed          # Digital Seed helper CLI (all subcommands)
 ```
 
-Need a visual dashboard? Digital Seed intentionally does not make that the default. Start from a mature template instead: see [Dashboard Options](dashboard-options.md). For expectations, read [Known Alpha Limits](known-alpha-limits.md).
+If you want a visual dashboard, Digital Seed intentionally does not bundle one. See [Dashboard Options](dashboard-options.md).
 
-## What to customize first
+## 9. Privacy reminder
 
-- Communication style in `user/PREFERENCES.md`
-- Anti-goals in `user/ANTI-GOALS.md`
-- Current projects and recurring responsibilities in `user/DOMAINS.md`
-- Any durable lessons in `user/MEMORY.md`
+The `user/` folder is personal by design. Be careful before sharing your fork. Run `bun run seed privacy-scan` to flag common leftovers.
 
-## Public/private warning
+## 10. Status
 
-The `user/` folder is personal by design. Be careful before sharing it. If you publish a fork, strip private context first.
-
-
-## Audit trail
-
-Digital Seed is alpha software. The current cleanup response is documented in [`audit-response-2026-05-10.md`](audit-response-2026-05-10.md).
+Digital Seed is alpha. Cleanup state is tracked in [`audit-response-2026-05-10.md`](audit-response-2026-05-10.md). Known limits are in [Known Alpha Limits](known-alpha-limits.md).

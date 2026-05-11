@@ -28,10 +28,13 @@ COMMANDS
   bun run seed drive download <url> --drive        Download + upload to Google Drive
   bun run seed drive bulk <file.txt>               Bulk download from URL list
   bun run seed drive bulk <file.txt> --drive       Bulk download + upload to Google Drive
+  bun run seed drive publish-data-room [--dry-run] Sync public data room to Drive
 
 NOTES
   Drive uploads require the gog CLI tool.
   Files are saved to the exports/ directory by default.
+  publish-data-room reads scripts/publish-data-room.ts; pass --account EMAIL
+  to override the default Drive account.
 `.trim());
 }
 
@@ -144,6 +147,16 @@ switch (subcmd) {
   case "bulk":
     await cmdBulk();
     break;
+  case "publish-data-room": {
+    const { spawnSync } = await import("child_process");
+    const result = spawnSync(
+      "bun",
+      ["run", join(ROOT, "scripts/publish-data-room.ts"), ...args.slice(1)],
+      { stdio: "inherit", cwd: ROOT },
+    );
+    process.exit(result.status ?? 0);
+    break;
+  }
   default:
     console.error(`Unknown drive command: ${subcmd}`);
     usage();

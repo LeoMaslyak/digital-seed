@@ -4,30 +4,26 @@ This is the current practical backlog for making Digital Seed feel more polished
 
 ## Highest leverage next steps
 
-1. **Data room publishing path**
-   - Current blocker: the public Google Drive data room still needs editor/upload permission for the publishing account.
-   - Add a documented manual fallback: exact file list, Drive folder structure, and copy/paste release note.
+1. ~~**Data room publishing path**~~ ✅
+   - `bun run seed drive publish-data-room` syncs the public folder from local sources.
+   - Manual fallback (exact file list, Drive folder mapping) is in `docs/data-room-guide.md`.
 
-2. **README conversion pass**
-   - Tighten the top half of the README around one promise: "get useful personal AI context in 15 minutes."
-   - Move deeper platform language below the quick-start path.
-   - Add a short "who this is for / not for" block near the hero.
+2. ~~**README conversion pass**~~ ✅
+   - Top of README leads with the "15-minute" promise, who-it-is-for / not-for, and the data room link.
 
-3. **First-run experience**
-   - Make `bun run seed onboard` feel like the canonical path: intro visual, three steps, then one copyable first prompt.
-   - Add a `--plain` flag if users want no animation and no ANSI color.
-   - Keep all external integrations opt-in.
+3. ~~**First-run experience**~~ ✅
+   - `bun run seed onboard` is now the canonical five-step path.
+   - `bun run seed onboard --plain` for no animation or color.
 
-4. **Visual QA guardrail**
-   - Add a lightweight script that checks hero GIF frame count, duration, loop flag, edge color, and seam difference.
-   - This prevents future visual tweaks from reintroducing a hard edge or loop hiccup.
+4. ~~**Visual QA guardrail**~~ ✅
+   - `bun run seed visual-qa` checks dimensions, frame count, duration, loop flag, edge color, and seam.
 
-5. **Docs deduplication**
-   - Several docs now overlap: getting started, first 15 minutes, setup wizard, free-first setup, AI agent install.
-   - Consolidate into one beginner path plus targeted reference pages.
+5. ~~**Docs deduplication**~~ ✅
+   - `first-15-minutes.md` is the canonical short path.
+   - `getting-started.md` and `setup-wizard.md` now defer to it instead of duplicating.
 
 6. **Release packaging**
-   - Add a small release checklist covering health, privacy scan, visual asset regeneration, data room sync, and README screenshots.
+   - Add a small release checklist covering health, privacy scan, visual QA, data room sync, and README screenshots.
    - Consider a GitHub Release once the data room is updated.
 
 ## Later, not urgent

@@ -186,35 +186,43 @@ function walkFiles(dir: string, out: string[] = []): string[] {
 }
 
 
-function printOnboard(): void {
-  printTerminalSeedIntro({ animate: process.stdout.isTTY && !process.env.CI, frames: 48, delayMs: 45 });
-  console.log("");
+function printOnboard(options: { plain?: boolean } = {}): void {
+  const plain = options.plain ?? false;
+  if (!plain) {
+    printTerminalSeedIntro({ animate: process.stdout.isTTY && !process.env.CI, frames: 48, delayMs: 45 });
+    console.log("");
+  }
+  const h = (text: string) => (plain || !USE_ANSI ? text : `${ANSI.bold}${ANSI.mint}${text}${ANSI.reset}`);
+  const cmd = (text: string) => (plain || !USE_ANSI ? text : `${ANSI.gold}${text}${ANSI.reset}`);
+  const dim = (text: string) => (plain || !USE_ANSI ? text : `${ANSI.dim}${text}${ANSI.reset}`);
   const lines = [
-    "Digital Seed — first 15 minutes",
+    h("Digital Seed — first 15 minutes"),
+    dim("The five-step canonical path. Stop after step 5 until something is actually useful."),
     "",
-    "1. Check setup",
-    "   bun run seed doctor",
+    h("1. Check setup"),
+    `   ${cmd("bun run seed doctor")}`,
     "",
-    "2. Open the three core context files",
-    "   user/USER.md",
-    "   user/COMPASS.md",
-    "   user/GOALS.md",
+    h("2. Open the three core context files"),
+    "   user/USER.md      who you are",
+    "   user/COMPASS.md   direction, values, priorities",
+    "   user/GOALS.md     what you are trying to accomplish",
     "",
-    "3. Paste this into your AI agent",
-    "   Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.",
+    h("3. Open your agent in this folder and paste the first prompt"),
+    `   ${cmd("claude")}  ${dim("# or: cursor .  · windsurf .  · another terminal-capable agent")}`,
+    `   ${cmd("bun run seed first-prompt")}`,
     "",
-    "4. Pick one real folder to search, if you have one",
-    "   bun run seed index ~/Documents/Notes",
-    "   bun run seed search \"what do my notes say about my goals?\"",
+    h("4. Optional — index one notes folder for local search"),
+    `   ${cmd("bun run seed index ~/Documents/Notes")}`,
+    `   ${cmd('bun run seed search "what do my notes say about my goals?"')}`,
     "",
-    "5. Choose one next recipe only",
-    "   bun run seed recipe list",
+    h("5. Pick one recipe and stop"),
+    `   ${cmd("bun run seed recipe list")}`,
     "",
-    "Rule: do not connect email, messaging, or cloud automation until the local workflow is useful.",
-    "",
-    "Full guide: docs/first-15-minutes.md",
+    dim("Rule: do not connect email, messaging, or cloud automation until the local workflow is useful."),
+    dim("Full guide: docs/first-15-minutes.md"),
   ];
-  console.log(lines.join("\n"));
+  const text = lines.join("\n");
+  console.log(plain || !USE_ANSI ? stripAnsi(text) : text);
 }
 
 function printFirstPrompt(): void {
@@ -352,10 +360,12 @@ PATTERNS
 
 BEGINNER SETUP
   bun run seed doctor                  Friendly setup health check
-  bun run seed onboard                 Show the first 15-minute path
+  bun run seed onboard                 Show the first 15-minute path (animated)
+  bun run seed onboard --plain         Same path, no animation or color
   bun run seed intro                   Show the terminal Digital Seed intro
   bun run seed first-prompt            Print the first agent prompt
   bun run seed privacy-scan            Check for common private leftovers
+  bun run seed visual-qa               Check hero GIF dimensions/loop/seam
   bun run seed recipe list             List integration recipes
   bun run seed recipe openclaw init    Draft OpenClaw setup context
   bun run seed recipe hermes init      Draft Hermes setup context
@@ -390,6 +400,7 @@ FILE MANAGEMENT
   bun run seed drive download <url>                Download file locally
   bun run seed drive download <url> --drive        Download + upload to Google Drive
   bun run seed drive bulk urls.txt --drive         Bulk download → Google Drive
+  bun run seed drive publish-data-room             Sync public data room to Drive
 
 ANALYSIS
   bun run seed excel dcf|ratios|project   Generate Excel template
@@ -426,7 +437,7 @@ else if (cmd === "rate")    { run("scripts/marketplace.ts", ["rate", ...rest]); 
 else if (cmd === "patterns"){ run("scripts/marketplace.ts", ["list"]); }
 else if (cmd === "packs")   { run("scripts/marketplace.ts", ["list", "--packs-only"]); }
 else if (cmd === "doctor")  { run("scripts/health-check.ts", rest); }
-else if (cmd === "onboard" || cmd === "init") { printOnboard(); }
+else if (cmd === "onboard" || cmd === "init") { printOnboard({ plain: rest.includes("--plain") }); }
 else if (cmd === "intro") {
   const framesArg = rest.find((arg) => arg.startsWith("--frames="));
   const delayArg = rest.find((arg) => arg.startsWith("--delay="));
@@ -436,6 +447,13 @@ else if (cmd === "intro") {
 }
 else if (cmd === "first-prompt") { printFirstPrompt(); }
 else if (cmd === "privacy-scan") { privacyScan(); }
+else if (cmd === "visual-qa") {
+  const result = spawnSync("python3", [join(ROOT, "scripts/visual-qa.py"), ...rest], {
+    stdio: "inherit",
+    cwd: ROOT,
+  });
+  process.exit(result.status ?? 0);
+}
 else if (cmd === "recipe") { recipe(rest); }
 else if (cmd === "index") {
   if (rest[0] && !rest[0].startsWith("--")) run("scripts/embed.ts", ["--path", rest[0], ...rest.slice(1)]);

@@ -2,6 +2,25 @@
 
 Use this as the structure for the public Google Drive / learning folder that accompanies the repo.
 
+**Current public folder:** [Digital Seed — Public Starter Kit v0.3](https://drive.google.com/drive/folders/1G96XS38gcNNUCMcIJCnafG9oIFeknTxW)
+
+## Publishing
+
+The folder is owned by `leomaslyak@gmail.com` and shared as "anyone with the link, viewer."
+
+To refresh from the local repo, run:
+
+```bash
+bun run seed drive publish-data-room --dry-run   # show the plan
+bun run seed drive publish-data-room             # upload for real
+```
+
+The script reads the manifest in `scripts/publish-data-room.ts`, finds existing files by name inside each subfolder, moves them to Drive trash, and uploads the current local version. It only touches files inside the matched root folder.
+
+If you fork the repo, pass `--folder <yourFolderId>` to publish into your own Drive folder, or `--root "Your Folder Name"` to look up by name.
+
+If the `gog` CLI is unavailable or you cannot get edit access, fall back to the manual upload mapping below.
+
 ## Purpose
 
 The data room should help a non-expert understand:
@@ -87,3 +106,57 @@ Use generic examples:
 4. Template pack
 5. Demo transcript using fictional user data
 6. Privacy checklist
+
+## Manual upload fallback (no `gog`)
+
+If you cannot use the publisher script, recreate the folder layout above and upload these local files into each subfolder. Names on the right are exactly what should appear in Drive.
+
+```text
+00 Start Here/
+  docs/data-room/start-here.md            → START HERE.md
+  docs/data-room/readme-what-this-is.md   → README — What This Is.md
+  docs/first-15-minutes.md                → First 15 Minutes.md
+  docs/ai-agent-install.md                → Let an AI Agent Install It.md
+  docs/first-session-prompt.md            → First Session Prompt.md
+
+01 Visual Story/
+  docs/assets/digital-seed-growth.mp4     → Digital Seed — Growth Loop.mp4
+  docs/assets/digital-seed-growth.webm    → Digital Seed — Growth Loop.webm
+  docs/assets/digital-seed-growth.gif     → Digital Seed — Growth Loop.gif
+  docs/assets/digital-seed-growth-still.png → Digital Seed — Growth Still.png
+  docs/assets/seed-tree-magic.svg         → Digital Seed - Magical Tree.svg
+  docs/data-room/visual-story-readme.md   → README.md
+
+02 Guides/
+  docs/free-first-setup.md                → Free First Setup.md
+  docs/agent-chooser.md                   → Agent Chooser.md
+  docs/architecture-map.md                → Architecture Map.md
+  docs/integration-recipes.md             → Integration Recipes.md
+  docs/dashboard-options.md               → Dashboard Options.md
+  docs/known-alpha-limits.md              → Known Alpha Limits.md
+
+03 Templates/
+  user/USER.md         → USER.template.md
+  user/COMPASS.md      → COMPASS.template.md
+  user/GOALS.md        → GOALS.template.md
+  user/DOMAINS.md      → DOMAINS.template.md
+  user/PREFERENCES.md  → PREFERENCES.template.md
+  user/ANTI-GOALS.md   → ANTI-GOALS.template.md
+  user/MEMORY.md       → MEMORY.template.md
+
+04 Recipes/
+  recipes/README.md                            → Recipes Overview.md
+  recipes/obsidian/README.md                   → obsidian.md
+  recipes/google-drive/README.md               → google-drive.md
+  recipes/telegram-bot/README.md               → telegram-bot.md
+  recipes/openclaw-agent/README.md             → openclaw-agent.md
+  recipes/hermes-agent/README.md               → hermes-agent.md
+  recipes/claude-code-project/README.md        → claude-code-project.md
+  recipes/github-repo-assistant/README.md      → github-repo-assistant.md
+
+05 Audit and Safety/
+  docs/governance.md                  → Governance.md
+  docs/audit-response-2026-05-10.md   → Audit Response.md
+```
+
+After uploading, set the root folder to "Anyone with the link → Viewer" and confirm the link still resolves.
