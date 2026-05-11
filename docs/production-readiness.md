@@ -39,6 +39,7 @@ Shipped and verified:
 - Markdown link checker exists locally and in CI.
 - Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
 - Simulated external-user audit: three hostile fresh-user personas walked through README → first-15-minutes → CLI help (`docs/simulated-external-user-audit-2026-05-11.md`). P0/P1 contradictions in the beginner install path were fixed in the same pass. This is *not* a substitute for real outside-tester walkthroughs.
+- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest — do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). Two P0s remain (real external testers; one green CI cycle on the tag commit) and one P1 contradiction in `docs/ai-agent-install.md` was fixed in the same pass. Recommendation: stay at `0.4.0-alpha`.
 
 Current public data room:
 
@@ -289,6 +290,13 @@ run the reusable hostile 1.0 audit prompt at
 [`hostile-1.0-readiness-audit-prompt.md`](hostile-1.0-readiness-audit-prompt.md).
 The audit must explicitly answer "would calling this 1.0 be dishonest?"
 and focus on blockers, not polish.
+
+The most recent run of that audit
+([`docs/hostile-1.0-readiness-audit-2026-05-11.md`](hostile-1.0-readiness-audit-2026-05-11.md))
+returned **"1.0 would be dishonest — do not tag yet"** with two open
+P0s: (1) no real external testers, and (2) no green CI cycle on a tag
+commit. Re-run the prompt only after both can be answered with
+evidence.
 
 ## Release recommendation
 

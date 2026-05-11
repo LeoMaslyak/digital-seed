@@ -61,13 +61,14 @@ Shipped 2026-05-11 (Milestone 5 repo-side prep):
 
 Open (Milestone 5 real-validation work, treated as the actual gate):
 
-1. **Real** external tester walkthroughs — invite 3–5 people to run the first-15-minute path cold. Simulated persona audits do not substitute.
-2. Cold runs of the first-15-minute path on a clean macOS *and* a clean Linux machine; capture friction in issues.
-3. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it. (One pass on 2026-05-11 clarified the `bun install` network nuance based on a simulated skeptic.)
-4. Audit again for maintainer-only assumptions that sneak into beginner docs.
-5. Decide whether any ADVANCED commands should be deprecated or split out before 1.0.
-6. Address remaining P2 items from `docs/simulated-external-user-audit-2026-05-11.md` (CONTRIBUTING repo-shape gaps, ordering ambiguity in `seed onboard` step 3, privacy-scan deny-list commentary).
-7. When the external-tester bar is met, run `docs/hostile-1.0-readiness-audit-prompt.md`. Only after a clean verdict consider tagging `1.0.0-rc.1`.
+1. **Real** external tester walkthroughs — invite 3–5 people to run the first-15-minute path cold. Simulated persona audits do not substitute. **Open — P0 per the 2026-05-11 hostile 1.0 audit.**
+2. One green CI release-check cycle on a tag commit (no tag has been cut yet, even at `0.4.0-alpha`). **Open — P0 per the 2026-05-11 hostile 1.0 audit.**
+3. Cold runs of the first-15-minute path on a clean macOS *and* a clean Linux machine; capture friction in issues.
+4. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it. (One pass on 2026-05-11 clarified the `bun install` network nuance based on a simulated skeptic.)
+5. Audit again for maintainer-only assumptions that sneak into beginner docs.
+6. Decide whether any ADVANCED commands should be deprecated or split out before 1.0.
+7. Address remaining P2 items from `docs/simulated-external-user-audit-2026-05-11.md` (CONTRIBUTING repo-shape gaps, ordering ambiguity in `seed onboard` step 3, privacy-scan deny-list commentary) and from `docs/hostile-1.0-readiness-audit-2026-05-11.md` (README data-room maintainer-only label, `SECURITY.md` privacy-scan pointer).
+8. When both P0s above are closed, re-run `docs/hostile-1.0-readiness-audit-prompt.md`. Only after a clean verdict consider tagging `1.0.0-rc.1`.
 
 ## Completed Milestone 3 open-source usability work
 

@@ -26,16 +26,19 @@ Install Digital Seed for me and explain each step briefly as you go.
 Goal: set up a free, local-first personal AI infrastructure starter workspace.
 
 Please:
-1. Check whether Git and Bun or Node.js are installed.
-2. If Bun is missing, explain how to install it and ask before changing my system.
+1. Check whether Git and Bun are installed.
+2. If Bun is missing, explain how to install it (curl -fsSL https://bun.sh/install | bash) and ask before changing my system. Digital Seed scripts require Bun; plain node is not supported.
 3. Clone https://github.com/LeoMaslyak/digital-seed into a sensible folder.
-4. Run ./setup.sh.
-5. Help me answer the setup questions.
-6. Run bun run health afterward.
-7. Read README.md and docs/first-session-prompt.md.
-8. Start an onboarding conversation with me to fill USER.md, COMPASS.md, GOALS.md, DOMAINS.md, PREFERENCES.md, and ANTI-GOALS.md.
-9. Do not publish, upload, send messages, or connect external accounts without asking me first.
+4. Run `bun install`, then `bun run seed onboard --plain` so I can see the canonical 15-minute path. Do NOT run ./setup.sh by default — that wizard is optional and goes past day one (it collects API keys and integration choices). Only run ./setup.sh if I explicitly ask for it.
+5. Run `bun run seed doctor` and explain anything missing in plain English.
+6. Help me write rough notes in user/USER.md, user/COMPASS.md, and user/GOALS.md. Rough is fine — the goal is enough signal for a first useful conversation, not perfect documentation.
+7. When those three files have something in them, run `bun run seed first-prompt` and paste the result back to me as the prompt to start with.
+8. Do not publish, upload, send messages, or connect external accounts without asking me first.
 ```
+
+If I want the optional wizard later, it lives at `./setup.sh` and is
+documented in [`docs/setup-wizard.md`](setup-wizard.md). It is not part
+of the first-15-minute path.
 
 ## If the agent gets stuck
 

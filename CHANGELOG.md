@@ -8,18 +8,20 @@ All notable changes to Digital Seed will be documented in this file.
 - `docs/demo-transcript.md` — fictional first 15-minute walkthrough that readers can skim before cloning.
 - `docs/first-useful-outcomes.md` — concrete first-win shapes (weekly plan, project priority list, notes search, first draft, weekly reflection) plus shapes to defer.
 - `docs/hostile-1.0-readiness-audit-prompt.md` — reusable pre-1.0 audit prompt that asks "would calling this 1.0 be dishonest?" and focuses on blockers, not polish.
+- `docs/hostile-1.0-readiness-audit-2026-05-11.md` — first run of the hostile 1.0 audit. Verdict: **1.0 would be dishonest — do not tag yet.** Two open P0s (real external testers; one green CI cycle on the tag commit) and one P1 fixed in the same pass.
 
 ### Changed
 - `docs/production-readiness.md` now includes a "Release candidate discipline" section with explicit `1.0.0-rc.1` and `1.0.0` gates, honest red flags, and the version-bump rule (`package.json` ↔ `CHANGELOG.md` ↔ release checklist).
 - Milestone 5 in `docs/production-readiness.md` is annotated as "prep in progress" with shipped repo-side prep and the open real-validation gates.
 - `docs/release-checklist.md` points to the RC discipline section and the hostile 1.0 audit prompt for any 1.0-flavored tag.
-- `docs/repo-improvement-roadmap.md` lists Milestone 5 repo-side prep as shipped and frames the remaining work as real-user validation.
+- `docs/repo-improvement-roadmap.md` lists Milestone 5 repo-side prep as shipped and frames the remaining work as real-user validation; the two open P0s from the 2026-05-11 1.0 audit are now explicitly labeled.
 - `docs/known-alpha-limits.md` now links to the supported-platforms doc.
 - README guides section adds the demo transcript, first useful outcomes, and supported platforms entries.
 - `docs/first-15-minutes.md` links to the demo transcript and first-useful-outcomes doc from the head and "Stop there" sections.
+- `docs/ai-agent-install.md` agent prompt now uses the canonical `bun install` + `bun run seed onboard` path instead of `./setup.sh`, narrows the day-one context files to USER/COMPASS/GOALS with "rough notes are fine" guidance, and points at `bun run seed first-prompt` as the entry point. Fixes the same class of beginner-path contradiction the simulated external-user audit fixed in `docs/install-claude-code.md`.
 
 ### Notes
-- Version stays at `0.4.0-alpha`. Repo is broader-alpha ready with Milestone 5 *prep* shipped; real external-tester validation is still required before any `1.0.0-rc.1` consideration.
+- Version stays at `0.4.0-alpha`. Repo is broader-alpha ready with Milestone 5 *prep* shipped; real external-tester validation and a green CI cycle on a tag commit are still required before any `1.0.0-rc.1` consideration.
 
 ## [0.4.0-alpha] - 2026-05-11
 ### Added
