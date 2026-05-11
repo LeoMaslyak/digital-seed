@@ -176,8 +176,6 @@ function walkFiles(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
     if ([".git", "node_modules", "exports", "data", "logs"].includes(entry)) continue;
     const full = join(dir, entry);
-    const rel = full.startsWith(ROOT) ? full.slice(ROOT.length + 1) : full;
-    if (rel === "data/rag" || rel.startsWith("data/rag/")) continue;
     const st = statSync(full);
     if (st.isDirectory()) walkFiles(full, out);
     else if (st.isFile()) out.push(full);

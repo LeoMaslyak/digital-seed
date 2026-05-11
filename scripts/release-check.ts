@@ -174,24 +174,22 @@ console.log(`  fresh-clone harness: ${SKIP_FRESH_CLONE ? "skipped" : "enabled"}`
 console.log(`  drive dry-run:       ${WITH_DRIVE_DRY_RUN ? `enabled (account: ${DRIVE_ACCOUNT ?? "default"})` : "skipped"}`);
 console.log(`  install step:        ${SKIP_INSTALL ? "skipped" : "enabled"}`);
 
-let installResult = true;
 if (SKIP_INSTALL) {
   runStep("bun install --frozen-lockfile", "bun", ["install", "--frozen-lockfile"], { skip: { reason: "--skip-install" } });
 } else if (!which("bun")) {
-  installResult = false;
   runStep("bun install --frozen-lockfile", "bun", ["install", "--frozen-lockfile"], { skip: { reason: "bun not found on PATH" } });
 } else {
-  installResult = runStep("bun install --frozen-lockfile", "bun", ["install", "--frozen-lockfile"]);
+  runStep("bun install --frozen-lockfile", "bun", ["install", "--frozen-lockfile"]);
 }
 
-const healthOk      = runStep("Health check",          "bun", ["run", "health"]);
-const privacyOk     = runStep("Privacy scan",          "bun", ["run", "seed", "privacy-scan"]);
-const visualOk      = runStep("Visual QA",             "bun", ["run", "seed", "visual-qa"]);
-const onboardOk     = runStep("Onboard (--plain)",     "bun", ["run", "seed", "onboard", "--plain"]);
-const firstPromptOk = runStep("First prompt",          "bun", ["run", "seed", "first-prompt"]);
-const linksOk       = runStep("Markdown link check",   "bun", ["run", "check:links"]);
+runStep("Health check",          "bun", ["run", "health"]);
+runStep("Privacy scan",          "bun", ["run", "seed", "privacy-scan"]);
+runStep("Visual QA",             "bun", ["run", "seed", "visual-qa"]);
+runStep("Onboard (--plain)",     "bun", ["run", "seed", "onboard", "--plain"]);
+runStep("First prompt",          "bun", ["run", "seed", "first-prompt"]);
+runStep("Markdown link check",   "bun", ["run", "check:links"]);
 
-const versionOk = checkVersionConsistency();
+checkVersionConsistency();
 
 if (SKIP_FRESH_CLONE) {
   runStep("Fresh-clone harness", "bash", ["scripts/fresh-clone-check.sh"], {

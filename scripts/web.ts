@@ -223,7 +223,7 @@ async function cmdResearch(): Promise<void> {
 
     console.log("🤖 Analyzing results...\n");
     const summary = await aiCall(
-      `You are a research assistant for an professional user. Based on the following search results, provide a well-structured research summary with:\n1. Key findings (bullet points)\n2. Notable sources worth reading further\n3. Any conflicting information or caveats\n\nSearch query: "${query}"\n\nSearch results:\n${results.slice(0, 25_000)}`,
+      `You are a research assistant for a professional user. Based on the following search results, provide a well-structured research summary with:\n1. Key findings (bullet points)\n2. Notable sources worth reading further\n3. Any conflicting information or caveats\n\nSearch query: "${query}"\n\nSearch results:\n${results.slice(0, 25_000)}`,
     );
     console.log(summary);
   } catch (e) {
