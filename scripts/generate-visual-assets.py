@@ -21,11 +21,14 @@ ASSETS = ROOT / "docs" / "assets"
 FRAMES = ROOT / "tmp" / "visual-frames"
 W, H = 960, 416
 FPS = 24
-N = 127  # includes a closing frame that matches the opening frame for seamless loops
+N = 144  # no duplicated terminal frame; motion eases back toward the opener
 DURATION = N / FPS
 
-BG_TOP = (5, 9, 22)
-BG_BOTTOM = (3, 20, 24)
+# GitHub dark canvas color (#0d1117). Edges are pinned to this so the hero
+# reads as an embedded artifact rather than a rectangular poster.
+GITHUB_BG = (13, 17, 23)
+BG_CORE = (8, 30, 36)
+BG_WARM = (24, 20, 28)
 MINT = (128, 255, 221)
 GOLD = (255, 214, 132)
 AQUA = (80, 205, 255)
@@ -157,16 +160,27 @@ for i in range(154):
 
 
 def make_background() -> Image.Image:
-    img = Image.new("RGBA", (W, H), (0, 0, 0, 255))
+    img = Image.new("RGBA", (W, H), (*GITHUB_BG, 255))
     pix = img.load()
     for y in range(H):
-        yy = y / (H - 1)
         for x in range(W):
-            # vertical + radial depth
-            rx = (x - W / 2) / W
-            ry = (y - H * 0.55) / H
-            vignette = clamp(1 - 1.7 * math.sqrt(rx * rx + ry * ry))
-            c = tuple(int(BG_TOP[i] * (1 - yy) + BG_BOTTOM[i] * yy + vignette * (10 if i != 0 else 2)) for i in range(3))
+            rx = (x - W / 2) / (W * 0.55)
+            ry = (y - H * 0.54) / (H * 0.68)
+            center = clamp(1 - math.sqrt(rx * rx + ry * ry))
+            center = center * center
+            warm = clamp(1 - math.sqrt(((x - W * 0.50) / (W * 0.40)) ** 2 + ((y - H * 0.30) / (H * 0.48)) ** 2)) ** 2
+
+            # Feather the perimeter back to GitHub dark exactly. This avoids a
+            # visible rectangular edge on README pages and issue previews.
+            edge_distance = min(x, y, W - 1 - x, H - 1 - y)
+            edge = smoothstep(0, 92, edge_distance)
+
+            c = []
+            for channel in range(3):
+                core = GITHUB_BG[channel] * (1 - center) + BG_CORE[channel] * center
+                warmed = core * (1 - 0.22 * warm) + BG_WARM[channel] * (0.22 * warm)
+                blended = GITHUB_BG[channel] * (1 - edge) + warmed * edge
+                c.append(int(blended))
             pix[x, y] = (*c, 255)
     return img
 
@@ -179,10 +193,11 @@ def background() -> Image.Image:
 
 
 def render_frame(i: int) -> Image.Image:
-    # Include a closing frame that exactly matches the opener, so GIF/video
-    # loop seams are invisible instead of relying on a lossy near-match.
-    phase = 0.0 if i == N - 1 else i / (N - 1)
-    reset = smoothstep(0.88, 1.0, phase)
+    # Do not duplicate the opening frame at the end; duplicated terminal frames
+    # create a perceptible hold/hiccup in GIF playback. Instead, every animated
+    # element eases close to its opening state before the player wraps.
+    phase = i / N
+    reset = smoothstep(0.80, 0.992, phase)
     # loop time with dissolve in final fifth
     grow = smoothstep(0.07, 0.72, phase) * (1 - smoothstep(0.83, 0.99, phase))
     initial_seed_energy = 0.55 + 0.45 * bell(0, 0.12, 0.12)
@@ -295,20 +310,21 @@ def render_frame(i: int) -> Image.Image:
             composite_glow(img, (x + dx, y + dy), col, r * 6.5, 0.055 * a)
 
     # seed core last, breathing and reset
-    seed_r = 8 + 8 * seed_energy + 3 * math.sin(math.tau * phase * 2)
+    seed_r_raw = 8 + 8 * seed_energy + 3 * math.sin(math.tau * phase * 2)
+    seed_r0 = 8 + 8 * initial_seed_energy
+    seed_r = seed_r_raw * (1 - reset) + seed_r0 * reset
     d.ellipse((cx - seed_r, seed_y - seed_r, cx + seed_r, seed_y + seed_r), fill=rgba(GOLD, 0.92 * (1 - 0.55 * trunk_p + 0.45 * dissolve)))
     d.ellipse((cx - seed_r * 0.45, seed_y - seed_r * 0.45, cx + seed_r * 0.45, seed_y + seed_r * 0.45), fill=rgba(WHITE, 0.76))
 
-    # premium vignette
-    vignette = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    vd = ImageDraw.Draw(vignette)
-    vd.rectangle((0, 0, W, H), fill=(0, 0, 0, 0))
+    # Edge feather: return the perimeter to GitHub dark instead of blackening it.
+    # This makes the visual feel embedded in README chrome.
+    edge_layer = Image.new("RGBA", (W, H), (*GITHUB_BG, 0))
     edge = Image.new("L", (W, H), 0)
     ed = ImageDraw.Draw(edge)
-    ed.ellipse((-120, -120, W + 120, H + 120), fill=255)
-    edge = Image.eval(edge.filter(ImageFilter.GaussianBlur(60)), lambda p: 255 - p)
-    vignette.putalpha(edge.point(lambda p: int(p * 0.48)))
-    img.alpha_composite(vignette)
+    ed.ellipse((-95, -95, W + 95, H + 95), fill=255)
+    edge = Image.eval(edge.filter(ImageFilter.GaussianBlur(54)), lambda p: 255 - p)
+    edge_layer.putalpha(edge.point(lambda p: int(p * 0.62)))
+    img.alpha_composite(edge_layer)
     return img.convert("RGB")
 
 

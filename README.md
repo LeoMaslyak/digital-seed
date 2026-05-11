@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <sub>Visual fallbacks: <a href="docs/assets/digital-seed-growth.mp4">MP4</a> · <a href="docs/assets/digital-seed-growth.webm">WebM</a> · <a href="docs/assets/seed-tree-magic.svg">SVG</a> · <a href="docs/assets/digital-seed-growth-still.png">still PNG</a></sub>
+  <sub>Visual fallbacks: <a href="docs/assets/digital-seed-growth.mp4">MP4</a> · <a href="docs/assets/digital-seed-growth.webm">WebM</a> · <a href="docs/assets/seed-tree-magic.svg">SVG</a> · <a href="docs/assets/digital-seed-growth-still.png">still PNG</a> · <a href="docs/visual-assets.md">asset notes</a></sub>
 </p>
 
 ---
