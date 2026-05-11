@@ -27,15 +27,22 @@ This is the current practical backlog for making Digital Seed feel more polished
 
 ## Production-stable roadmap
 
-See `docs/production-readiness.md` for the current public-alpha status and exact P0/P1/P2 gap list.
+See `docs/production-readiness.md` for the current production-stable alpha status.
 
-Highest-priority remaining work:
+P0 items shipped in this pass:
 
-1. Fresh-clone test from a clean directory.
-2. CI decision / GitHub Actions for health, privacy scan, and visual QA.
-3. Cross-platform smoke check for macOS/Linux terminal behavior.
-4. Data room publish fallback that can upload without deleting old shared files.
-5. README final tightening before a larger announcement.
+1. ✅ Fresh-clone test — `scripts/fresh-clone-check.sh` + `docs/fresh-clone-validation.md`.
+2. ✅ CI / GitHub Actions — `.github/workflows/ci.yml` runs the gate stack on macOS + Linux.
+3. ✅ Cross-platform smoke — same CI matrix covers macOS + Linux command behaviour.
+4. ✅ Data room publish fallback — `--no-delete`, `--replace-strategy`, `--strict`; the default delete path now warns instead of hard-failing on permission errors.
+5. ✅ README first-screen tightening — 15-minute promise, quick start, data room, who for / not for.
+
+Remaining P1 polish before a larger public push:
+
+- Local Markdown link checker.
+- Examples gallery (student / founder / investor / researcher).
+- `bun run seed onboard` optionally writes `user/FIRST-WIN.md`.
+- Version metadata alignment with the next tag.
 
 ## Later, not urgent
 

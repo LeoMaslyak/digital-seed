@@ -21,6 +21,27 @@ If you fork the repo, pass `--folder <yourFolderId>` to publish into your own Dr
 
 If the `gog` CLI is unavailable or you cannot get edit access, fall back to the manual upload mapping below.
 
+### Permission fallbacks
+
+Older shared folders sometimes contain files that the current publishing account cannot delete (Drive returns `403 insufficientFilePermissions`). The publisher handles this in three layers:
+
+1. **Default:** try to delete each prior copy; on a permission error, log a warning and continue by uploading the new copy alongside the old one. The run still succeeds, and the summary tells you how many fallbacks happened.
+2. **`--no-delete` (alias for `--replace-strategy skip-delete`)**: do not attempt the delete at all. Useful when you know the prior folder is locked and you just want to push the latest copies. Viewers will see two files with the same name; the newest one shows up at the top by "modified" date.
+3. **`--strict`**: revert to the old behaviour and hard-fail on any delete error. Use this in CI or release checklists when you want to be told loudly that the folder no longer matches assumptions.
+
+```bash
+# Best for ongoing maintenance of a folder you fully own:
+bun run seed drive publish-data-room
+
+# Best for a legacy/shared folder where some prior files are locked:
+bun run seed drive publish-data-room --no-delete
+
+# Best for a release gate that should fail loudly:
+bun run seed drive publish-data-room --strict
+```
+
+For a complete reset, create a fresh folder in Drive, share it as "anyone with the link → viewer," then publish into it with `--folder <newFolderId>` and update the README + this guide with the new link.
+
 ## Purpose
 
 The data room should help a non-expert understand:

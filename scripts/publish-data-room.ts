@@ -15,10 +15,26 @@
  *   bun run scripts/publish-data-room.ts --folder <driveFolderId> [--dry-run]
  *
  * Flags:
- *   --dry-run        Print the plan without uploading or deleting.
- *   --account EMAIL  gog account to use (defaults to gog's default account).
- *   --folder ID      Use a specific Drive folder ID instead of searching by name.
- *   --root NAME      Override the expected root folder name.
+ *   --dry-run                    Print the plan without uploading or deleting.
+ *   --account EMAIL              gog account to use (defaults to gog's default account).
+ *   --folder ID                  Use a specific Drive folder ID instead of searching by name.
+ *   --root NAME                  Override the expected root folder name.
+ *   --replace-strategy STRATEGY  How to handle existing same-named files.
+ *                                  delete (default) — trash old file, then upload. On a
+ *                                                     permission error this falls back to
+ *                                                     skip-delete for that file unless
+ *                                                     --strict is set.
+ *                                  skip-delete     — leave old file in place, just upload
+ *                                                     the new copy. Drive allows duplicate
+ *                                                     names; viewers see the newest by
+ *                                                     "modified" date.
+ *   --no-delete                  Alias for --replace-strategy skip-delete. Use this when
+ *                                publishing into a folder where you do not own all of the
+ *                                prior files (e.g. an older shared folder where deletion
+ *                                fails with insufficientFilePermissions).
+ *   --strict                     Hard-fail if a delete attempt fails. Default is to warn
+ *                                and fall back to skip-delete for that file so a single
+ *                                permission error does not block the rest of the publish.
  */
 
 import { existsSync, readFileSync, statSync } from "fs";
@@ -88,13 +104,28 @@ const MANIFEST: ManifestEntry[] = [
   { folder: "05 Audit and Safety", driveName: "Audit Response.md", source: "docs/audit-response-2026-05-10.md" },
 ];
 
+type ReplaceStrategy = "delete" | "skip-delete";
+
 const args = process.argv.slice(2);
+const requestedStrategy = (argValue("--replace-strategy") ?? "delete") as ReplaceStrategy;
+const replaceStrategy: ReplaceStrategy = args.includes("--no-delete") ? "skip-delete" : requestedStrategy;
+
+if (!["delete", "skip-delete"].includes(replaceStrategy)) {
+  console.error(`Unknown --replace-strategy: ${replaceStrategy}`);
+  console.error("Expected one of: delete, skip-delete");
+  process.exit(2);
+}
+
 const flags = {
   dryRun: args.includes("--dry-run"),
   account: argValue("--account"),
   folder: argValue("--folder"),
   rootName: argValue("--root") ?? DEFAULT_ROOT_NAME,
+  replaceStrategy,
+  strict: args.includes("--strict"),
 };
+
+let permissionFallbacks = 0;
 
 function argValue(name: string): string | undefined {
   const idx = args.indexOf(name);
@@ -171,22 +202,53 @@ function uploadFile(parent: string, localPath: string, driveName: string): strin
   return idMatch ? idMatch[1] : "";
 }
 
-function deleteFile(id: string): void {
-  if (flags.dryRun) {
-    console.log(`  [dry-run] would trash drive file: ${id}`);
-    return;
-  }
-  gog(["drive", "delete", id, "--force"]);
+function isPermissionError(message: string): boolean {
+  return /insufficientFilePermissions|forbidden|permission/i.test(message);
 }
 
-function publishEntry(folderId: string, entry: ManifestEntry, existing: Array<{ id: string; name: string; type: string }>): "uploaded" | "skipped" | "failed" {
+function deleteFile(id: string, driveName: string): "deleted" | "skipped" {
+  if (flags.dryRun) {
+    console.log(`  [dry-run] would trash drive file: ${id}`);
+    return "deleted";
+  }
+  try {
+    gog(["drive", "delete", id, "--force"]);
+    return "deleted";
+  } catch (e) {
+    const msg = (e as Error).message;
+    if (!flags.strict && isPermissionError(msg)) {
+      console.warn(
+        `  ⚠️  Could not delete prior "${driveName}" (${id}): permission denied. ` +
+          `Uploading alongside it instead.`,
+      );
+      permissionFallbacks++;
+      return "skipped";
+    }
+    throw e;
+  }
+}
+
+function publishEntry(
+  folderId: string,
+  entry: ManifestEntry,
+  existing: Array<{ id: string; name: string; type: string }>,
+): "uploaded" | "skipped" | "failed" {
   const localPath = join(ROOT, entry.source);
   if (!existsSync(localPath)) {
     console.log(`  ⚠️  Missing local source: ${entry.source}`);
     return "skipped";
   }
+
   const prior = existing.filter((c) => c.type === "file" && c.name === entry.driveName);
-  for (const old of prior) deleteFile(old.id);
+
+  if (flags.replaceStrategy === "delete") {
+    for (const old of prior) deleteFile(old.id, entry.driveName);
+  } else if (flags.replaceStrategy === "skip-delete" && prior.length > 0) {
+    console.log(
+      `  ↪︎ ${entry.driveName}: leaving ${prior.length} prior copy/copies in place (--no-delete).`,
+    );
+  }
+
   try {
     uploadFile(folderId, localPath, entry.driveName);
     console.log(`  ✅ ${entry.folder} / ${entry.driveName}  ← ${entry.source}`);
@@ -200,6 +262,7 @@ function publishEntry(folderId: string, entry: ManifestEntry, existing: Array<{ 
 function main(): void {
   console.log(`Digital Seed — public data room publisher\n`);
   console.log(`Mode: ${flags.dryRun ? "DRY RUN" : "LIVE"}`);
+  console.log(`Replace strategy: ${flags.replaceStrategy}${flags.strict ? " (strict)" : ""}`);
   if (flags.account) console.log(`Account: ${flags.account}`);
 
   const rootId = findRootFolder();
@@ -232,6 +295,14 @@ function main(): void {
   }
 
   console.log(`\nDone: ${uploaded} uploaded, ${skipped} skipped, ${failed} failed.`);
+  if (permissionFallbacks > 0) {
+    console.log(
+      `⚠️  ${permissionFallbacks} prior file(s) could not be deleted due to ` +
+        `Drive permissions; new copies were uploaded alongside them. ` +
+        `Re-run with --strict to fail loudly instead, or with --no-delete ` +
+        `to skip the delete attempt entirely.`,
+    );
+  }
   console.log(`Public link: https://drive.google.com/drive/folders/${rootId}`);
   if (failed > 0) process.exit(1);
 }

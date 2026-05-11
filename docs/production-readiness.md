@@ -1,8 +1,8 @@
 # Production Readiness
 
-Digital Seed is now usable as a public alpha: a new user can clone it, run the first-15-minute path, create local context, and optionally use the public data room. It is not yet a "production-stable" release in the sense of automated CI, versioned releases, and broad cross-platform validation.
+Digital Seed is now production-stable for public use as an alpha: a new user can clone it, run the first-15-minute path, create local context, and optionally use the public data room. CI runs the gate stack on macOS + Linux, the fresh-clone path is repeatable, and the data room publisher tolerates locked legacy files. It remains intentionally an alpha starter kit, not a polished consumer app.
 
-## Current status: public-alpha ready
+## Current status: production-stable alpha
 
 Shipped and verified:
 
@@ -37,15 +37,17 @@ Digital Seed should be considered production-ready for public use when these are
 
 ### P0 — must fix before calling it production-stable
 
-- **Release checklist:** add a single checklist for maintainers: health, privacy scan, visual QA, data room dry-run/live sync, README link check, changelog, tag/release.
-- **Fresh clone test:** test from a clean directory without existing `node_modules`, local data, or cached credentials; document exact result.
-- **Cross-platform smoke:** verify macOS and Linux command behavior, especially ANSI intro fallback and Python/Pillow/ffmpeg assumptions for optional visual generation.
-- **CI decision:** either add GitHub Actions for `bun run health`, `bun run seed privacy-scan`, and `bun run seed visual-qa`, or explicitly defer CI with rationale.
-- **Data room publish hardening:** support a "replace by upload without delete" fallback or document the clean-folder workflow, because file-level Drive permissions can block deletion in older shared folders.
+All P0 items have shipped. Recap:
+
+- **Release checklist** — `docs/release-checklist.md` covers health, privacy, visual QA, data room dry-run/live sync, README/docs review, changelog, tag.
+- **Fresh-clone test** — `scripts/fresh-clone-check.sh` and `docs/fresh-clone-validation.md`. Verified on macOS 25.4 arm64 with bun 1.3.8.
+- **Cross-platform smoke** — CI runs the gate stack on `ubuntu-latest` and `macos-latest` (`.github/workflows/ci.yml`).
+- **CI** — `.github/workflows/ci.yml` runs `bun install`, `bun run health`, `bun run seed privacy-scan`, `bun run seed visual-qa`, `bun run seed onboard --plain`, and `bun run seed first-prompt` on every push and PR.
+- **Data room publish hardening** — `scripts/publish-data-room.ts` ships `--no-delete`, `--replace-strategy {delete,skip-delete}`, and `--strict`. The default delete strategy now warns and falls back per-file on permission errors instead of hard-failing.
 
 ### P1 — should fix before a larger public announcement
 
-- **README tightening pass:** reduce remaining feature sprawl below the fold; keep the first screen focused on outcome, install, and first prompt.
+- **README tightening pass:** ✅ — first screen now leads with 15-minute promise, quick start, data room callout, and who-this-is-for/not-for, in that order. CI badge added.
 - **Link checker:** add a simple local docs link check for Markdown links and Drive/data-room references.
 - **Examples gallery:** add 2-3 tiny user profiles: student, founder, researcher/investor. Each should show which context files to edit first.
 - **Onboarding UX polish:** make `seed onboard` optionally write a local checklist file, e.g. `user/FIRST-WIN.md`, after user confirmation.
@@ -60,9 +62,11 @@ Digital Seed should be considered production-ready for public use when these are
 
 ## Release recommendation
 
-Do not call this `1.0`. The honest next release is:
+Do not call this `1.0`. With the P0 list complete, the honest next release is `0.4.0-alpha`:
 
-- `0.4.0-alpha` if we add CI/release checklist/fresh-clone validation.
-- `0.3.1-alpha` if we only ship visual/data-room/onboarding polish.
+- CI runs the gate stack on macOS + Linux.
+- `scripts/fresh-clone-check.sh` makes the clean-environment smoke test repeatable.
+- Data room publishing tolerates locked legacy files instead of hard-failing.
+- README first screen is focused on outcome, install, and first prompt.
 
-Recommended next move: ship `0.4.0-alpha` after the P0 list is complete.
+P1 items (link checker, examples gallery, onboarding `FIRST-WIN.md` write, version metadata alignment) remain optional polish before a larger public announcement.

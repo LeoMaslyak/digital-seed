@@ -2,6 +2,20 @@
 
 All notable changes to Digital Seed will be documented in this file.
 
+## [0.4.0-alpha] - 2026-05-11
+### Added
+- GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs install, health, privacy scan, visual QA, onboard, and first-prompt on `ubuntu-latest` and `macos-latest` for every push and PR.
+- `scripts/fresh-clone-check.sh` — repeatable fresh-clone validation harness backed by `git archive`, with timing and a clean teardown.
+- `docs/fresh-clone-validation.md` — what the harness covers, expected output on a clean clone, last verified run, troubleshooting.
+- `--no-delete`, `--replace-strategy {delete,skip-delete}`, and `--strict` flags on `scripts/publish-data-room.ts` for publishing into folders with locked legacy files.
+
+### Changed
+- Data room publisher now warns and falls back to skip-delete per file when Drive returns a permission error, instead of hard-failing the run.
+- README first screen tightened to lead with 15-minute promise → quick start → data room → who-for/not-for; CI badge added.
+- `docs/release-checklist.md` references the fresh-clone harness, CI coverage, and `--no-delete` recovery path.
+- `docs/data-room-guide.md` documents the permission-fallback strategy matrix.
+- `docs/production-readiness.md` and `docs/repo-improvement-roadmap.md` updated to reflect the production-stable alpha status.
+
 ## [0.3.1-alpha] - 2026-05-11
 ### Added
 - Premium generated Digital Seed hero loop with GitHub-dark edge blending, bushier fruit-bearing mature canopy, MP4/WebM/GIF/still/SVG fallbacks, and documented generation notes.

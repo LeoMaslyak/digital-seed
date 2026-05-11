@@ -12,7 +12,10 @@ bun run seed visual-qa
 bun run seed onboard --plain >/tmp/digital-seed-onboard.txt
 bun run seed first-prompt >/tmp/digital-seed-first-prompt.txt
 bun run seed drive publish-data-room --dry-run --account lm@avantgaera.com
+bash scripts/fresh-clone-check.sh
 ```
+
+CI (`.github/workflows/ci.yml`) runs the first six on `ubuntu-latest` and `macos-latest` on every push and PR. Run the fresh-clone harness locally before tagging.
 
 ## Optional visual regeneration
 
@@ -35,7 +38,16 @@ Publish after dry-run passes:
 bun run seed drive publish-data-room --account lm@avantgaera.com
 ```
 
-If Drive deletion fails with `403 insufficientFilePermissions`, publish to a clean new folder owned by the publishing account, share it as anyone-with-link reader, then update README, `docs/data-room-guide.md`, and `scripts/publish-data-room.ts`.
+If Drive deletion fails with `403 insufficientFilePermissions`:
+
+1. **First try `--no-delete`** to push the latest content without disturbing locked files:
+   ```bash
+   bun run seed drive publish-data-room --account lm@avantgaera.com --no-delete
+   ```
+   The new uploads coexist with the old; viewers see the newest by "modified" date.
+2. If the duplicates become noisy, publish to a clean new folder owned by the publishing account, share it as anyone-with-link reader, then update `README.md`, `docs/data-room-guide.md`, and `DEFAULT_ROOT_NAME` in `scripts/publish-data-room.ts`.
+
+See [`docs/data-room-guide.md`](data-room-guide.md#permission-fallbacks) for the full strategy matrix.
 
 ## Manual review
 

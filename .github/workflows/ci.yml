@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    name: ${{ matrix.os }} · bun ${{ matrix.bun }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        bun: [latest]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ matrix.bun }}
+
+      - name: Set up Python (for visual QA)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Python image library
+        run: python3 -m pip install --upgrade Pillow
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Health check
+        run: bun run health
+
+      - name: Privacy scan
+        run: bun run seed privacy-scan
+
+      - name: Visual QA
+        run: bun run seed visual-qa
+
+      - name: Onboard (plain)
+        run: bun run seed onboard --plain
+
+      - name: First prompt
+        run: bun run seed first-prompt

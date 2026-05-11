@@ -6,6 +6,7 @@
 
 **Local-first · agent-neutral · free-first · privacy-aware**
 
+[![CI](https://github.com/LeoMaslyak/digital-seed/actions/workflows/ci.yml/badge.svg)](https://github.com/LeoMaslyak/digital-seed/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-alpha-orange.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -24,7 +25,7 @@
 
 **Get useful personal AI context in 15 minutes — without signing up for another platform.**
 
-Digital Seed is a small repo of editable context files plus a CLI that walks you through them. Point your existing AI agent (Claude Code, Cursor, Windsurf, OpenClaw, Hermes, …) at the folder, and it knows who you are, what you are working on, and what you do not want it to optimize for.
+Digital Seed is a small repo of editable context files plus a CLI that walks you through them. Point any AI agent (Claude Code, Cursor, Windsurf, OpenClaw, Hermes, …) at the folder, and it knows who you are, what you are working on, and what you do not want it to optimize for.
 
 ## Start in 15 minutes
 
@@ -35,16 +36,20 @@ cd digital-seed
 bun run seed onboard
 ```
 
-`seed onboard` is the canonical path: check setup, open three context files, run `seed first-prompt`, optionally index one notes folder, then pick one recipe. Stop after step five until something is actually useful.
-
-Then open the folder in your preferred AI agent and paste the first prompt:
+The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
 
 ```bash
 claude          # or: cursor .  · windsurf .  · another terminal-capable agent
 bun run seed first-prompt
 ```
 
-The goal is **one boring real first win**: a clearer weekly plan, a cleaner project list, a searchable notes folder, or a useful first draft.
+The goal: **one boring real first win** — a clearer weekly plan, a cleaner project list, a searchable notes folder, or a useful first draft.
+
+If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agent-install.md).
+
+## Public data room
+
+The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) holds a non-technical walkthrough: start-here pack, visual story, guides, templates, recipes, and audit notes. Refresh it with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).
 
 ## Who this is for
 
@@ -61,16 +66,6 @@ Probably not useful if you want:
 - a built-in dashboard product (see [Dashboard Options](docs/dashboard-options.md))
 - an always-on assistant out of the box
 - one-click cloud automation for every integration
-
-## If the terminal is unfamiliar
-
-Ask a terminal-capable AI agent to install it with you. See [AI Agent Install](docs/ai-agent-install.md). The agent should explain each step and never connect external accounts without asking.
-
-## Public data room
-
-A non-technical walkthrough lives in the [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG): start-here pack, visual story, guides, templates, recipes, and audit notes. Maintainers refresh it with `bun run seed drive publish-data-room`.
-
-Audit note: cleanup actions from an independent hostile audit are tracked in [`docs/audit-response-2026-05-10.md`](docs/audit-response-2026-05-10.md).
 
 ## Core files
 
@@ -117,6 +112,7 @@ Reference:
 - [Known Alpha Limits](docs/known-alpha-limits.md) — what you should not expect yet
 - [Production Readiness](docs/production-readiness.md) — public-ready gaps and release criteria
 - [Release Checklist](docs/release-checklist.md) — maintainer release gate
+- [Fresh-Clone Validation](docs/fresh-clone-validation.md) — clean-environment smoke test
 - [Audit Response](docs/audit-response-2026-05-10.md) — cleanup status
 
 ## Privacy model
