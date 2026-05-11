@@ -100,19 +100,38 @@ function terminalSeedFrame(frame: number, total: number): string {
   const roots = Math.max(0, Math.min(1, (phase - 0.12) / 0.24)) * (1 - reset);
 
   for (let y = 0; y < Math.round(5 * trunk); y++) {
-    put(cx, cy - y, "│", ANSI.mint);
-    if (y > 1 && y % 2 === 0) put(cx + 1, cy - y, "╱", ANSI.aqua);
+    const sway = y > 2 ? Math.round(Math.sin(phase * Math.PI * 2 + y * 0.7)) : 0;
+    put(cx + sway, cy - y, y % 2 ? "╽" : "│", ANSI.mint);
   }
-  const branchRows = Math.round(4 * canopy);
-  for (let r = 0; r < branchRows; r++) {
-    const y = cy - 4 - r;
-    for (let dx = -r * 3 - 2; dx <= r * 3 + 2; dx += 3) {
-      put(cx + dx, y, r % 2 ? "✦" : "✧", dx % 2 ? ANSI.gold : ANSI.mint);
-    }
+
+  // Curved leaves/branches, so the terminal form reads as a plant rather than
+  // a vertical stick. The tree still remains simple enough for plain terminals.
+  const leafPairs = [
+    { t: 0.18, y: -2, left: "╰─✦", right: "✦─╮", c: ANSI.gold },
+    { t: 0.36, y: -3, left: "╭──✧", right: "✧──╮", c: ANSI.mint },
+    { t: 0.54, y: -4, left: "╰──✦", right: "✦──╯", c: ANSI.aqua },
+    { t: 0.72, y: -5, left: "  ✧", right: "✧  ", c: ANSI.gold },
+  ];
+  for (const leaf of leafPairs) {
+    if (canopy < leaf.t) continue;
+    const y = cy + leaf.y;
+    for (let i = 0; i < leaf.left.length; i++) put(cx - 1 - leaf.left.length + i, y, leaf.left[i], leaf.c);
+    for (let i = 0; i < leaf.right.length; i++) put(cx + 2 + i, y, leaf.right[i], leaf.c);
   }
-  for (let r = 1; r <= Math.round(4 * roots); r++) {
+  if (canopy > 0.82) {
+    put(cx - 1, cy - 6, "✧", ANSI.mint);
+    put(cx, cy - 6, "✦", ANSI.gold);
+    put(cx + 1, cy - 6, "✧", ANSI.mint);
+  }
+
+  const rootRows = Math.round(4 * roots);
+  for (let r = 1; r <= rootRows; r++) {
     put(cx - r * 2, cy + r, "╲", ANSI.aqua);
     put(cx + r * 2, cy + r, "╱", ANSI.aqua);
+    if (r > 1) {
+      put(cx - r * 2 - 1, cy + r, "·", ANSI.mint);
+      put(cx + r * 2 + 1, cy + r, "·", ANSI.mint);
+    }
   }
 
   const seedPulse = phase < 0.18 || phase > 0.82 ? "◉" : "✺";

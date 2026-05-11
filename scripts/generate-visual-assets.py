@@ -333,10 +333,12 @@ def render_frame(i: int) -> Image.Image:
     bottom_fade = Image.new("RGBA", (W, H), (*GITHUB_BG, 0))
     bd = ImageDraw.Draw(bottom_fade)
     for y in range(H):
-        a = smoothstep(H * 0.72, H - 1, y)
+        # Start the lower fade above the visible seed-halo tail and ramp gently.
+        # This removes the faint horizontal boundary while keeping the seed glow.
+        a = smoothstep(H * 0.62, H - 1, y)
         if a > 0:
-            bd.line((0, y, W, y), fill=(*GITHUB_BG, int(210 * a)))
-    bottom_fade = bottom_fade.filter(ImageFilter.GaussianBlur(10))
+            bd.line((0, y, W, y), fill=(*GITHUB_BG, int(232 * a)))
+    bottom_fade = bottom_fade.filter(ImageFilter.GaussianBlur(18))
     img.alpha_composite(bottom_fade)
     return img.convert("RGB")
 

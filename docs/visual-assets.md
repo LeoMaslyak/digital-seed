@@ -41,7 +41,7 @@ bun run seed intro
 - `bun run seed onboard` shows the intro before the first-15-minute path when running in an interactive terminal.
 - `./setup.sh` uses a compact static version in the setup header.
 
-The terminal visual intentionally uses ANSI glyphs/colors rather than image protocols, so it works in ordinary terminals without requiring Kitty/iTerm image support.
+The terminal visual intentionally uses ANSI glyphs/colors rather than image protocols, so it works in ordinary terminals without requiring Kitty/iTerm image support. The terminal plant uses curved branch/leaf glyphs around the seed so the intro reads as germination/growth, not just a vertical status indicator.
 
 ## Current audit notes
 
@@ -50,10 +50,10 @@ Latest hostile visual audit result: production-ready.
 Measured loop checks after regeneration:
 
 - GIF: 72 frames, ~5.76s at 80ms/frame, infinite loop flag enabled.
-- GIF wrap seam: last→first mean difference ~1.37, lower than/roughly comparable to normal first→second motion (~1.59), so the wrap should not read as a hiccup.
+- GIF wrap seam: last→first mean difference ~1.16, roughly comparable to normal first→second motion (~0.93), so the wrap should not read as a hiccup.
 - Source wrap seam: last→first mean difference ~0.99, comparable to source first→second motion (~0.96).
 - Edge samples at the corners match GitHub dark `(13, 17, 23)`.
-- Bottom seed glow is explicitly feathered into GitHub dark before the image boundary to avoid a hard shine cutoff.
+- Bottom seed glow is explicitly feathered into GitHub dark before the image boundary to avoid a hard shine cutoff; the lower fade begins above the former visible edge and ramps gently to the border.
 
 If the loop starts to look jumpy again, check for either:
 
