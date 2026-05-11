@@ -32,11 +32,11 @@ Digital Seed is a small repo of editable context files plus a CLI that walks you
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
-./setup.sh
+bun install
 bun run seed onboard
 ```
 
-The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
+The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful. If you prefer a guided interactive setup wizard, run `./setup.sh` after cloning instead of `bun install`.
 
 ```bash
 claude          # or: cursor .  · windsurf .  · another terminal-capable agent

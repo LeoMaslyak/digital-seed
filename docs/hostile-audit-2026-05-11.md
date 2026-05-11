@@ -6,17 +6,15 @@ Scope: public perception, visual quality, docs/data-room consistency, and readin
 
 **Repo/docs: ready for broader sharing after commit.**
 
-**Public Google Drive data room: blocked on write permissions.** The target folder is readable, but the authenticated `lm@avantgaera.com` Drive client cannot delete stale files or upload replacements to `01 Visual Story`.
+**Public Google Drive data room: no longer blocked in current dry-run.** A later production-alpha dry-run with `lm@avantgaera.com` found the clean public folder and planned all uploads successfully: 34 uploaded, 0 skipped, 0 failed.
 
 ## Blockers
 
-- **Drive data room is not updated yet.**
-  - `gog drive rm` against existing visual files returned `403 insufficientFilePermissions`.
-  - `gog drive upload --parent=1YhcyTLtOHQzCn0Dg3PuuE8WC_pnt-kSr` returned `403 insufficientParentPermissions`.
-  - Existing data-room visual files remain:
-    - `Digital Seed - Magical Tree.svg`
-    - `README.md`
-  - Required fix: grant editor access on the data room / `01 Visual Story` folder to `lm@avantgaera.com`, or update manually from the repo assets.
+No current repo or data-room dry-run blockers.
+
+Former blocker, now resolved by the clean data-room folder / hardened publisher path:
+
+- Earlier Drive runs against older shared folders hit `403 insufficientFilePermissions` / `403 insufficientParentPermissions` on stale visual files.
 
 ## Non-blockers
 

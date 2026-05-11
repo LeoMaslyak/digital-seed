@@ -23,9 +23,11 @@ It is **not** a hosted AI platform, dashboard product, or one true agent recomme
 ```bash
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
-./setup.sh
+bun install
 bun run seed onboard
 ```
+
+Prefer a guided wizard? Run `./setup.sh` after cloning instead of `bun install`.
 
 Then open the folder in an AI agent you trust:
 

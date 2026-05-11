@@ -12,8 +12,9 @@ All notable changes to Digital Seed will be documented in this file.
 ### Changed
 - Data room publisher now warns and falls back to skip-delete per file when Drive returns a permission error, instead of hard-failing the run.
 - README first screen tightened to lead with 15-minute promise → quick start → data room → who-for/not-for; CI badge added.
+- README and public data-room starter copy now use `bun install` + `bun run seed onboard` as the low-friction quick start, with `./setup.sh` framed as the optional guided wizard.
 - `docs/release-checklist.md` references the fresh-clone harness, CI coverage, and `--no-delete` recovery path.
-- `docs/data-room-guide.md` documents the permission-fallback strategy matrix.
+- `docs/data-room-guide.md` documents the permission-fallback strategy matrix and avoids stale user-facing v0.3 folder labeling.
 - `docs/production-readiness.md` and `docs/repo-improvement-roadmap.md` updated to reflect the production-stable alpha status.
 
 ## [0.3.1-alpha] - 2026-05-11
