@@ -2,22 +2,35 @@
 
 Use this before tagging or publicly announcing a Digital Seed release.
 
-## Required checks
+## 1. Run the release check
+
+One command runs every automated gate:
 
 ```bash
-bun install
-bun run health
-bun run seed privacy-scan
-bun run seed visual-qa
-bun run seed onboard --plain >/tmp/digital-seed-onboard.txt
-bun run seed first-prompt >/tmp/digital-seed-first-prompt.txt
-bun run seed drive publish-data-room --dry-run --account lm@avantgaera.com
-bash scripts/fresh-clone-check.sh
+bun run seed release-check
 ```
 
-CI (`.github/workflows/ci.yml`) runs the first six on `ubuntu-latest` and `macos-latest` on every push and PR. Run the fresh-clone harness locally before tagging.
+That composes, in order:
 
-## Optional visual regeneration
+1. `bun install --frozen-lockfile`
+2. `bun run health`
+3. `bun run seed privacy-scan`
+4. `bun run seed visual-qa`
+5. `bun run seed onboard --plain`
+6. `bun run seed first-prompt`
+7. `bun run check:links`
+8. Version consistency check (package.json ↔ CHANGELOG.md ↔ this file's tag instruction)
+9. Fresh-clone harness (`scripts/fresh-clone-check.sh`)
+
+Useful flags:
+
+- `--skip-fresh-clone` — fast local re-runs and CI mode skip the clone harness automatically; run it at least once before tagging.
+- `--with-drive-dry-run --account EMAIL` — maintainer-only Drive publish dry-run (requires the `gog` CLI authenticated against an account that owns the public folder). Skipped by default and never run in public CI.
+- `--ci` — CI-safe mode: implies `--skip-fresh-clone` and never touches Drive.
+
+CI (`.github/workflows/ci.yml`) runs `bun run seed release-check --ci --skip-install` on `ubuntu-latest` and `macos-latest` for every push and PR. The fresh-clone harness and Drive dry-run stay local/maintainer-only.
+
+## 2. Optional visual regeneration
 
 Only run this when changing the hero visual:
 
@@ -26,13 +39,38 @@ python3 scripts/generate-visual-assets.py
 bun run seed visual-qa
 ```
 
-## Data room publish
+## 3. Maintainer-only Drive dry-run
+
+Skip this if you are not the maintainer publishing the public data room — the rest of the release does not depend on it.
+
+```bash
+bun run seed release-check --with-drive-dry-run --account lm@avantgaera.com
+```
+
+Or run the dry-run on its own:
+
+```bash
+bun run seed drive publish-data-room --dry-run --account lm@avantgaera.com
+```
+
+Both require the `gog` CLI authenticated against an account with editor access to the public folder. Public CI never runs this — credentials are not stored in the repo.
+
+## 4. Manual review
+
+- README first screen is understandable to a new user.
+- `docs/first-15-minutes.md` matches `bun run seed onboard`.
+- `docs/known-alpha-limits.md` still sets honest expectations.
+- `CHANGELOG.md` has a new entry for this version.
+- No generated temp files are staged.
+- `git status --short` is clean after commit.
+
+## 5. Live publish (maintainer-only)
+
+The live publish is opt-in and never runs as part of `release-check`:
 
 Current public folder:
 
 <https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG>
-
-Publish after dry-run passes:
 
 ```bash
 bun run seed drive publish-data-room --account lm@avantgaera.com
@@ -49,20 +87,11 @@ If Drive deletion fails with `403 insufficientFilePermissions`:
 
 See [`docs/data-room-guide.md`](data-room-guide.md#permission-fallbacks) for the full strategy matrix.
 
-## Manual review
-
-- README first screen is understandable to a new user.
-- `docs/first-15-minutes.md` matches `bun run seed onboard`.
-- `docs/known-alpha-limits.md` still sets honest expectations.
-- `CHANGELOG.md` has a new entry.
-- No generated temp files are staged.
-- `git status --short` is clean after commit.
-
-## Tagging
+## 6. Tag and push
 
 ```bash
 git tag v0.4.0-alpha
 git push origin main --tags
 ```
 
-Use the exact version chosen for the release.
+The version consistency check inside `release-check` will fail if `package.json`, `CHANGELOG.md`, and the `git tag vX.Y.Z` instruction above drift apart — bump them together.

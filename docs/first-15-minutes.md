@@ -6,6 +6,18 @@ Fallback visual assets: [MP4](assets/digital-seed-growth.mp4), [WebM](assets/dig
 
 This is the smallest useful Digital Seed path. Do this before adding dashboards, databases, automations, or always-on agents.
 
+## Day one / Not day one
+
+| Day one | Not day one |
+| --- | --- |
+| Edit `USER.md`, `COMPASS.md`, `GOALS.md` with rough notes. | Polish every context file before using it. |
+| Run `bun run seed onboard` and `bun run seed first-prompt`. | Wire up email, Slack, calendar, or always-on agents. |
+| Optionally index **one** local notes folder. | Stand up a hosted vector database. |
+| Pick one recipe to try later. | Install every recipe at once. |
+| Optionally write a `FIRST-WIN.md` for one boring real win this week. | Build a dashboard, a multi-agent setup, or new automations. |
+
+If you finish day one and the local loop is already useful, you have permission to expand. If it is not yet useful, more tools will not fix that.
+
 ## Goal
 
 By the end, your AI agent should know enough about you to help with one real problem this week.

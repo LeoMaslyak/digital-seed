@@ -12,31 +12,54 @@ See `docs/production-readiness.md` for the full production-grade definition. The
 4. **Product coherence** — beginner vs advanced vs maintainer-only command surfaces; official vs experimental recipes.
 5. **1.0 candidate** — supported-platform proof, external tester walkthroughs, precise privacy/security explanation, no maintainer-only beginner assumptions.
 
-## Immediate recommended sprint
+## Immediate next sprint — Milestone 2 release engineering
 
-1. **Examples gallery**
-   - Add `docs/examples/` with fictional student, founder/operator, researcher/investor, and freelancer/consultant profiles.
-   - Link it from README and `docs/first-15-minutes.md`.
+1. **Unified release check**
+   - Add `bun run seed release-check` as the canonical maintainer gate.
+   - It should run the local release checks already scattered across docs.
 
-2. **First-win onboarding**
-   - Add `bun run seed onboard --write-first-win`.
-   - Write `user/FIRST-WIN.md` only after explicit user confirmation / flag usage.
-   - Let `bun run seed first-prompt` reference the first-win file when present.
+2. **Version consistency check**
+   - Verify `package.json` version appears in `CHANGELOG.md` and release docs.
+   - Fail clearly if docs reference a stale release/tag.
 
-3. **Markdown link checker**
-   - Add local script for root/docs/recipes Markdown links.
-   - Wire it into package scripts and CI.
+3. **Fresh-clone CI smoke**
+   - Either run `scripts/fresh-clone-check.sh` in CI or add a CI-safe equivalent that avoids recursive expensive checks.
 
-4. **Health warning semantics**
-   - Change health summary to distinguish pass, pass-with-warnings, and failure.
+4. **Data-room dry-run gate**
+   - Keep Drive publishing opt-in and maintainer-only.
+   - Release check may run a dry-run only when credentials/account are available; otherwise it should skip with a clear warning, not fail public CI.
 
-5. **Troubleshooting guide**
-   - Add `docs/troubleshooting.md` covering Bun, Python/Pillow, AI agent CLIs, Drive/gog, privacy scan false positives, and fresh-clone failures.
+5. **Release checklist consolidation**
+   - Update `docs/release-checklist.md` around the single release-check command.
+   - Keep manual publish/tag steps explicit.
 
-6. **Command taxonomy cleanup**
-   - Start by separating beginner commands from advanced / maintainer-only commands in help output.
+6. **Remaining beginner guidance**
+   - Add the explicit “day one / not day one” guidance box to README and/or first-15-minutes.
 
-## Completed high-leverage alpha work
+## Completed high-leverage alpha/beginner work
+
+1. ~~**Examples gallery**~~ ✅
+   - `docs/examples/` includes fictional student, founder/operator, researcher/investor, and freelancer/consultant profiles.
+   - README and first-15-minutes link to the gallery.
+
+2. ~~**First-win onboarding**~~ ✅
+   - `bun run seed onboard --write-first-win` creates `user/FIRST-WIN.md` only when explicitly requested.
+   - `seed first-prompt` references `user/FIRST-WIN.md` when present.
+
+3. ~~**Markdown link checker**~~ ✅
+   - `scripts/check-markdown-links.ts` checks local Markdown links.
+   - `bun run check:links` is wired into package scripts and CI.
+
+4. ~~**Health warning semantics**~~ ✅
+   - Health summary distinguishes clean pass from pass-with-warnings and failures.
+
+5. ~~**Troubleshooting guide**~~ ✅
+   - `docs/troubleshooting.md` covers Bun, Python/Pillow, AI agent CLIs, Drive/gog, privacy scan false positives, fresh-clone failures, and CI failures.
+
+6. ~~**Command taxonomy cleanup**~~ ✅
+   - `seed help` separates beginner, optional recipes/search, advanced, and maintainer/release commands.
+
+## Earlier completed high-leverage alpha work
 
 1. ~~**Data room publishing path**~~ ✅
    - `bun run seed drive publish-data-room` syncs the public folder from local sources.
@@ -79,14 +102,13 @@ Next gate before a larger public push:
 
 Remaining P1 polish after the hostile audit:
 
-- Local Markdown link checker.
-- Examples gallery (student / founder / investor / researcher).
-- `bun run seed onboard` optionally writes `user/FIRST-WIN.md`.
 - Version metadata alignment with the next tag.
+- Unified release check command.
+- Fresh-clone CI smoke / release-gate consolidation.
+- Remaining day-one/not-day-one guidance box.
 
 ## Later, not urgent
 
-- Add a small examples gallery for different user profiles: student, founder, investor, researcher.
 - Add optional templates for weekly planning and project review.
 - Add terminal demo media to docs only if repo size budget allows.
 

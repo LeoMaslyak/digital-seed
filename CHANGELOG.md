@@ -4,18 +4,26 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [0.4.0-alpha] - 2026-05-11
 ### Added
-- GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs install, health, privacy scan, visual QA, onboard, and first-prompt on `ubuntu-latest` and `macos-latest` for every push and PR.
+- GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs install, health, privacy scan, visual QA, onboard, first-prompt, and Markdown link checks on `ubuntu-latest` and `macos-latest` for every push and PR.
 - `scripts/fresh-clone-check.sh` — repeatable fresh-clone validation harness backed by `git archive`, with timing and a clean teardown.
 - `docs/fresh-clone-validation.md` — what the harness covers, expected output on a clean clone, last verified run, troubleshooting.
+- `docs/examples/` — fictional student, founder/operator, researcher/investor, and freelancer/consultant examples for first-15-minute onboarding.
+- `docs/troubleshooting.md` — common fixes for Bun, Python/Pillow, AI agent CLIs, Drive/gog, privacy scan, fresh-clone validation, and CI failures.
+- `scripts/check-markdown-links.ts` plus `bun run check:links` for local Markdown link validation.
+- `bun run seed onboard --write-first-win` to create `user/FIRST-WIN.md` as an explicit first useful outcome.
 - `--no-delete`, `--replace-strategy {delete,skip-delete}`, and `--strict` flags on `scripts/publish-data-room.ts` for publishing into folders with locked legacy files.
 
 ### Changed
 - Data room publisher now warns and falls back to skip-delete per file when Drive returns a permission error, instead of hard-failing the run.
 - README first screen tightened to lead with 15-minute promise → quick start → data room → who-for/not-for; CI badge added.
 - README and public data-room starter copy now use `bun install` + `bun run seed onboard` as the low-friction quick start, with `./setup.sh` framed as the optional guided wizard.
+- README and `docs/first-15-minutes.md` link to examples and troubleshooting.
+- `seed first-prompt` now points to `user/FIRST-WIN.md` when present.
+- `seed help` now separates beginner, optional recipes/search, advanced, and maintainer/release commands.
+- Health check output now distinguishes clean pass from pass-with-warnings.
 - `docs/release-checklist.md` references the fresh-clone harness, CI coverage, and `--no-delete` recovery path.
 - `docs/data-room-guide.md` documents the permission-fallback strategy matrix and avoids stale user-facing v0.3 folder labeling.
-- `docs/production-readiness.md` and `docs/repo-improvement-roadmap.md` updated to reflect the production-stable alpha status.
+- `docs/production-readiness.md` and `docs/repo-improvement-roadmap.md` updated to reflect broader-alpha status and the path to production-grade OSS.
 
 ## [0.3.1-alpha] - 2026-05-11
 ### Added

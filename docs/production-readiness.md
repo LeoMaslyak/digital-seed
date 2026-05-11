@@ -17,7 +17,12 @@ Shipped and verified:
 - `bun run seed drive publish-data-room --dry-run --account lm@avantgaera.com` passes against the clean public folder.
 - `bun run seed visual-qa` checks hero dimensions, duration, loop flag, edge color, and seam.
 - Beginner docs are mostly consolidated around `docs/first-15-minutes.md`.
+- Examples gallery and troubleshooting guide are linked from README.
+- `bun run seed onboard --write-first-win` creates an explicit first useful outcome file.
+- `seed first-prompt` points to `user/FIRST-WIN.md` when present.
 - Health and privacy scans pass locally.
+- Health output now distinguishes clean pass from pass-with-warnings.
+- Markdown link checker exists locally and in CI.
 - Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
 
 Current public data room:
@@ -43,13 +48,18 @@ Digital Seed should be considered production-grade open source when these are al
 
 Goal: a stranger understands what to do and gets one useful result quickly.
 
-Must ship:
+Status: mostly shipped. Remaining polish is the explicit README / first-15-minutes “day one / not day one” box.
+
+Shipped:
 
 - Examples gallery with fictional profiles: student, founder/operator, researcher/investor, freelancer/consultant.
-- Optional onboarding output such as `bun run seed onboard --write-first-win`, writing `user/FIRST-WIN.md` after confirmation.
+- Optional onboarding output: `bun run seed onboard --write-first-win`, writing `user/FIRST-WIN.md` only when explicitly requested.
 - `seed first-prompt` support for the chosen first win.
 - Health output semantics: `passed`, `passed with warnings`, `failed`.
-- README / first-15-minutes “day one / not day one” guidance.
+
+Remaining:
+
+- README / first-15-minutes “day one / not day one” guidance box.
 
 Exit criteria:
 
@@ -60,10 +70,15 @@ Exit criteria:
 
 Goal: releases are boring and repeatable.
 
-Must ship:
+Status: started. Link checking is shipped; the next implementation target is the unified release gate.
+
+Shipped:
 
 - Local Markdown link checker.
 - Link checker in CI.
+
+Remaining:
+
 - Fresh-clone harness, or equivalent packaging smoke, in CI.
 - Version consistency check for `package.json`, changelog, docs, and tags.
 - Data-room dry-run gate.
@@ -133,14 +148,16 @@ Exit criteria:
 
 - Tagging `1.0.0` would feel honest, not aspirational.
 
-## Immediate recommended sprint
+## Immediate next sprint
 
-1. Add examples gallery.
-2. Add `FIRST-WIN.md` onboarding write path.
-3. Add Markdown link checker + CI gate.
-4. Fix health warning semantics.
-5. Add troubleshooting guide.
-6. Start command taxonomy cleanup.
+Focus: finish Milestone 2 — release engineering.
+
+1. Add a unified `bun run seed release-check` maintainer command.
+2. Add version consistency checks for `package.json`, changelog, release checklist, and docs references.
+3. Add a CI-safe fresh-clone/package smoke gate or document why the full harness remains local-only.
+4. Add a data-room dry-run gate that is local/maintainer-only by default and does not require credentials in public CI.
+5. Update `docs/release-checklist.md` so maintainers have one canonical release path.
+6. Add the remaining “day one / not day one” beginner guidance box while touching README/docs.
 
 ## Next audit gate
 

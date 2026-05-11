@@ -24,7 +24,8 @@
     "status": "bun run scripts/health-check.ts",
     "update": "bun run scripts/update.ts",
     "seed": "bun run scripts/seed.ts",
-    "check:links": "bun run scripts/check-markdown-links.ts"
+    "check:links": "bun run scripts/check-markdown-links.ts",
+    "release:check": "bun run scripts/release-check.ts"
   },
   "dependencies": {
     "@mozilla/readability": "^0.5.0",

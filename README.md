@@ -47,6 +47,12 @@ The goal: **one boring real first win** — a clearer weekly plan, a cleaner pro
 
 If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agent-install.md).
 
+### Day one vs not day one
+
+**Day one:** edit `USER.md`, `COMPASS.md`, `GOALS.md`; run `seed onboard` and `seed first-prompt`; optionally index one notes folder; optionally write `user/FIRST-WIN.md`.
+
+**Not day one:** wiring email/Slack/calendar, hosted vector DBs, always-on agents, dashboards, multi-agent setups. Add those only after the local loop is already useful. ([full breakdown](docs/first-15-minutes.md#day-one--not-day-one))
+
 ## Public data room
 
 The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) holds a non-technical walkthrough: start-here pack, visual story, guides, templates, recipes, and audit notes. Refresh it with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).

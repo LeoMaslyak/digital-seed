@@ -484,6 +484,10 @@ MAINTAINER / RELEASE
   bun run seed update --yes            Skip confirmation
   bun run seed tokens                  Token usage report
   bun run seed health                  System health check
+  bun run seed release-check           Run all release gates (one command)
+  bun run seed release-check --skip-fresh-clone     Faster local run, skip clone harness
+  bun run seed release-check --with-drive-dry-run --account EMAIL    Maintainer-only Drive dry-run
+  bun run seed release-check --ci      CI-safe: no clone harness, no Drive
 `.trim());
 }
 
@@ -599,6 +603,7 @@ else if (cmd === "schedule") {
 else if (cmd === "task")    { run("scripts/run-task.ts", rest); }
 else if (cmd === "tokens")  { run("scripts/token-report.ts", rest); }
 else if (cmd === "health")  { run("scripts/health-check.ts", rest); }
+else if (cmd === "release-check") { run("scripts/release-check.ts", rest); }
 
 // ── Unknown ───────────────────────────────────────────────────────────────────
 else {
