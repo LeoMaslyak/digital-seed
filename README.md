@@ -13,7 +13,11 @@
 </div>
 
 <p align="center">
-  <img src="docs/assets/seed-tree-magic.svg" alt="Animated Digital Seed growing into a personal AI tree" width="900">
+  <img src="docs/assets/digital-seed-growth.gif" alt="Abstract loop of a light seed growing into a luminous personal AI tree" width="900">
+</p>
+
+<p align="center">
+  <sub>Visual fallbacks: <a href="docs/assets/digital-seed-growth.mp4">MP4</a> · <a href="docs/assets/digital-seed-growth.webm">WebM</a> · <a href="docs/assets/seed-tree-magic.svg">SVG</a> · <a href="docs/assets/digital-seed-growth-still.png">still PNG</a></sub>
 </p>
 
 ---

@@ -25,6 +25,10 @@ Digital Seed — Public Starter Kit v0.3/
 │   ├── Let an AI Agent Install It.md
 │   └── First Session Prompt.md
 ├── 01 Visual Story/
+│   ├── Digital Seed — Growth Loop.mp4
+│   ├── Digital Seed — Growth Loop.webm
+│   ├── Digital Seed — Growth Loop.gif
+│   ├── Digital Seed — Growth Still.png
 │   ├── Digital Seed — Magical Tree.svg
 │   └── README.md
 ├── 02 Guides/

@@ -1,402 +1,94 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
-  <title id="title">Digital Seed grows into a luminous tree</title>
-  <desc id="desc">A looping abstract animation where a small seed of light gathers particles, sends energy downward like roots, grows into luminous branching forms, blooms into a soft canopy, then dissolves back into the seed.</desc>
-  <style>
-    :root { color-scheme: dark; }
-    * { transform-box: fill-box; }
-    .field { fill: url(#field); }
-    .grain { opacity: .26; mix-blend-mode: screen; }
-    .horizon { fill: url(#horizon); opacity: .68; }
-    .aura {
-      fill: url(#aura);
-      opacity: 0;
-      transform-origin: 600px 280px;
-      animation: aura 14s cubic-bezier(.45, 0, .2, 1) infinite;
-    }
-    .quiet-star {
-      fill: #effdf8;
-      opacity: .14;
-      animation: quietStar 14s ease-in-out infinite;
-    }
-    .seed-glow {
-      fill: url(#seedGlow);
-      opacity: 0;
-      transform-origin: 600px 392px;
-      animation: seedGlow 14s cubic-bezier(.45, 0, .2, 1) infinite;
-    }
-    .seed-core {
-      fill: url(#seedCore);
-      stroke: rgba(255, 241, 198, .82);
-      stroke-width: 1.5;
-      transform-origin: 600px 392px;
-      animation: seedCore 14s cubic-bezier(.45, 0, .2, 1) infinite;
-      filter: drop-shadow(0 0 16px rgba(254, 214, 134, .55));
-    }
-    .ripple {
-      fill: none;
-      stroke: #b7ffe9;
-      stroke-width: 1.4;
-      opacity: 0;
-      transform-origin: 600px 392px;
-      animation: ripple 14s ease-out infinite;
-    }
-    .orbit {
-      fill: none;
-      stroke: url(#orbitStroke);
-      stroke-width: 1.2;
-      stroke-linecap: round;
-      stroke-dasharray: 4 18;
-      opacity: 0;
-      transform-origin: 600px 292px;
-      animation: orbit 14s ease-in-out infinite;
-    }
-    .tendril,
-    .trunk,
-    .branch,
-    .vein {
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-    .tendril {
-      stroke: url(#rootLight);
-      stroke-width: 3.2;
-      stroke-dasharray: 360;
-      stroke-dashoffset: 360;
-      opacity: 0;
-      animation: tendril 14s cubic-bezier(.55, 0, .2, 1) infinite;
-      filter: drop-shadow(0 0 8px rgba(126, 255, 215, .35));
-    }
-    .tendril.fine { stroke-width: 1.7; stroke-dasharray: 250; stroke-dashoffset: 250; }
-    .trunk {
-      stroke: url(#trunkLight);
-      stroke-width: 13;
-      stroke-dasharray: 620;
-      stroke-dashoffset: 620;
-      opacity: 0;
-      animation: trunk 14s cubic-bezier(.2, .78, .2, 1) infinite;
-      filter: drop-shadow(0 0 18px rgba(128, 255, 213, .32));
-    }
-    .trunk.inner {
-      stroke: rgba(255, 244, 196, .72);
-      stroke-width: 3.4;
-      stroke-dasharray: 520;
-      stroke-dashoffset: 520;
-      animation-name: innerTrunk;
-      filter: drop-shadow(0 0 10px rgba(255, 224, 142, .45));
-    }
-    .branch {
-      stroke: url(#branchLight);
-      stroke-width: 6.2;
-      stroke-dasharray: 480;
-      stroke-dashoffset: 480;
-      opacity: 0;
-      animation: branch 14s cubic-bezier(.24, .76, .2, 1) infinite;
-      filter: drop-shadow(0 0 12px rgba(141, 255, 219, .34));
-    }
-    .branch.slim { stroke-width: 3.4; stroke-dasharray: 300; stroke-dashoffset: 300; }
-    .vein {
-      stroke: rgba(235, 255, 221, .5);
-      stroke-width: 1.4;
-      stroke-dasharray: 120;
-      stroke-dashoffset: 120;
-      opacity: 0;
-      animation: vein 14s ease-in-out infinite;
-    }
-    .leaf {
-      fill: url(#leaf);
-      opacity: 0;
-      transform-origin: center;
-      animation: leaf 14s cubic-bezier(.2, .7, .2, 1) infinite;
-      filter: drop-shadow(0 0 10px rgba(137, 255, 209, .18));
-    }
-    .leaf.alt { fill: url(#leafAlt); }
-    .mist {
-      fill: url(#mist);
-      opacity: 0;
-      transform-origin: center;
-      animation: mist 14s ease-in-out infinite;
-    }
-    .drop-line {
-      fill: none;
-      stroke: url(#dropLine);
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-dasharray: 1 22;
-      opacity: 0;
-      animation: dropLine 14s ease-in-out infinite;
-    }
-    .spark {
-      fill: #fff2b8;
-      opacity: 0;
-      transform-origin: center;
-      animation: spark 14s ease-in-out infinite;
-      filter: drop-shadow(0 0 8px rgba(255, 228, 151, .55));
-    }
-    .spark.cool { fill: #a9ffea; filter: drop-shadow(0 0 8px rgba(126, 255, 224, .5)); }
-    .particle {
-      fill: #dffff6;
-      opacity: 0;
-      transform-origin: 600px 392px;
-      animation: gather 14s cubic-bezier(.45, 0, .2, 1) infinite;
-      filter: drop-shadow(0 0 7px rgba(178, 255, 235, .6));
-    }
-    .p2 { animation-delay: -.45s; }
-    .p3 { animation-delay: -.9s; }
-    .p4 { animation-delay: -1.35s; }
-    .p5 { animation-delay: -1.8s; }
-    .p6 { animation-delay: -2.25s; }
-    .p7 { animation-delay: -2.7s; }
-    .p8 { animation-delay: -3.15s; }
-    .d1 { animation-delay: .12s; }
-    .d2 { animation-delay: .28s; }
-    .d3 { animation-delay: .44s; }
-    .d4 { animation-delay: .6s; }
-    .d5 { animation-delay: .76s; }
-    .d6 { animation-delay: .92s; }
-
-    @keyframes quietStar {
-      0%, 100% { opacity: .1; transform: scale(.9); }
-      42%, 76% { opacity: .48; transform: scale(1.18); }
-    }
-    @keyframes aura {
-      0%, 17% { opacity: 0; transform: scale(.42); }
-      31%, 72% { opacity: .86; transform: scale(1); }
-      86%, 100% { opacity: 0; transform: scale(.32); }
-    }
-    @keyframes seedGlow {
-      0%, 9% { opacity: .25; transform: scale(.76); }
-      16%, 25% { opacity: .95; transform: scale(1.12); }
-      38%, 76% { opacity: .32; transform: scale(.72); }
-      90%, 100% { opacity: .75; transform: scale(.9); }
-    }
-    @keyframes seedCore {
-      0%, 9% { opacity: 1; transform: scale(.88) rotate(-20deg); }
-      16%, 25% { opacity: 1; transform: scale(1.08) rotate(-10deg); }
-      34%, 76% { opacity: .16; transform: scale(.54) rotate(15deg); }
-      88%, 100% { opacity: 1; transform: scale(.88) rotate(340deg); }
-    }
-    @keyframes ripple {
-      0%, 8% { opacity: 0; transform: scale(.18); }
-      14% { opacity: .46; transform: scale(1); }
-      26%, 100% { opacity: 0; transform: scale(2.15); }
-    }
-    @keyframes orbit {
-      0%, 13% { opacity: 0; stroke-dashoffset: 80; transform: rotate(-16deg) scale(.72); }
-      26%, 72% { opacity: .56; stroke-dashoffset: 0; transform: rotate(14deg) scale(1); }
-      88%, 100% { opacity: 0; stroke-dashoffset: -90; transform: rotate(42deg) scale(.58); }
-    }
-    @keyframes tendril {
-      0%, 13% { opacity: 0; stroke-dashoffset: 360; }
-      25%, 63% { opacity: .82; stroke-dashoffset: 0; }
-      78%, 100% { opacity: 0; stroke-dashoffset: -120; }
-    }
-    @keyframes trunk {
-      0%, 23% { opacity: 0; stroke-dashoffset: 620; }
-      38%, 71% { opacity: 1; stroke-dashoffset: 0; }
-      86%, 100% { opacity: 0; stroke-dashoffset: -135; }
-    }
-    @keyframes innerTrunk {
-      0%, 29% { opacity: 0; stroke-dashoffset: 520; }
-      42%, 70% { opacity: .9; stroke-dashoffset: 0; }
-      86%, 100% { opacity: 0; stroke-dashoffset: -100; }
-    }
-    @keyframes branch {
-      0%, 34% { opacity: 0; stroke-dashoffset: 480; }
-      49%, 73% { opacity: .96; stroke-dashoffset: 0; }
-      88%, 100% { opacity: 0; stroke-dashoffset: -100; }
-    }
-    @keyframes vein {
-      0%, 45% { opacity: 0; stroke-dashoffset: 120; }
-      57%, 73% { opacity: .5; stroke-dashoffset: 0; }
-      87%, 100% { opacity: 0; stroke-dashoffset: -60; }
-    }
-    @keyframes leaf {
-      0%, 43% { opacity: 0; transform: translateY(14px) scale(.2) rotate(-22deg); }
-      55%, 71% { opacity: .92; transform: translateY(0) scale(1) rotate(0deg); }
-      80% { opacity: .68; transform: translateY(-7px) scale(1.04) rotate(6deg); }
-      91%, 100% { opacity: 0; transform: translateY(22px) scale(.18) rotate(28deg); }
-    }
-    @keyframes mist {
-      0%, 40% { opacity: 0; transform: scale(.62); }
-      55%, 72% { opacity: .52; transform: scale(1); }
-      88%, 100% { opacity: 0; transform: scale(.44); }
-    }
-    @keyframes dropLine {
-      0%, 8% { opacity: 0; stroke-dashoffset: 90; }
-      15%, 28% { opacity: .62; stroke-dashoffset: 20; }
-      38%, 100% { opacity: 0; stroke-dashoffset: -70; }
-    }
-    @keyframes spark {
-      0%, 31% { opacity: 0; transform: scale(.2); }
-      46% { opacity: .92; transform: scale(1.15); }
-      63% { opacity: .32; transform: scale(.78); }
-      75% { opacity: .86; transform: scale(1); }
-      92%, 100% { opacity: 0; transform: scale(.16); }
-    }
-    @keyframes gather {
-      0% { opacity: 0; transform: rotate(var(--angle)) translateX(var(--far)) scale(.35); }
-      9% { opacity: .7; transform: rotate(var(--angle)) translateX(var(--near)) scale(.78); }
-      18% { opacity: 1; transform: rotate(calc(var(--angle) + 42deg)) translateX(22px) scale(1); }
-      30% { opacity: .35; transform: rotate(calc(var(--angle) + 96deg)) translateX(120px) scale(.72); }
-      54% { opacity: .92; transform: rotate(calc(var(--angle) + 176deg)) translateX(var(--canopy)) scale(1); }
-      75% { opacity: .62; transform: rotate(calc(var(--angle) + 236deg)) translateX(var(--return)) scale(.82); }
-      91%, 100% { opacity: 0; transform: rotate(calc(var(--angle) + 360deg)) translateX(18px) scale(.28); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .aura, .quiet-star, .seed-glow, .seed-core, .ripple, .orbit, .tendril, .trunk, .branch, .vein, .leaf, .mist, .drop-line, .spark, .particle { animation: none; }
-      .aura { opacity: .65; transform: scale(.95); }
-      .seed-glow, .seed-core, .tendril, .trunk, .branch, .leaf, .mist, .spark { opacity: 1; stroke-dashoffset: 0; }
-      .orbit, .vein, .drop-line, .quiet-star { opacity: .45; stroke-dashoffset: 0; }
-      .particle, .ripple { opacity: .55; }
-    }
-  </style>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 416" role="img" aria-labelledby="title desc">
+  <title id="title">Digital Seed luminous growth loop</title>
+  <desc id="desc">An abstract looping visual where a seed of light gathers particles, sends energy downward, grows into luminous branches and a living canopy, then dissolves and regrows.</desc>
   <defs>
-    <radialGradient id="field" cx="50%" cy="36%" r="78%">
-      <stop offset="0%" stop-color="#173d39"/>
-      <stop offset="45%" stop-color="#0d1f24"/>
-      <stop offset="100%" stop-color="#07090f"/>
-    </radialGradient>
-    <radialGradient id="aura" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#d9fff2" stop-opacity=".5"/>
-      <stop offset="38%" stop-color="#79f5ca" stop-opacity=".24"/>
-      <stop offset="72%" stop-color="#3fa6ff" stop-opacity=".08"/>
-      <stop offset="100%" stop-color="#3fa6ff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="horizon" cx="50%" cy="0%" r="76%">
-      <stop offset="0%" stop-color="#19473f" stop-opacity=".75"/>
-      <stop offset="64%" stop-color="#0b1919" stop-opacity=".3"/>
-      <stop offset="100%" stop-color="#0b1919" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="seedGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#fff5bd" stop-opacity=".92"/>
-      <stop offset="46%" stop-color="#8fffe2" stop-opacity=".42"/>
-      <stop offset="100%" stop-color="#8fffe2" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="seedCore" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#fff3bb"/>
-      <stop offset="45%" stop-color="#e7ba65"/>
-      <stop offset="100%" stop-color="#6fd7bd"/>
-    </linearGradient>
-    <linearGradient id="rootLight" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#dffff6"/>
-      <stop offset="45%" stop-color="#72f0ca"/>
-      <stop offset="100%" stop-color="#4b5f79"/>
-    </linearGradient>
-    <linearGradient id="trunkLight" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0%" stop-color="#a6ffe7"/>
-      <stop offset="46%" stop-color="#f6d67d"/>
-      <stop offset="100%" stop-color="#faffd8"/>
-    </linearGradient>
-    <linearGradient id="branchLight" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#cffff0"/>
-      <stop offset="42%" stop-color="#80efc7"/>
-      <stop offset="100%" stop-color="#ffe7a3"/>
-    </linearGradient>
-    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#f3ffd4"/>
-      <stop offset="48%" stop-color="#8ff0b4"/>
-      <stop offset="100%" stop-color="#2f9f89"/>
-    </linearGradient>
-    <linearGradient id="leafAlt" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#e6fff8"/>
-      <stop offset="52%" stop-color="#73d8d5"/>
-      <stop offset="100%" stop-color="#3a79a5"/>
-    </linearGradient>
-    <linearGradient id="orbitStroke" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#fff0a8" stop-opacity="0"/>
-      <stop offset="45%" stop-color="#fff0a8" stop-opacity=".75"/>
-      <stop offset="100%" stop-color="#8ffff0" stop-opacity="0"/>
-    </linearGradient>
-    <linearGradient id="dropLine" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#bfeeff" stop-opacity="0"/>
-      <stop offset="45%" stop-color="#bfeeff" stop-opacity=".72"/>
-      <stop offset="100%" stop-color="#bfeeff" stop-opacity="0"/>
-    </linearGradient>
-    <radialGradient id="mist" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#ddfff4" stop-opacity=".48"/>
-      <stop offset="70%" stop-color="#8ffff0" stop-opacity=".12"/>
-      <stop offset="100%" stop-color="#8ffff0" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="softNoise" x="0" y="0" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="18"/>
-      <feColorMatrix type="saturate" values="0"/>
-      <feComponentTransfer>
-        <feFuncA type="table" tableValues="0 .08"/>
-      </feComponentTransfer>
-    </filter>
+    <radialGradient id="bg" cx="50%" cy="52%" r="78%"><stop offset="0%" stop-color="#102938"/><stop offset="48%" stop-color="#071525"/><stop offset="100%" stop-color="#030714"/></radialGradient>
+    <radialGradient id="seed"><stop offset="0%" stop-color="#f7fff7"/><stop offset="45%" stop-color="#ffd684"/><stop offset="100%" stop-color="#7fffd6" stop-opacity="0"/></radialGradient>
+    <linearGradient id="life" x1="0" x2="1" y1="1" y2="0"><stop stop-color="#50cdff"/><stop offset="0.45" stop-color="#80ffdd"/><stop offset="1" stop-color="#ffd684"/></linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <style>
+      *{transform-box:fill-box;transform-origin:center}.line{fill:none;stroke:url(#life);stroke-linecap:round;stroke-linejoin:round;filter:url(#glow);stroke-dasharray:900;animation:draw 8s cubic-bezier(.2,.75,.2,1) infinite}.root{stroke-width:3;opacity:.72;animation-delay:.8s}.trunk{stroke-width:11;animation-delay:1.8s}.branch{stroke-width:4;opacity:.82;animation-delay:3s}.seed{animation:seed 8s ease-in-out infinite}.orb{animation:orbit 8s ease-in-out infinite}.leaf{animation:leaf 8s ease-in-out infinite}@keyframes draw{0%,12%{stroke-dashoffset:900;opacity:0}45%,76%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-900;opacity:0}}@keyframes seed{0%,100%{transform:scale(.55);opacity:.9}18%{transform:scale(1.25);opacity:1}70%{transform:scale(.75);opacity:.55}86%{transform:scale(1.1);opacity:.95}}@keyframes orbit{0%{opacity:.1;transform:rotate(0deg) scale(.55)}40%,72%{opacity:.7;transform:rotate(170deg) scale(1)}100%{opacity:.1;transform:rotate(360deg) scale(.55)}}@keyframes leaf{0%,45%{opacity:0;transform:translateY(18px) scale(.5)}62%,78%{opacity:.8;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-26px) scale(.7)}}
+    </style>
   </defs>
-
-  <rect class="field" width="1200" height="520" rx="28"/>
-  <rect class="grain" width="1200" height="520" rx="28" filter="url(#softNoise)"/>
-  <path class="horizon" d="M75 408c153-38 314-43 486-19 211 30 381 8 564-47v178H75z"/>
-  <circle class="aura" cx="600" cy="280" r="248"/>
-
-  <circle class="quiet-star" cx="184" cy="94" r="2.4"/>
-  <circle class="quiet-star d2" cx="284" cy="58" r="1.8"/>
-  <circle class="quiet-star d4" cx="940" cy="84" r="2.8"/>
-  <circle class="quiet-star d5" cx="1045" cy="170" r="1.9"/>
-  <circle class="quiet-star d3" cx="855" cy="52" r="1.5"/>
-  <circle class="quiet-star d1" cx="386" cy="132" r="1.7"/>
-
-  <path class="drop-line" d="M456 102c35 74 71 142 112 214"/>
-  <path class="drop-line d3" d="M746 72c-37 85-80 161-130 228"/>
-  <path class="drop-line d5" d="M644 38c-12 83-18 163-19 240"/>
-
-  <circle class="seed-glow" cx="600" cy="392" r="74"/>
-  <circle class="ripple" cx="600" cy="392" r="22"/>
-  <ellipse class="seed-core" cx="600" cy="392" rx="21" ry="14"/>
-
-  <ellipse class="orbit" cx="600" cy="292" rx="254" ry="142"/>
-  <ellipse class="orbit d4" cx="600" cy="292" rx="188" ry="98" transform="rotate(-17 600 292)"/>
-
-  <g>
-    <path class="tendril" d="M600 391c-48 24-81 55-112 102M599 393c21 33 58 64 117 92M599 393c-15 37-18 72-10 111"/>
-    <path class="tendril fine d2" d="M560 439c-49 8-92 1-132-20M647 438c45 13 91 8 139-15M521 471c-28 4-51 16-69 37M682 462c25 10 49 25 72 46"/>
-    <path class="tendril fine d5" d="M589 472c-17 8-35 22-54 41M635 469c22 7 43 18 63 36"/>
+  <rect width="960" height="416" fill="url(#bg)"/>
+  <g opacity=".34"><circle cx="205" cy="64" r="1.2" fill="#effdf8"/><circle cx="735" cy="82" r="1" fill="#effdf8"/><circle cx="820" cy="244" r="1.4" fill="#effdf8"/><circle cx="124" cy="232" r="1" fill="#effdf8"/></g>
+  <ellipse class="orb" cx="480" cy="206" rx="265" ry="88" fill="none" stroke="#80ffdd" stroke-opacity=".4" stroke-dasharray="2 18"/>
+  <ellipse class="orb" cx="480" cy="206" rx="210" ry="116" fill="none" stroke="#ffd684" stroke-opacity=".25" stroke-dasharray="3 22" style="animation-delay:.7s"/>
+  <path class="line root" d="M480 292 C430 325 395 370 338 397 M480 292 C470 336 472 371 452 407 M480 292 C532 327 579 375 642 403 M480 292 C555 318 657 338 760 390"/>
+  <path class="line trunk" d="M480 292 C428 247 455 202 542 147 C583 119 593 82 612 42 M480 292 C535 251 555 197 536 139"/>
+  <path class="line branch" d="M540 169 C455 137 390 100 322 62 M555 143 C608 96 661 59 727 40 M522 198 C440 202 380 219 304 247 M565 190 C641 163 728 134 852 105 M548 130 C526 87 510 57 492 34"/>
+  <g filter="url(#glow)">
+    <circle class="leaf" cx="520.0" cy="122.0" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.70s"/>
+    <circle class="leaf" cx="423.3" cy="145.4" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.77s"/>
+    <circle class="leaf" cx="489.7" cy="70.9" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.84s"/>
+    <circle class="leaf" cx="572.2" cy="175.8" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.91s"/>
+    <circle class="leaf" cx="294.7" cy="107.6" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.98s"/>
+    <circle class="leaf" cx="669.3" cy="67.2" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.05s"/>
+    <circle class="leaf" cx="413.4" cy="236.0" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.12s"/>
+    <circle class="leaf" cx="457.1" cy="102.5" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.19s"/>
+    <circle class="leaf" cx="561.0" cy="135.0" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.26s"/>
+    <circle class="leaf" cx="366.7" cy="143.6" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.33s"/>
+    <circle class="leaf" cx="546.4" cy="56.5" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.40s"/>
+    <circle class="leaf" cx="540.9" cy="206.3" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.47s"/>
+    <circle class="leaf" cx="276.2" cy="70.3" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.54s"/>
+    <circle class="leaf" cx="743.9" cy="94.3" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.61s"/>
+    <circle class="leaf" cx="447.3" cy="143.6" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.68s"/>
+    <circle class="leaf" cx="466.4" cy="79.7" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.75s"/>
+    <circle class="leaf" cx="582.2" cy="159.6" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.82s"/>
+    <circle class="leaf" cx="311.3" cy="126.4" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.89s"/>
+    <circle class="leaf" cx="623.5" cy="55.5" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.96s"/>
+    <circle class="leaf" cx="473.2" cy="231.3" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.70s"/>
+    <circle class="leaf" cx="296.5" cy="26.8" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.77s"/>
+    <circle class="leaf" cx="546.6" cy="125.4" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.84s"/>
+    <circle class="leaf" cx="395.9" cy="149.5" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.91s"/>
+    <circle class="leaf" cx="507.9" cy="59.8" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.98s"/>
+    <circle class="leaf" cx="572.0" cy="190.6" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.05s"/>
+    <circle class="leaf" cx="273.7" cy="94.8" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.12s"/>
+    <circle class="leaf" cx="706.0" cy="71.9" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.19s"/>
+    <circle class="leaf" cx="375.4" cy="243.2" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.26s"/>
+    <circle class="leaf" cx="452.4" cy="90.1" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.33s"/>
+    <circle class="leaf" cx="581.5" cy="144.4" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.40s"/>
+    <circle class="leaf" cx="336.1" cy="141.1" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.47s"/>
+    <circle class="leaf" cx="576.4" cy="49.9" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.54s"/>
+    <circle class="leaf" cx="524.7" cy="220.8" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.61s"/>
+    <circle class="leaf" cx="268.7" cy="53.1" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.68s"/>
+    <circle class="leaf" cx="527.7" cy="119.5" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.75s"/>
+    <circle class="leaf" cx="424.4" cy="150.9" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.82s"/>
+    <circle class="leaf" cx="476.4" cy="67.1" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.89s"/>
+    <circle class="leaf" cx="591.0" cy="173.2" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.96s"/>
+    <circle class="leaf" cx="284.3" cy="117.1" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.70s"/>
+    <circle class="leaf" cx="660.2" cy="55.5" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.77s"/>
+    <circle class="leaf" cx="441.9" cy="242.3" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.84s"/>
+    <circle class="leaf" cx="447.8" cy="100.8" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.91s"/>
+    <circle class="leaf" cx="571.6" cy="131.5" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.98s"/>
+    <circle class="leaf" cx="366.0" cy="151.1" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.05s"/>
+    <circle class="leaf" cx="531.7" cy="50.1" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.12s"/>
+    <circle class="leaf" cx="565.4" cy="205.9" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.19s"/>
+    <circle class="leaf" cx="256.9" cy="79.8" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.26s"/>
+    <circle class="leaf" cx="742.6" cy="79.6" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.33s"/>
+    <circle class="leaf" cx="449.3" cy="148.3" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.40s"/>
+    <circle class="leaf" cx="453.6" cy="77.2" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.47s"/>
+    <circle class="leaf" cx="597.9" cy="156.0" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.54s"/>
+    <circle class="leaf" cx="305.6" cy="135.7" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.61s"/>
+    <circle class="leaf" cx="610.4" cy="45.6" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.68s"/>
+    <circle class="leaf" cx="501.9" cy="234.5" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.75s"/>
+    <circle class="leaf" cx="267.5" cy="34.5" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.82s"/>
+    <circle class="leaf" cx="555.0" cy="121.9" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.89s"/>
+    <circle class="leaf" cx="397.6" cy="156.2" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.96s"/>
+    <circle class="leaf" cx="492.5" cy="55.2" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.70s"/>
+    <circle class="leaf" cx="593.9" cy="188.2" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.77s"/>
+    <circle class="leaf" cx="260.2" cy="105.1" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.84s"/>
+    <circle class="leaf" cx="698.4" cy="58.5" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.91s"/>
+    <circle class="leaf" cx="468.1" cy="142.5" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:2.98s"/>
+    <circle class="leaf" cx="440.6" cy="88.6" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.05s"/>
+    <circle class="leaf" cx="594.1" cy="140.2" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.12s"/>
+    <circle class="leaf" cx="334.6" cy="149.8" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.19s"/>
+    <circle class="leaf" cx="560.6" cy="42.1" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.26s"/>
+    <circle class="leaf" cx="552.2" cy="221.2" r="4.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.33s"/>
+    <circle class="leaf" cx="245.5" cy="62.7" r="5.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.40s"/>
+    <circle class="leaf" cx="534.5" cy="116.2" r="2.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.47s"/>
+    <circle class="leaf" cx="427.7" cy="156.6" r="3.0" fill="#80ffdd" opacity=".72" style="animation-delay:3.54s"/>
   </g>
-
-  <g>
-    <path class="trunk" d="M600 392c-7-52 4-93 30-137 22-38 27-84 4-137"/>
-    <path class="trunk inner d2" d="M604 383c15-53 11-88 32-124 20-35 22-73 2-118"/>
-    <path class="branch" d="M624 264c-65-37-128-47-206-28M632 238c60-47 128-66 214-57M630 199c-39-51-89-84-159-101M641 177c50-56 112-90 197-102"/>
-    <path class="branch slim d2" d="M500 229c-39-16-78-17-120-3M748 194c35-24 73-33 116-27M522 114c-24-30-55-51-94-63M740 107c26-31 58-52 98-64"/>
-    <path class="branch slim d5" d="M622 151c-2-47-21-85-58-117M656 154c21-36 49-63 84-83"/>
-    <path class="vein" d="M464 236c22-5 41-6 58-3M785 189c-21 1-42 5-63 13M491 101c18 11 33 26 44 44M786 83c-18 15-34 33-47 55"/>
-  </g>
-
-  <g>
-    <ellipse class="mist" cx="598" cy="165" rx="250" ry="134"/>
-    <ellipse class="leaf" cx="420" cy="235" rx="38" ry="12" transform="rotate(-13 420 235)"/>
-    <ellipse class="leaf alt d1" cx="478" cy="99" rx="40" ry="13" transform="rotate(29 478 99)"/>
-    <ellipse class="leaf d2" cx="823" cy="181" rx="43" ry="13" transform="rotate(-20 823 181)"/>
-    <ellipse class="leaf alt d3" cx="821" cy="78" rx="36" ry="12" transform="rotate(21 821 78)"/>
-    <ellipse class="leaf d4" cx="563" cy="36" rx="34" ry="11" transform="rotate(-31 563 36)"/>
-    <ellipse class="leaf alt d5" cx="383" cy="226" rx="28" ry="10" transform="rotate(10 383 226)"/>
-    <ellipse class="leaf d6" cx="862" cy="165" rx="27" ry="10" transform="rotate(17 862 165)"/>
-    <ellipse class="leaf alt d2" cx="734" cy="113" rx="32" ry="10" transform="rotate(-14 734 113)"/>
-    <ellipse class="leaf d4" cx="430" cy="58" rx="27" ry="9" transform="rotate(26 430 58)"/>
-    <ellipse class="leaf alt d5" cx="720" cy="62" rx="25" ry="9" transform="rotate(-24 720 62)"/>
-  </g>
-
-  <g>
-    <circle class="spark" cx="455" cy="183" r="4.5"/>
-    <circle class="spark cool d1" cx="526" cy="70" r="3.8"/>
-    <circle class="spark d2" cx="708" cy="72" r="4.5"/>
-    <circle class="spark cool d3" cx="843" cy="145" r="3.6"/>
-    <circle class="spark d4" cx="638" cy="45" r="3.5"/>
-    <circle class="spark cool d5" cx="606" cy="188" r="3"/>
-    <circle class="spark d6" cx="760" cy="232" r="3.8"/>
-  </g>
-
-  <g>
-    <circle class="particle" style="--angle: -154deg; --far: 344px; --near: 82px; --canopy: 242px; --return: 174px;" cx="600" cy="392" r="3.5"/>
-    <circle class="particle p2" style="--angle: -118deg; --far: 286px; --near: 64px; --canopy: 190px; --return: 137px;" cx="600" cy="392" r="2.8"/>
-    <circle class="particle p3" style="--angle: -82deg; --far: 360px; --near: 78px; --canopy: 256px; --return: 184px;" cx="600" cy="392" r="3.2"/>
-    <circle class="particle p4" style="--angle: -46deg; --far: 314px; --near: 72px; --canopy: 226px; --return: 163px;" cx="600" cy="392" r="2.6"/>
-    <circle class="particle p5" style="--angle: 18deg; --far: 280px; --near: 58px; --canopy: 174px; --return: 125px;" cx="600" cy="392" r="3"/>
-    <circle class="particle p6" style="--angle: 58deg; --far: 338px; --near: 76px; --canopy: 234px; --return: 168px;" cx="600" cy="392" r="2.7"/>
-    <circle class="particle p7" style="--angle: 116deg; --far: 292px; --near: 68px; --canopy: 204px; --return: 147px;" cx="600" cy="392" r="3.3"/>
-    <circle class="particle p8" style="--angle: 164deg; --far: 330px; --near: 74px; --canopy: 218px; --return: 157px;" cx="600" cy="392" r="2.9"/>
-  </g>
+  <circle class="seed" cx="480" cy="292" r="44" fill="url(#seed)" filter="url(#glow)"/>
+  <circle class="seed" cx="480" cy="292" r="11" fill="#fff8dc"/>
 </svg>

@@ -1,6 +1,8 @@
 # First 15 Minutes
 
-![Digital Seed growing into a personal AI tree](assets/seed-tree-magic.svg)
+![Abstract loop of a light seed growing into a luminous personal AI tree](assets/digital-seed-growth.gif)
+
+Fallback visual assets: [MP4](assets/digital-seed-growth.mp4), [WebM](assets/digital-seed-growth.webm), [SVG](assets/seed-tree-magic.svg), [still PNG](assets/digital-seed-growth-still.png).
 
 This is the smallest useful Digital Seed path. Do this before adding dashboards, databases, automations, or always-on agents.
 

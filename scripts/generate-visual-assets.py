@@ -1,0 +1,371 @@
+#!/usr/bin/env python3
+"""Generate Digital Seed premium visual assets.
+
+Creates a smooth loop: seed/light gathers -> roots flow downward -> trunk/branches/canopy emerge -> dissolve/reset.
+No text is embedded in any visual artifact.
+"""
+
+from __future__ import annotations
+
+import math
+import os
+import random
+import shutil
+import subprocess
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFilter
+
+ROOT = Path(__file__).resolve().parents[1]
+ASSETS = ROOT / "docs" / "assets"
+FRAMES = ROOT / "tmp" / "visual-frames"
+W, H = 960, 416
+FPS = 18
+N = 126
+DURATION = N / FPS
+
+BG_TOP = (5, 9, 22)
+BG_BOTTOM = (3, 20, 24)
+MINT = (128, 255, 221)
+GOLD = (255, 214, 132)
+AQUA = (80, 205, 255)
+VIOLET = (159, 137, 255)
+WHITE = (235, 255, 247)
+
+random.seed(42)
+
+
+def clamp(x: float, a=0.0, b=1.0) -> float:
+    return max(a, min(b, x))
+
+
+def smoothstep(edge0: float, edge1: float, x: float) -> float:
+    x = clamp((x - edge0) / (edge1 - edge0))
+    return x * x * (3 - 2 * x)
+
+
+def bell(t: float, center: float, width: float) -> float:
+    return math.exp(-((t - center) ** 2) / (2 * width * width))
+
+
+def ease(t: float) -> float:
+    return t * t * (3 - 2 * t)
+
+
+def rgba(rgb, a):
+    return (*rgb, int(clamp(a) * 255))
+
+
+def composite_glow(base: Image.Image, xy: tuple[float, float], color, radius: float, alpha: float):
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    x, y = xy
+    r = radius
+    d.ellipse((x - r, y - r, x + r, y + r), fill=rgba(color, alpha))
+    layer = layer.filter(ImageFilter.GaussianBlur(radius=r * 0.55))
+    base.alpha_composite(layer)
+
+
+def draw_line_glow(base, pts, color, width, alpha, blur=6):
+    if len(pts) < 2 or alpha <= 0:
+        return
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    gd.line(pts, fill=rgba(color, alpha * 0.45), width=max(1, int(width * 2.8)), joint="curve")
+    glow = glow.filter(ImageFilter.GaussianBlur(blur))
+    base.alpha_composite(glow)
+    d = ImageDraw.Draw(base)
+    d.line(pts, fill=rgba(color, alpha), width=max(1, int(width)), joint="curve")
+
+
+def quadratic(p0, p1, p2, u):
+    return (
+        (1 - u) ** 2 * p0[0] + 2 * (1 - u) * u * p1[0] + u * u * p2[0],
+        (1 - u) ** 2 * p0[1] + 2 * (1 - u) * u * p1[1] + u * u * p2[1],
+    )
+
+
+def cubic(p0, p1, p2, p3, u):
+    return (
+        (1 - u) ** 3 * p0[0] + 3 * (1 - u) ** 2 * u * p1[0] + 3 * (1 - u) * u * u * p2[0] + u ** 3 * p3[0],
+        (1 - u) ** 3 * p0[1] + 3 * (1 - u) ** 2 * u * p1[1] + 3 * (1 - u) * u * u * p2[1] + u ** 3 * p3[1],
+    )
+
+
+def path_points(points, progress):
+    # points are Bezier samples already; reveal partial polyline
+    progress = clamp(progress)
+    keep = max(2, int(2 + (len(points) - 2) * progress))
+    return points[:keep]
+
+
+stars = [(random.randrange(40, W - 40), random.randrange(24, H - 70), random.random()) for _ in range(140)]
+particles = []
+for i in range(92):
+    ang = random.random() * math.tau
+    rad = random.uniform(52, 245)
+    z = random.random()
+    particles.append((ang, rad, z, random.uniform(-0.35, 0.35)))
+
+root_paths = []
+for xend in [376, 438, 488, 530, 430, 572, 626, 684, 738, 794]:
+    p0 = (W / 2, 292)
+    p1 = ((W / 2 + xend) / 2 + random.uniform(-35, 35), random.uniform(322, 380))
+    p2 = (xend, random.uniform(366, 407))
+    root_paths.append([quadratic(p0, p1, p2, u / 42) for u in range(43)])
+
+branch_paths = []
+branch_specs = [
+    ((484, 246), (407, 202), (354, 158), (270, 118)),
+    ((500, 218), (430, 165), (389, 110), (320, 72)),
+    ((525, 184), (474, 129), (445, 82), (404, 40)),
+    ((556, 154), (540, 104), (515, 76), (500, 35)),
+    ((592, 151), (625, 96), (659, 58), (716, 36)),
+    ((625, 177), (689, 118), (746, 83), (833, 66)),
+    ((652, 217), (723, 170), (792, 139), (887, 114)),
+    ((632, 252), (710, 228), (796, 216), (875, 199)),
+    ((529, 246), (461, 227), (405, 224), (335, 205)),
+]
+for spec in branch_specs:
+    branch_paths.append([cubic(*spec, u / 48) for u in range(49)])
+
+# Secondary branchlets make the image read as a living tree rather than a radial data diagram.
+branchlet_paths = []
+for base in branch_paths:
+    for j in range(2):
+        anchor = base[18 + j * 11]
+        direction = -1 if anchor[0] < W / 2 else 1
+        out = (
+            anchor[0] + direction * random.uniform(38, 98),
+            anchor[1] - random.uniform(14, 58),
+        )
+        ctrl = (
+            (anchor[0] + out[0]) / 2 + direction * random.uniform(8, 28),
+            (anchor[1] + out[1]) / 2 - random.uniform(18, 42),
+        )
+        branchlet_paths.append([quadratic(anchor, ctrl, out, u / 24) for u in range(25)])
+
+canopy_nodes = []
+for i in range(240):
+    # elliptical canopy with hollow-ish center
+    theta = random.random() * math.tau
+    rr = math.sqrt(random.random())
+    x = W / 2 + math.cos(theta) * rr * random.uniform(105, 325)
+    y = 126 + math.sin(theta) * rr * random.uniform(38, 112)
+    if 235 < x < 810 and 28 < y < 245:
+        canopy_nodes.append((x, y, random.uniform(1.2, 4.4), random.random()))
+
+
+def make_background() -> Image.Image:
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 255))
+    pix = img.load()
+    for y in range(H):
+        yy = y / (H - 1)
+        for x in range(W):
+            # vertical + radial depth
+            rx = (x - W / 2) / W
+            ry = (y - H * 0.55) / H
+            vignette = clamp(1 - 1.7 * math.sqrt(rx * rx + ry * ry))
+            c = tuple(int(BG_TOP[i] * (1 - yy) + BG_BOTTOM[i] * yy + vignette * (10 if i != 0 else 2)) for i in range(3))
+            pix[x, y] = (*c, 255)
+    return img
+
+
+BG_CACHE = make_background()
+
+
+def background() -> Image.Image:
+    return BG_CACHE.copy()
+
+
+def render_frame(i: int) -> Image.Image:
+    phase = i / N
+    # loop time with dissolve in final fifth
+    grow = smoothstep(0.07, 0.72, phase) * (1 - smoothstep(0.83, 0.99, phase))
+    seed_energy = 0.55 + 0.45 * bell(phase, 0.12, 0.12) + 0.25 * bell(phase, 0.91, 0.06)
+    root_p = smoothstep(0.15, 0.42, phase) * (1 - smoothstep(0.84, 0.98, phase))
+    trunk_p = smoothstep(0.30, 0.58, phase) * (1 - smoothstep(0.83, 0.98, phase))
+    branch_p = smoothstep(0.45, 0.74, phase) * (1 - smoothstep(0.83, 0.98, phase))
+    canopy_p = smoothstep(0.56, 0.80, phase) * (1 - smoothstep(0.82, 0.98, phase))
+    dissolve = smoothstep(0.80, 0.98, phase)
+
+    img = background()
+    d = ImageDraw.Draw(img)
+
+    # stars / space dust
+    for sx, sy, z in stars:
+        tw = 0.35 + 0.65 * math.sin(math.tau * (phase + z)) ** 2
+        a = 0.08 + 0.20 * tw * (1 - 0.5 * grow)
+        r = 0.6 + z * 1.2
+        d.ellipse((sx - r, sy - r, sx + r, sy + r), fill=rgba(WHITE, a))
+
+    cx, seed_y = W / 2, 292
+    composite_glow(img, (cx, seed_y), AQUA, 230, 0.09 + 0.15 * grow)
+    composite_glow(img, (cx, seed_y), VIOLET, 170, 0.06 + 0.08 * canopy_p)
+    composite_glow(img, (cx, seed_y), GOLD, 58, 0.62 * seed_energy)
+    composite_glow(img, (cx, seed_y), MINT, 86, 0.34 * seed_energy)
+
+    # water-like horizon ripple
+    for k in range(4):
+        rp = (phase * 1.45 + k * 0.22) % 1
+        a = (1 - rp) * 0.15 * (0.5 + root_p)
+        rx = 70 + rp * 310
+        ry = 10 + rp * 32
+        d.ellipse((cx - rx, seed_y - ry, cx + rx, seed_y + ry), outline=rgba(MINT, a), width=1)
+
+    # orbiting particles / continuity of care
+    for ang, rad, z, tilt in particles:
+        local = phase * (0.30 + z * 0.25) + z
+        gather = 1 - smoothstep(0.02, 0.26, phase)
+        rr = rad * (0.22 + 0.78 * (1 - gather))
+        x = cx + math.cos(ang + local * math.tau) * rr
+        y = 198 + math.sin(ang + local * math.tau) * rr * (0.38 + tilt)
+        # dissolve drift upward
+        y -= dissolve * (40 + 80 * z)
+        a = (0.18 + 0.42 * z) * (0.35 + 0.65 * math.sin(local * math.tau) ** 2) * (1 - 0.72 * dissolve)
+        r = 1.0 + 2.2 * z
+        color = MINT if z > 0.35 else GOLD
+        d.ellipse((x - r, y - r, x + r, y + r), fill=rgba(color, a))
+
+    # roots
+    for idx, pts in enumerate(root_paths):
+        p = clamp(root_p - idx * 0.025)
+        alpha = (0.45 + 0.3 * math.sin(idx)) * p * (1 - 0.75 * dissolve)
+        draw_line_glow(img, path_points(pts, p), MINT if idx % 2 else AQUA, 2.0 if idx % 3 else 3.4, alpha, 7)
+
+    # trunk as layered luminous curves
+    trunk_main = [cubic((cx, seed_y), (490, 258), (532, 196), (552, 146), u / 64) for u in range(65)]
+    trunk_right = [cubic((cx, seed_y), (591, 252), (608, 196), (590, 143), u / 64) for u in range(65)]
+    trunk_mid = [cubic((cx, seed_y), (536, 246), (565, 188), (570, 122), u / 64) for u in range(65)]
+    for pts, color, width, off in [(trunk_main, MINT, 10, 0), (trunk_right, AQUA, 8, 0.03), (trunk_mid, GOLD, 4, 0.08)]:
+        p = clamp(trunk_p - off)
+        draw_line_glow(img, path_points(pts, p), color, width, 0.75 * p * (1 - 0.8 * dissolve), 12)
+
+    # branches
+    for idx, pts in enumerate(branch_paths):
+        p = clamp(branch_p - idx * 0.018)
+        col = MINT if idx % 3 else GOLD
+        draw_line_glow(img, path_points(pts, p), col, 2.2 + (idx % 2) * 1.4, 0.62 * p * (1 - 0.88 * dissolve), 8)
+
+    for idx, pts in enumerate(branchlet_paths):
+        p = clamp(branch_p - 0.12 - idx * 0.006)
+        col = MINT if idx % 4 else AQUA
+        draw_line_glow(img, path_points(pts, p), col, 1.2 + (idx % 3) * 0.35, 0.42 * p * (1 - 0.9 * dissolve), 5)
+
+    if canopy_p > 0:
+        canopy_glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        cd = ImageDraw.Draw(canopy_glow)
+        cd.ellipse((260, 28, 805, 244), fill=rgba(MINT, 0.10 * canopy_p * (1 - dissolve)))
+        cd.ellipse((333, 18, 742, 196), fill=rgba(GOLD, 0.055 * canopy_p * (1 - dissolve)))
+        canopy_glow = canopy_glow.filter(ImageFilter.GaussianBlur(34))
+        img.alpha_composite(canopy_glow)
+
+    # canopy luminous living particles
+    for x, y, r, z in canopy_nodes:
+        birth = clamp(canopy_p - z * 0.24)
+        if birth <= 0:
+            continue
+        pulse = 0.65 + 0.35 * math.sin(math.tau * (phase * 0.9 + z))
+        dx = math.sin(math.tau * (phase * 0.23 + z)) * 4
+        dy = math.cos(math.tau * (phase * 0.19 + z)) * 3 - dissolve * (16 + z * 45)
+        a = birth * pulse * (1 - 0.85 * dissolve)
+        col = MINT if z > 0.32 else (GOLD if z > 0.16 else AQUA)
+        d.ellipse((x + dx - r, y + dy - r, x + dx + r, y + dy + r), fill=rgba(col, 0.26 * a))
+        if z > 0.55:
+            composite_glow(img, (x + dx, y + dy), col, r * 6.5, 0.055 * a)
+
+    # seed core last, breathing and reset
+    seed_r = 8 + 8 * seed_energy + 3 * math.sin(math.tau * phase * 2)
+    d.ellipse((cx - seed_r, seed_y - seed_r, cx + seed_r, seed_y + seed_r), fill=rgba(GOLD, 0.92 * (1 - 0.55 * trunk_p + 0.45 * dissolve)))
+    d.ellipse((cx - seed_r * 0.45, seed_y - seed_r * 0.45, cx + seed_r * 0.45, seed_y + seed_r * 0.45), fill=rgba(WHITE, 0.76))
+
+    # premium vignette
+    vignette = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    vd = ImageDraw.Draw(vignette)
+    vd.rectangle((0, 0, W, H), fill=(0, 0, 0, 0))
+    edge = Image.new("L", (W, H), 0)
+    ed = ImageDraw.Draw(edge)
+    ed.ellipse((-120, -120, W + 120, H + 120), fill=255)
+    edge = Image.eval(edge.filter(ImageFilter.GaussianBlur(60)), lambda p: 255 - p)
+    vignette.putalpha(edge.point(lambda p: int(p * 0.48)))
+    img.alpha_composite(vignette)
+    return img.convert("RGB")
+
+
+def write_svg():
+    svg = """<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 960 416\" role=\"img\" aria-labelledby=\"title desc\">
+  <title id=\"title\">Digital Seed luminous growth loop</title>
+  <desc id=\"desc\">An abstract looping visual where a seed of light gathers particles, sends energy downward, grows into luminous branches and a living canopy, then dissolves and regrows.</desc>
+  <defs>
+    <radialGradient id=\"bg\" cx=\"50%\" cy=\"52%\" r=\"78%\"><stop offset=\"0%\" stop-color=\"#102938\"/><stop offset=\"48%\" stop-color=\"#071525\"/><stop offset=\"100%\" stop-color=\"#030714\"/></radialGradient>
+    <radialGradient id=\"seed\"><stop offset=\"0%\" stop-color=\"#f7fff7\"/><stop offset=\"45%\" stop-color=\"#ffd684\"/><stop offset=\"100%\" stop-color=\"#7fffd6\" stop-opacity=\"0\"/></radialGradient>
+    <linearGradient id=\"life\" x1=\"0\" x2=\"1\" y1=\"1\" y2=\"0\"><stop stop-color=\"#50cdff\"/><stop offset=\"0.45\" stop-color=\"#80ffdd\"/><stop offset=\"1\" stop-color=\"#ffd684\"/></linearGradient>
+    <filter id=\"glow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\"><feGaussianBlur stdDeviation=\"7\" result=\"b\"/><feMerge><feMergeNode in=\"b\"/><feMergeNode in=\"SourceGraphic\"/></feMerge></filter>
+    <style>
+      *{transform-box:fill-box;transform-origin:center}.line{fill:none;stroke:url(#life);stroke-linecap:round;stroke-linejoin:round;filter:url(#glow);stroke-dasharray:900;animation:draw 8s cubic-bezier(.2,.75,.2,1) infinite}.root{stroke-width:3;opacity:.72;animation-delay:.8s}.trunk{stroke-width:11;animation-delay:1.8s}.branch{stroke-width:4;opacity:.82;animation-delay:3s}.seed{animation:seed 8s ease-in-out infinite}.orb{animation:orbit 8s ease-in-out infinite}.leaf{animation:leaf 8s ease-in-out infinite}@keyframes draw{0%,12%{stroke-dashoffset:900;opacity:0}45%,76%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-900;opacity:0}}@keyframes seed{0%,100%{transform:scale(.55);opacity:.9}18%{transform:scale(1.25);opacity:1}70%{transform:scale(.75);opacity:.55}86%{transform:scale(1.1);opacity:.95}}@keyframes orbit{0%{opacity:.1;transform:rotate(0deg) scale(.55)}40%,72%{opacity:.7;transform:rotate(170deg) scale(1)}100%{opacity:.1;transform:rotate(360deg) scale(.55)}}@keyframes leaf{0%,45%{opacity:0;transform:translateY(18px) scale(.5)}62%,78%{opacity:.8;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-26px) scale(.7)}}
+    </style>
+  </defs>
+  <rect width=\"960\" height=\"416\" fill=\"url(#bg)\"/>
+  <g opacity=\".34\"><circle cx=\"205\" cy=\"64\" r=\"1.2\" fill=\"#effdf8\"/><circle cx=\"735\" cy=\"82\" r=\"1\" fill=\"#effdf8\"/><circle cx=\"820\" cy=\"244\" r=\"1.4\" fill=\"#effdf8\"/><circle cx=\"124\" cy=\"232\" r=\"1\" fill=\"#effdf8\"/></g>
+  <ellipse class=\"orb\" cx=\"480\" cy=\"206\" rx=\"265\" ry=\"88\" fill=\"none\" stroke=\"#80ffdd\" stroke-opacity=\".4\" stroke-dasharray=\"2 18\"/>
+  <ellipse class=\"orb\" cx=\"480\" cy=\"206\" rx=\"210\" ry=\"116\" fill=\"none\" stroke=\"#ffd684\" stroke-opacity=\".25\" stroke-dasharray=\"3 22\" style=\"animation-delay:.7s\"/>
+  <path class=\"line root\" d=\"M480 292 C430 325 395 370 338 397 M480 292 C470 336 472 371 452 407 M480 292 C532 327 579 375 642 403 M480 292 C555 318 657 338 760 390\"/>
+  <path class=\"line trunk\" d=\"M480 292 C428 247 455 202 542 147 C583 119 593 82 612 42 M480 292 C535 251 555 197 536 139\"/>
+  <path class=\"line branch\" d=\"M540 169 C455 137 390 100 322 62 M555 143 C608 96 661 59 727 40 M522 198 C440 202 380 219 304 247 M565 190 C641 163 728 134 852 105 M548 130 C526 87 510 57 492 34\"/>
+  <g filter=\"url(#glow)\">"""
+    leaves = [(480 + math.cos(a) * r, 122 + math.sin(a) * r * 0.45, 2 + (idx % 4)) for idx, (a, r) in enumerate(( (i*2.399, 40 + (i*37)%250) for i in range(70) ))]
+    for idx, (x, y, r) in enumerate(leaves):
+        svg += f'\n    <circle class="leaf" cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="#80ffdd" opacity=".72" style="animation-delay:{2.7 + (idx%19)*0.07:.2f}s"/>'
+    svg += """
+  </g>
+  <circle class=\"seed\" cx=\"480\" cy=\"292\" r=\"44\" fill=\"url(#seed)\" filter=\"url(#glow)\"/>
+  <circle class=\"seed\" cx=\"480\" cy=\"292\" r=\"11\" fill=\"#fff8dc\"/>
+</svg>
+"""
+    (ASSETS / "seed-tree-magic.svg").write_text(svg)
+
+
+def run(cmd):
+    print("$", " ".join(cmd))
+    subprocess.run(cmd, check=True, cwd=ROOT)
+
+
+def main():
+    ASSETS.mkdir(parents=True, exist_ok=True)
+    if FRAMES.exists():
+        shutil.rmtree(FRAMES)
+    FRAMES.mkdir(parents=True)
+
+    for i in range(N):
+        frame = render_frame(i)
+        frame.save(FRAMES / f"frame-{i:04d}.png", optimize=True)
+
+    # Still fallback at peak growth
+    render_frame(int(N * 0.68)).save(ASSETS / "digital-seed-growth-still.png", optimize=True)
+
+    # Animated GIF preview for GitHub/docs. Keep it intentionally smaller than the video assets.
+    gif_frames = [
+        Image.open(FRAMES / f"frame-{i:04d}.png")
+        .resize((640, 277), Image.Resampling.LANCZOS)
+        .quantize(colors=128, method=Image.Quantize.MEDIANCUT)
+        for i in range(0, N, 2)
+    ]
+    gif_frames[0].save(
+        ASSETS / "digital-seed-growth.gif",
+        save_all=True,
+        append_images=gif_frames[1:],
+        duration=int(1000 / FPS) * 2,
+        loop=0,
+        optimize=True,
+    )
+
+    if shutil.which("ffmpeg"):
+        run(["ffmpeg", "-y", "-framerate", str(FPS), "-i", str(FRAMES / "frame-%04d.png"), "-vf", "format=yuv420p", "-movflags", "+faststart", "-crf", "19", "-pix_fmt", "yuv420p", str(ASSETS / "digital-seed-growth.mp4")])
+        run(["ffmpeg", "-y", "-framerate", str(FPS), "-i", str(FRAMES / "frame-%04d.png"), "-c:v", "libvpx-vp9", "-crf", "34", "-b:v", "0", "-pix_fmt", "yuva420p", str(ASSETS / "digital-seed-growth.webm")])
+
+    write_svg()
+    print("Generated Digital Seed visual assets in", ASSETS)
+
+
+if __name__ == "__main__":
+    main()
