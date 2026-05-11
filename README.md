@@ -89,16 +89,19 @@ Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
 
 ## Useful commands
 
+The beginner surface is intentionally short. Everything else is optional, advanced, or maintainer-only — run `bun run seed help` to see the full taxonomy.
+
 ```bash
 bun run seed onboard          # First 15-minute path (--plain for no animation)
 bun run seed doctor           # Check local setup health
 bun run seed first-prompt     # Print the first agent prompt
 bun run seed privacy-scan     # Check for common private leftovers
-bun run seed visual-qa        # Verify the hero GIF still loops cleanly
 bun run seed index <folder>   # Build a local retrieval index
 bun run seed search "query"   # Search local indexed notes/docs
 bun run seed recipe list      # Show integration recipes
 ```
+
+Day one stops here. Scheduler, digest, repo learning, web/drive tooling, Excel/deck generation, marketplace, and release commands are deliberately not in this list — they live under `bun run seed help` once the local loop is useful.
 
 ## Guides
 

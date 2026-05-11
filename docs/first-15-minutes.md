@@ -88,6 +88,6 @@ This creates `user/FIRST-WIN.md` (only if missing — pass `--force` to overwrit
 
 ## Stop there
 
-Do not add dashboards, messaging bots, email automations, cloud databases, or multi-agent routing until the local workflow is already useful.
+Do not add dashboards, messaging bots, email automations, cloud databases, scheduler/digest tasks, repo-bot learning, Excel/deck generation, the marketplace, Drive publishing, or multi-agent routing until the local workflow is already useful. Those commands exist (run `bun run seed help`) but are deliberately not part of the first-run promise.
 
 The first win should be boring and real: a better weekly plan, a cleaner project list, a searchable notes folder, or a useful first draft.

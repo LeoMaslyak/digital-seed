@@ -411,83 +411,63 @@ function usage(): void {
   console.log(`
 Digital Seed — Personal AI Infrastructure
 
-Start here. The five commands in BEGINNER are enough for the first 15 minutes.
-Everything below that is optional. Don't add tools until the local loop is useful.
+The BEGINNER section is the whole first-15-minute promise. Everything below
+that is optional or maintainer-only. Skip on day one. Add only after the
+local loop (context files + first prompt + local search) is already useful.
 
-BEGINNER — start here
+BEGINNER — first 15 minutes
   bun run seed onboard                 Show the first 15-minute path (animated)
   bun run seed onboard --plain         Same path, no animation or color
-  bun run seed onboard --write-first-win    Create user/FIRST-WIN.md (skip if it exists)
-  bun run seed onboard --write-first-win --force    Overwrite user/FIRST-WIN.md
   bun run seed doctor                  Friendly setup health check
   bun run seed first-prompt            Print the first agent prompt
   bun run seed privacy-scan            Check for common private leftovers
-  bun run seed visual-qa               Verify the hero GIF still loops cleanly
-
-OPTIONAL — recipes & local search
-  bun run seed recipe list             List integration recipes
-  bun run seed recipe openclaw init    Draft OpenClaw setup context
-  bun run seed recipe hermes init      Draft Hermes setup context
-  bun run seed index <folder>          Build local retrieval index
+  bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
-  bun run seed intro                   Show the animated terminal intro
+  bun run seed recipe list             List integration recipes
 
-ADVANCED — power-user workflows
-  bun run seed collab create <name>    New shared project
-  bun run seed collab group create ..  New shared learning group
-  bun run seed collab export <id>      Export project/group to markdown
-  bun run seed collab summary          Overview of all collab activity
-  bun run seed collab [...]            All collab commands
+  Optional flags on the beginner path:
+  bun run seed onboard --write-first-win        Create user/FIRST-WIN.md if missing
+  bun run seed onboard --write-first-win --force    Overwrite user/FIRST-WIN.md
 
-  bun run seed digest                  Today's digest (markdown)
-  bun run seed digest --text           Plain text (Telegram-safe)
-  bun run seed digest --deliver        Generate + deliver
+ADVANCED — optional power-user workflows
+  Not part of the first-run promise. Skip on day one. Each command has its
+  own setup and may require external accounts, credentials, or judgment.
+
+  bun run seed recipe openclaw init    Draft OpenClaw always-on setup context
+  bun run seed recipe hermes init      Draft Hermes always-on setup context
+  bun run seed intro                   Replay the animated terminal intro
+
+  bun run seed collab [...]            Shared projects / learning groups
+  bun run seed digest [...]            Daily digest (markdown / text / deliver)
+  bun run seed schedule [clear]        View / clear pending background tasks
+  bun run seed task <name>             Run an autonomous task
+  bun run seed status                  Activity state + offline mode
 
   bun run seed learn owner/repo        Index a GitHub repo for search
+  bun run seed web [...]               Fetch / scrape / research URLs
+  bun run seed drive [...]             Upload, download, sync Drive folders
+  bun run seed excel [...]             Generate Excel templates
+  bun run seed deck [...]              Generate slide decks
 
-  bun run seed web fetch <url>                     Fetch URL as AI-readable markdown
-  bun run seed web fetch <url> --summarize         Fetch + AI summary
-  bun run seed web scrape <url> --selector h2      Extract CSS-selected elements
-  bun run seed web bulk urls.txt                   Batch fetch from URL list
-  bun run seed web bulk urls.txt --download        Batch download files
-  bun run seed web research "<query>"              Web research + AI summary
+MAINTAINER / RELEASE — project maintainers only
+  Not for end users. These commands publish, release, or change the repo.
 
-  bun run seed drive upload <file>                 Upload file to Google Drive
-  bun run seed drive download <url>                Download file locally
-  bun run seed drive download <url> --drive        Download + upload to Google Drive
-  bun run seed drive bulk urls.txt --drive         Bulk download → Google Drive
-  bun run seed drive publish-data-room             Sync public data room to Drive
-
-  bun run seed excel dcf|ratios|project            Generate Excel template
-  bun run seed excel dcf --fill --topic '...'      AI-generated assumptions
-  bun run seed excel dcf --fill --topic '...' --web    Fetch live web context first
-  bun run seed excel                               List Excel templates
-  bun run seed deck project|strategy|finance       Generate slide deck (rich layouts)
-  bun run seed deck project --fill --topic '...'   Claude-generated content
-  bun run seed deck project --fill --topic '...' --web    Same with web context
-  bun run seed deck project --fill --topic '...' --format google-slides    Upload to Google Slides
-  bun run seed deck                                List deck templates
-
-  bun run seed status                  Activity state + offline mode
-  bun run seed schedule                View pending/upcoming tasks
-  bun run seed schedule clear          Remove completed tasks
-  bun run seed task <name>             Run an autonomous task
-
-MAINTAINER / RELEASE
-  bun run seed install <id>            Install pattern or pack
-  bun run seed install pack:finance    Install Finance skill pack
-  bun run seed publish <pattern-dir>   Publish pattern (opens PR flow)
-  bun run seed rate <id> <1-5>         Rate a pattern
-  bun run seed patterns                Browse all patterns
-  bun run seed packs                   Browse skill packs
-  bun run seed update                  Check and apply updates
-  bun run seed update --yes            Skip confirmation
+  bun run seed health                  Same as 'doctor' (maintainer alias)
+  bun run seed visual-qa               Verify the hero GIF still loops cleanly
   bun run seed tokens                  Token usage report
-  bun run seed health                  System health check
-  bun run seed release-check           Run all release gates (one command)
-  bun run seed release-check --skip-fresh-clone     Faster local run, skip clone harness
-  bun run seed release-check --with-drive-dry-run --account EMAIL    Maintainer-only Drive dry-run
-  bun run seed release-check --ci      CI-safe: no clone harness, no Drive
+  bun run seed update [--yes]          Check and apply seed updates
+
+  bun run seed install <id>            Install pattern or pack from marketplace
+  bun run seed publish <pattern-dir>   Publish a pattern (opens PR flow)
+  bun run seed rate <id> <1-5>         Rate a pattern
+  bun run seed patterns                Browse all marketplace patterns
+  bun run seed packs                   Browse marketplace skill packs
+
+  bun run seed drive publish-data-room    Sync public data room to Drive
+  bun run seed release-check              Run all release gates (one command)
+  bun run seed release-check --skip-fresh-clone     Faster local run
+  bun run seed release-check --with-drive-dry-run --account EMAIL    Drive dry-run
+  bun run seed release-check --ci         CI-safe: no clone harness, no Drive
 `.trim());
 }
 

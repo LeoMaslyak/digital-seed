@@ -4,38 +4,49 @@ This is the current practical backlog for making Digital Seed feel more polished
 
 ## Current milestone sequence
 
-Current assessment: **~78% of 100% usable OSS project**. Digital Seed is broader-alpha ready, but not production-grade / 1.0 yet.
+Current assessment: **~80% of 100% usable OSS project**. Digital Seed is broader-alpha ready, with a coherent beginner / advanced / maintainer surface, but not production-grade / 1.0 yet.
 
 See `docs/production-readiness.md` for the full production-grade definition. The short version:
 
 1. **Beginner trust + first win** — examples gallery, optional `FIRST-WIN.md`, better first prompt, health warning semantics, day-one guidance.
 2. **Release engineering** — link checker, CI link gate, fresh-clone CI smoke, version consistency check, data-room dry-run gate, release-check command.
 3. **Open-source usability** — shipped for alpha: tightened contributing guide, troubleshooting doc, issue templates, PR template, trust page, command taxonomy.
-4. **Product coherence** — next: beginner vs advanced vs maintainer-only command surfaces; official vs experimental recipes.
+4. **Product coherence** — shipped for alpha: beginner vs advanced vs maintainer-only command surfaces; recipes labeled official alpha-supported vs experimental/adapt-yourself.
 5. **1.0 candidate** — supported-platform proof, external tester walkthroughs, precise privacy/security explanation, no maintainer-only beginner assumptions.
 
-## Immediate next sprint — Milestone 4 product coherence
+## Completed Milestone 4 product coherence work
 
-Milestone 3 open-source usability has shipped for alpha. The next sprint should keep Digital Seed focused rather than letting optional power-user tooling crowd the beginner story.
+Milestone 4 has shipped at the repo level. External-user validation is still needed before the surface can be called production-grade.
 
-1. **Beginner surface review**
-   - Re-read README, `docs/first-15-minutes.md`, and `bun run seed help` as a brand-new user.
-   - Keep the first-run promise limited to context files, onboard, first prompt, privacy scan, local index/search, and recipes.
+1. ~~**Beginner surface review**~~ ✅
+   - `bun run seed help` BEGINNER section is now exactly: onboard, doctor, first-prompt, privacy-scan, index, search, recipe list.
+   - README "Useful commands" matches the same beginner surface.
+   - `docs/first-15-minutes.md` "Stop there" explicitly names the advanced commands that are *not* part of day one.
 
-2. **Advanced command labeling**
-   - Ensure scheduler, digest, export/import, marketplace, Drive publishing, release tooling, and repo-bot style commands are clearly advanced or maintainer-only.
-   - Avoid presenting optional integrations as prerequisites.
+2. ~~**Advanced command labeling**~~ ✅
+   - Scheduler, digest, learn, web, drive, excel, deck, status, task, collab, intro, recipe openclaw/hermes init now live under ADVANCED with a clear "skip on day one" framing.
+   - `visual-qa` moved out of the beginner surface into MAINTAINER / RELEASE where it belongs.
 
-3. **Recipe classification**
-   - Decide which recipes are official alpha-supported versus experimental/community-maintained.
-   - Add status labels where needed.
+3. ~~**Maintainer-only labeling**~~ ✅
+   - MAINTAINER / RELEASE section now groups marketplace publish/install/rate, update, tokens, health alias, visual-qa, Drive publishing, and release-check together with a "not for end users" warning.
 
-4. **External validation loop**
-   - Use the new issue templates and PR template to collect real outside-user friction.
-   - Treat first outside issues/PRs as validation for Milestone 3, not as proof yet.
+4. ~~**Recipe classification**~~ ✅
+   - `docs/integration-recipes.md` now labels each recipe as **Official alpha-supported** (Obsidian, Claude Code / Cursor / Windsurf) or **Experimental / adapt-yourself** (GitHub, Drive, Telegram/Discord/Slack, OpenClaw/Hermes).
+   - Adds a status legend and frames recipes as optional after the local loop is useful.
 
-5. **Roadmap cleanup after implementation**
-   - Mark Milestone 4 items shipped only after command surfaces and recipe boundaries feel coherent to a fresh user.
+5. **External validation loop** — still open
+   - Issue templates and PR template are in place from Milestone 3; first outside issues/PRs still pending.
+   - Treat first external walkthroughs as validation, not as proof yet.
+
+## Immediate next sprint — Milestone 5 prep
+
+Now that the surface is coherent, the next gate is the run to a 1.0 candidate. Focus areas:
+
+1. Supported-platform proof on macOS + Linux (and an honest Windows/WSL stance).
+2. External tester walkthroughs — invite 3–5 people to run the first-15-minute path cold.
+3. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it.
+4. Audit again for maintainer-only assumptions that sneak into beginner docs.
+5. Decide whether any ADVANCED commands should be deprecated or split out before 1.0.
 
 ## Completed Milestone 3 open-source usability work
 
@@ -145,8 +156,7 @@ Next gate before a larger public push:
 
 Remaining P1 polish after the hostile audit:
 
-- Product-coherence cleanup for advanced/legacy commands.
-- Real outside-user validation of the new contributor and issue flows.
+- Real outside-user validation of the new contributor, issue, and beginner-surface flows.
 - Continue sharpening security/privacy docs as integrations mature.
 
 ## Later, not urgent

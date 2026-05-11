@@ -4,21 +4,21 @@ Digital Seed is production-stable for public use as an alpha: a new user can clo
 
 It is **not** 1.0 yet. The next objective is to turn the useful alpha into a production-grade, easy-to-use open-source project for strangers.
 
-## Current status: broader-alpha ready (~78% toward production-grade OSS usability)
+## Current status: broader-alpha ready (~80% toward production-grade OSS usability)
 
-Digital Seed is no longer in “make it work” mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode. Milestone 3 open-source usability is now shipped at the repo level; it still needs real outside-contributor use to prove the flow.
+Digital Seed is no longer in “make it work” mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode. Milestones 3 (open-source usability) and 4 (product coherence) are shipped at the repo level; both still need real outside-contributor use to prove the flow.
 
 Current usability scorecard:
 
 - **Core concept / positioning:** ~90% — clear local-first personal AI context starter kit.
-- **First-run beginner path:** ~80% — alpha-stranger usable, still needs real-user walkthroughs.
+- **First-run beginner path:** ~85% — beginner surface is now narrow (onboard, doctor, first-prompt, privacy-scan, index, search, recipe list); still needs real-user walkthroughs.
 - **Release engineering:** ~75% — unified release check, CI smoke, link/version checks, fresh-clone validation; needs repeated real release practice.
 - **Docs / trust / safety:** ~80% — examples, troubleshooting, known limits, privacy caveats, and a dedicated “what leaves your machine?” trust page.
 - **Open-source contributor readiness:** ~80% — tightened contributor guide, issue templates, PR template, and external-user reporting flow are in place; needs real contributor validation.
-- **Product coherence:** ~65% — beginner surface is cleaner, but advanced/legacy commands still need clearer product boundaries.
+- **Product coherence:** ~80% — beginner / advanced / maintainer surfaces are explicitly labeled in CLI help and README; recipes are labeled official alpha-supported vs experimental/adapt-yourself.
 - **External validation:** ~20–30% — real outside-user walkthroughs have not happened yet.
 
-Overall assessment: **~78% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
+Overall assessment: **~80% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
 
 Shipped and verified:
 
@@ -130,22 +130,23 @@ Exit criteria:
 
 Goal: Digital Seed feels focused rather than like a broad toolbox.
 
-Must decide and implement:
+Status: shipped for alpha. Needs real outside-user validation before being considered production-grade.
 
-- Which commands remain in the beginner surface.
-- Which commands move to advanced/help sections.
-- Which recipes are official vs experimental.
-- Whether Excel/deck/digest/scheduler/web tools belong in the public main surface or advanced/legacy sections.
+Shipped:
 
-Recommendation:
-
-- Keep the public surface brutally simple: context files, onboard, first prompt, privacy scan, local index/search, and recipes.
-- Treat everything else as advanced until real users ask for it.
+- `bun run seed help` BEGINNER section is exactly: onboard, doctor, first-prompt, privacy-scan, index, search, recipe list (plus the `--write-first-win` flag).
+- README "Useful commands" matches the same beginner surface and explicitly notes that scheduler, digest, repo learning, web/drive tooling, Excel/deck generation, marketplace, and release commands are intentionally not in the day-one list.
+- `docs/first-15-minutes.md` "Stop there" names the advanced commands that are not part of day one and points readers to `bun run seed help` for the full list.
+- ADVANCED section in CLI help frames scheduler, digest, learn, web, drive, excel, deck, status, task, collab, intro, and recipe openclaw/hermes init as optional power-user tools you skip on day one.
+- MAINTAINER / RELEASE section in CLI help groups marketplace publish/install/rate, update, tokens, health alias, visual-qa, Drive publishing, and release-check together with a "not for end users" warning.
+- `docs/integration-recipes.md` labels each recipe as **Official alpha-supported** (Obsidian, Claude Code / Cursor / Windsurf) or **Experimental / adapt-yourself** (GitHub, Drive, Telegram/Discord/Slack, OpenClaw/Hermes), with an explicit status legend.
 
 Exit criteria:
 
-- `bun run seed help` is beginner-safe.
-- Advanced commands are discoverable but not part of the first-run promise.
+- `bun run seed help` is beginner-safe. ✅
+- Advanced commands are discoverable but not part of the first-run promise. ✅
+- Recipes carry an explicit status label. ✅
+- Real outside users confirm the beginner surface still feels right — open.
 
 ### Milestone 5 — 1.0 candidate
 
@@ -170,13 +171,13 @@ Exit criteria:
 
 ## Immediate next sprint
 
-Focus: Milestone 4 — product coherence.
+Focus: prep for Milestone 5 — 1.0 candidate.
 
-1. Review `bun run seed help` and README command surfaces from a brand-new-user perspective.
-2. Keep the beginner surface limited to context files, onboard, first prompt, privacy scan, local index/search, and recipes.
-3. Move or label advanced/legacy commands more aggressively where they still feel like first-run obligations.
-4. Decide which recipes are official versus experimental.
-5. Keep collecting real outside-user friction from issues and PRs to validate Milestone 3.
+1. Run the first-15-minute path cold on a clean macOS and a clean Linux machine; capture any friction.
+2. Invite 3–5 external testers to walk through onboarding and report where they got stuck.
+3. Decide whether any ADVANCED commands should be deprecated, renamed, or split into a separate "labs" surface before 1.0.
+4. Tighten `what-leaves-your-machine.md` with whatever real users surface as confusing.
+5. Keep collecting outside-user friction from issues and PRs to validate Milestones 3 and 4.
 
 ## Next audit gate
 
