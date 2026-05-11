@@ -4,7 +4,21 @@ Digital Seed is production-stable for public use as an alpha: a new user can clo
 
 It is **not** 1.0 yet. The next objective is to turn the useful alpha into a production-grade, easy-to-use open-source project for strangers.
 
-## Current status: broader-alpha ready
+## Current status: broader-alpha ready (~72% toward production-grade OSS usability)
+
+Digital Seed is no longer in “make it work” mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode.
+
+Current usability scorecard:
+
+- **Core concept / positioning:** ~90% — clear local-first personal AI context starter kit.
+- **First-run beginner path:** ~80% — alpha-stranger usable, still needs real-user walkthroughs.
+- **Release engineering:** ~75% — unified release check, CI smoke, link/version checks, fresh-clone validation; needs repeated real release practice.
+- **Docs / trust / safety:** ~70% — examples, troubleshooting, known limits, privacy caveats; needs sharper “what data leaves your machine?” and security polish.
+- **Open-source contributor readiness:** ~50% — biggest remaining structured gap: issue templates, PR template, contributor flow.
+- **Product coherence:** ~65% — beginner surface is cleaner, but advanced/legacy commands still need clearer product boundaries.
+- **External validation:** ~20–30% — real outside-user walkthroughs have not happened yet.
+
+Overall assessment: **~72% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
 
 Shipped and verified:
 
@@ -48,7 +62,7 @@ Digital Seed should be considered production-grade open source when these are al
 
 Goal: a stranger understands what to do and gets one useful result quickly.
 
-Status: mostly shipped. Remaining polish is the explicit README / first-15-minutes “day one / not day one” box.
+Status: shipped for alpha. Needs external-user validation before being considered production-grade.
 
 Shipped:
 
@@ -57,7 +71,7 @@ Shipped:
 - `seed first-prompt` support for the chosen first win.
 - Health output semantics: `passed`, `passed with warnings`, `failed`.
 
-Remaining:
+Also shipped:
 
 - README / first-15-minutes “day one / not day one” guidance box.
 
@@ -70,19 +84,22 @@ Exit criteria:
 
 Goal: releases are boring and repeatable.
 
-Status: started. Link checking is shipped; the next implementation target is the unified release gate.
+Status: mostly shipped. Needs repeated real release practice and possibly one more CI packaging-smoke refinement.
 
 Shipped:
 
 - Local Markdown link checker.
 - Link checker in CI.
+- Unified `bun run seed release-check` / `bun run release:check` maintainer gate.
+- Version consistency check for `package.json`, changelog, and release checklist tag instruction.
+- CI-safe release check (`--ci --skip-install`) that avoids Drive credentials and fresh-clone recursion.
+- Data-room dry-run gate as explicit maintainer-only opt-in (`--with-drive-dry-run --account EMAIL`).
+- Consolidated `docs/release-checklist.md` around the single release-check command.
 
 Remaining:
 
-- Fresh-clone harness, or equivalent packaging smoke, in CI.
-- Version consistency check for `package.json`, changelog, docs, and tags.
-- Data-room dry-run gate.
-- One maintainer release command/check, e.g. `bun run seed release-check`.
+- Run the release check through at least one real tag/release cycle.
+- Decide whether to add a CI-safe fresh-clone/package smoke job beyond the current local harness.
 
 Exit criteria:
 
@@ -150,14 +167,14 @@ Exit criteria:
 
 ## Immediate next sprint
 
-Focus: finish Milestone 2 — release engineering.
+Focus: Milestone 3 — open-source usability.
 
-1. Add a unified `bun run seed release-check` maintainer command.
-2. Add version consistency checks for `package.json`, changelog, release checklist, and docs references.
-3. Add a CI-safe fresh-clone/package smoke gate or document why the full harness remains local-only.
-4. Add a data-room dry-run gate that is local/maintainer-only by default and does not require credentials in public CI.
-5. Update `docs/release-checklist.md` so maintainers have one canonical release path.
-6. Add the remaining “day one / not day one” beginner guidance box while touching README/docs.
+1. Tighten `CONTRIBUTING.md` for first-time contributors.
+2. Add GitHub issue templates: bug report, docs confusion, integration recipe request.
+3. Add PR template with privacy, docs, link-check, and release-check reminders.
+4. Add `docs/open-source-maintainer-guide.md` or equivalent contributor/maintainer flow if needed.
+5. Polish `docs/troubleshooting.md` and `docs/known-alpha-limits.md` from an external-user perspective.
+6. Add a short security/privacy trust page focused on “what data leaves your machine?” if scope allows.
 
 ## Next audit gate
 

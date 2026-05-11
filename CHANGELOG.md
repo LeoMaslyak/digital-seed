@@ -23,7 +23,7 @@ All notable changes to Digital Seed will be documented in this file.
 - Health check output now distinguishes clean pass from pass-with-warnings.
 - `docs/release-checklist.md` references the fresh-clone harness, CI coverage, and `--no-delete` recovery path.
 - `docs/data-room-guide.md` documents the permission-fallback strategy matrix and avoids stale user-facing v0.3 folder labeling.
-- `docs/production-readiness.md` and `docs/repo-improvement-roadmap.md` updated to reflect broader-alpha status and the path to production-grade OSS.
+- `docs/production-readiness.md` and `docs/repo-improvement-roadmap.md` updated to reflect broader-alpha status, ~72% production-grade usability assessment, completed Milestone 2 release engineering, and Milestone 3 open-source usability as the next sprint.
 
 ## [0.3.1-alpha] - 2026-05-11
 ### Added

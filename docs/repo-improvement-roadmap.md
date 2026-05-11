@@ -4,6 +4,8 @@ This is the current practical backlog for making Digital Seed feel more polished
 
 ## Current milestone sequence
 
+Current assessment: **~72% of 100% usable OSS project**. Digital Seed is broader-alpha ready, but not production-grade / 1.0 yet.
+
 See `docs/production-readiness.md` for the full production-grade definition. The short version:
 
 1. **Beginner trust + first win** — examples gallery, optional `FIRST-WIN.md`, better first prompt, health warning semantics, day-one guidance.
@@ -12,29 +14,52 @@ See `docs/production-readiness.md` for the full production-grade definition. The
 4. **Product coherence** — beginner vs advanced vs maintainer-only command surfaces; official vs experimental recipes.
 5. **1.0 candidate** — supported-platform proof, external tester walkthroughs, precise privacy/security explanation, no maintainer-only beginner assumptions.
 
-## Immediate next sprint — Milestone 2 release engineering
+## Immediate next sprint — Milestone 3 open-source usability
 
-1. **Unified release check**
-   - Add `bun run seed release-check` as the canonical maintainer gate.
-   - It should run the local release checks already scattered across docs.
+1. **Contributor guide tightening**
+   - Rewrite/tighten `CONTRIBUTING.md` for first-time external contributors.
+   - Explain the simplest contribution paths: docs fixes, examples, recipes, bug reports.
 
-2. **Version consistency check**
-   - Verify `package.json` version appears in `CHANGELOG.md` and release docs.
-   - Fail clearly if docs reference a stale release/tag.
+2. **Issue templates**
+   - Add `.github/ISSUE_TEMPLATE/bug_report.yml`.
+   - Add `.github/ISSUE_TEMPLATE/docs_confusion.yml`.
+   - Add `.github/ISSUE_TEMPLATE/integration_recipe_request.yml`.
 
-3. **Fresh-clone CI smoke**
-   - Either run `scripts/fresh-clone-check.sh` in CI or add a CI-safe equivalent that avoids recursive expensive checks.
+3. **PR template**
+   - Add `.github/pull_request_template.md` with privacy, docs, `bun run check:links`, and `bun run seed release-check --skip-fresh-clone` reminders.
 
-4. **Data-room dry-run gate**
-   - Keep Drive publishing opt-in and maintainer-only.
-   - Release check may run a dry-run only when credentials/account are available; otherwise it should skip with a clear warning, not fail public CI.
+4. **External-user trust polish**
+   - Add or improve a short security/privacy trust page focused on “what data leaves your machine?”
+   - Cross-link from README, known alpha limits, and troubleshooting.
 
-5. **Release checklist consolidation**
-   - Update `docs/release-checklist.md` around the single release-check command.
-   - Keep manual publish/tag steps explicit.
+5. **Maintainer/contributor flow**
+   - If useful, add `docs/open-source-maintainer-guide.md` or a concise section in `CONTRIBUTING.md` for release/review expectations.
 
-6. **Remaining beginner guidance**
-   - Add the explicit “day one / not day one” guidance box to README and/or first-15-minutes.
+6. **Roadmap cleanup after implementation**
+   - Mark Milestone 3 items shipped once templates/docs are in place.
+   - Keep Milestone 4 product-coherence cleanup as the next target.
+
+## Completed Milestone 2 release-engineering work
+
+1. ~~**Unified release check**~~ ✅
+   - `bun run seed release-check` is the canonical maintainer gate.
+   - `bun run release:check` is available as a package script.
+
+2. ~~**Version consistency check**~~ ✅
+   - Release check verifies `package.json`, `CHANGELOG.md`, and release checklist tag instruction.
+
+3. ~~**CI release smoke**~~ ✅
+   - CI runs `bun run seed release-check --ci --skip-install` on macOS and Linux.
+   - Public CI avoids Drive credentials and fresh-clone recursion.
+
+4. ~~**Data-room dry-run gate**~~ ✅
+   - Maintainer-only opt-in via `--with-drive-dry-run --account EMAIL`.
+
+5. ~~**Release checklist consolidation**~~ ✅
+   - `docs/release-checklist.md` now starts with the unified release check.
+
+6. ~~**Day one / not day one guidance**~~ ✅
+   - README and first-15-minutes include practical day-one boundaries.
 
 ## Completed high-leverage alpha/beginner work
 
@@ -102,10 +127,9 @@ Next gate before a larger public push:
 
 Remaining P1 polish after the hostile audit:
 
-- Version metadata alignment with the next tag.
-- Unified release check command.
-- Fresh-clone CI smoke / release-gate consolidation.
-- Remaining day-one/not-day-one guidance box.
+- Open-source contributor package: issue templates, PR template, tightened contributor guide.
+- Security/privacy trust page focused on data boundaries.
+- Product-coherence cleanup for advanced/legacy commands.
 
 ## Later, not urgent
 
