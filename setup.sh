@@ -545,9 +545,9 @@ ADDED=$(git diff --cached --diff-filter=ACM | grep -E '^\+' | grep -v '^\+\+\+')
 if [ -z "$ADDED" ]; then exit 0; fi
 
 PATTERNS=(
-  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*["'\'']?sk-[A-Za-z0-9_-]{20,}'
-  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*["'\'']?sk-[A-Za-z0-9_-]{20,}'
-  'GOOGLE_API_KEY[[:space:]]*=[[:space:]]*["'\'']?AI[A-Za-z0-9_-]{20,}'
+  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*.*sk-[A-Za-z0-9_-]{20,}'
+  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*.*sk-[A-Za-z0-9_-]{20,}'
+  'GOOGLE_API_KEY[[:space:]]*=[[:space:]]*.*AI[A-Za-z0-9_-]{20,}'
   'sk-ant-[A-Za-z0-9_-]{24,}'
   'sk-proj-[A-Za-z0-9_-]{24,}'
   'ghp_[A-Za-z0-9]{30,}'
