@@ -149,14 +149,14 @@ for base in branch_paths:
         branchlet_paths.append([quadratic(anchor, ctrl, out, u / 24) for u in range(25)])
 
 canopy_nodes = []
-for i in range(220):
+for i in range(360):
     # elliptical canopy with hollow-ish center
     theta = random.random() * math.tau
     rr = math.sqrt(random.random())
     x = W / 2 + math.cos(theta) * rr * random.uniform(105, 325)
     y = 126 + math.sin(theta) * rr * random.uniform(38, 112)
     if 235 < x < 810 and 28 < y < 245:
-        canopy_nodes.append((x, y, random.uniform(1.2, 4.4), random.random()))
+        canopy_nodes.append((x, y, random.uniform(1.8, 6.0), random.random()))
 
 
 def make_background() -> Image.Image:
@@ -299,9 +299,26 @@ def render_frame(i: int) -> Image.Image:
         canopy_glow = canopy_glow.filter(ImageFilter.GaussianBlur(34))
         img.alpha_composite(canopy_glow)
 
+    # Bushy mature canopy: draw translucent leaf clusters behind the sparkling
+    # points so the late animation reads as a living crown, not bare branches.
+    if canopy_p > 0:
+        leaf_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+        ld = ImageDraw.Draw(leaf_layer)
+        for idx, (x, y, r, z) in enumerate(canopy_nodes):
+            birth = clamp(canopy_p - z * 0.18)
+            if birth <= 0:
+                continue
+            dx = math.sin(math.tau * (phase * 0.17 + z)) * 5
+            dy = math.cos(math.tau * (phase * 0.13 + z)) * 4 - dissolve * (14 + z * 36)
+            leaf_r = r * (1.35 + 0.5 * canopy_p)
+            col = MINT if idx % 5 else (GOLD if idx % 7 == 0 else AQUA)
+            ld.ellipse((x + dx - leaf_r, y + dy - leaf_r * 0.78, x + dx + leaf_r, y + dy + leaf_r * 0.78), fill=rgba(col, 0.16 * birth * (1 - 0.7 * dissolve)))
+        leaf_layer = leaf_layer.filter(ImageFilter.GaussianBlur(1.4))
+        img.alpha_composite(leaf_layer)
+
     # canopy luminous living particles
     for x, y, r, z in canopy_nodes:
-        birth = clamp(canopy_p - z * 0.24)
+        birth = clamp(canopy_p - z * 0.18)
         if birth <= 0:
             continue
         pulse = 0.65 + 0.35 * math.sin(math.tau * (phase * 0.9 + z))
@@ -309,26 +326,27 @@ def render_frame(i: int) -> Image.Image:
         dy = math.cos(math.tau * (phase * 0.19 + z)) * 3 - dissolve * (16 + z * 45)
         a = birth * pulse * (1 - 0.85 * dissolve)
         col = MINT if z > 0.46 else (GOLD if z > 0.12 else AQUA)
-        d.ellipse((x + dx - r, y + dy - r, x + dx + r, y + dy + r), fill=rgba(col, 0.26 * a))
-        if z > 0.55:
-            composite_glow(img, (x + dx, y + dy), col, r * 6.5, 0.055 * a)
+        d.ellipse((x + dx - r, y + dy - r, x + dx + r, y + dy + r), fill=rgba(col, 0.34 * a))
+        if z > 0.50:
+            composite_glow(img, (x + dx, y + dy), col, r * 6.8, 0.065 * a)
 
 
     # Late-loop fruit: warm nodes make the mature tree feel alive before it
     # dissolves back into a seed. They are deterministic, generated from the
     # canopy node list, and fade before the loop reset.
     if fruit_p > 0:
-        for idx, (x, y, r, z) in enumerate(canopy_nodes[::11]):
-            if idx >= 18:
+        for idx, (x, y, r, z) in enumerate(canopy_nodes[::8]):
+            if idx >= 28:
                 break
             phase_offset = (idx * 0.137 + z) % 1
             pulse = 0.7 + 0.3 * math.sin(math.tau * (phase * 1.2 + phase_offset))
             fx = x + math.sin(math.tau * (phase * 0.18 + z)) * 3
             fy = y + 6 + math.cos(math.tau * (phase * 0.16 + z)) * 2 - dissolve * (10 + z * 26)
-            rr = 2.0 + 2.3 * (idx % 3) / 2
+            rr = 2.8 + 2.8 * (idx % 3) / 2
             a = fruit_p * pulse * (1 - 0.72 * dissolve)
-            d.ellipse((fx - rr, fy - rr, fx + rr, fy + rr), fill=rgba(GOLD, 0.55 * a))
-            composite_glow(img, (fx, fy), GOLD, rr * 5.2, 0.08 * a)
+            d.ellipse((fx - rr, fy - rr, fx + rr, fy + rr), fill=rgba(GOLD, 0.72 * a))
+            d.ellipse((fx - rr * 0.38, fy - rr * 0.38, fx + rr * 0.38, fy + rr * 0.38), fill=rgba(WHITE, 0.35 * a))
+            composite_glow(img, (fx, fy), GOLD, rr * 6.0, 0.12 * a)
 
     # seed core last, breathing and reset
     seed_r_raw = 8 + 8 * seed_energy + 3 * math.sin(math.tau * phase * 2)

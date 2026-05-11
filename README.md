@@ -68,7 +68,7 @@ Ask a terminal-capable AI agent to install it with you. See [AI Agent Install](d
 
 ## Public data room
 
-A non-technical walkthrough lives in the [Digital Seed public data room](https://drive.google.com/drive/folders/1G96XS38gcNNUCMcIJCnafG9oIFeknTxW): start-here pack, visual story, guides, templates, recipes, and audit notes. Maintainers refresh it with `bun run seed drive publish-data-room`.
+A non-technical walkthrough lives in the [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG): start-here pack, visual story, guides, templates, recipes, and audit notes. Maintainers refresh it with `bun run seed drive publish-data-room`.
 
 Audit note: cleanup actions from an independent hostile audit are tracked in [`docs/audit-response-2026-05-10.md`](docs/audit-response-2026-05-10.md).
 

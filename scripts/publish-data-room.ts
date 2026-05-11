@@ -38,7 +38,7 @@ interface FolderPlan {
   driveId?: string;
 }
 
-const DEFAULT_ROOT_NAME = "Digital Seed — Public Starter Kit v0.3 (2026-05-10)";
+const DEFAULT_ROOT_NAME = "Digital Seed — Public Starter Kit v0.3 (2026-05-11)";
 
 const MANIFEST: ManifestEntry[] = [
   // 00 Start Here

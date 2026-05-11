@@ -2,7 +2,7 @@
 
 Use this as the structure for the public Google Drive / learning folder that accompanies the repo.
 
-**Current public folder:** [Digital Seed — Public Starter Kit v0.3](https://drive.google.com/drive/folders/1G96XS38gcNNUCMcIJCnafG9oIFeknTxW)
+**Current public folder:** [Digital Seed — Public Starter Kit v0.3](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG)
 
 ## Publishing
 

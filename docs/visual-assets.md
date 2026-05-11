@@ -27,7 +27,7 @@ The generator requires Pillow. If `ffmpeg` is available, it also exports MP4 and
 - The GIF avoids a duplicated terminal frame. Duplicating the opening frame at the end produced a perceptible end-loop hold; the current loop eases close to the opener and lets playback wrap naturally.
 - Particle density is intentionally restrained so the middle of the loop feels like controlled growth, not a chaotic sci-fi explosion.
 - Warm gold is reserved for the seed/bloom/fruit moments; mint/aqua carry the data-growth language.
-- The mature phase uses a denser canopy plus small warm fruit nodes so the tree reads as alive before it dissolves back into the seed.
+- The mature phase uses a dense leaf-cluster canopy plus visible warm fruit nodes so the tree reads as alive before it dissolves back into the seed.
 
 ## Terminal intro
 
@@ -42,7 +42,7 @@ bun run seed intro
 - `bun run seed onboard` shows the intro before the first-15-minute path when running in an interactive terminal.
 - `./setup.sh` uses a compact static version in the setup header.
 
-The terminal visual intentionally uses ANSI glyphs/colors rather than image protocols, so it works in ordinary terminals without requiring Kitty/iTerm image support. The terminal plant uses curved branch/leaf glyphs around the seed so the intro reads as germination/growth, not just a vertical status indicator.
+The terminal visual intentionally uses ANSI glyphs/colors rather than image protocols, so it works in ordinary terminals without requiring Kitty/iTerm image support. The terminal plant direction is locked: curved branch/leaf glyphs around the seed so the intro reads as germination/growth, not just a vertical status indicator.
 
 ## Current audit notes
 
