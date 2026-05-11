@@ -2,6 +2,13 @@
 
 Use this before tagging or publicly announcing a Digital Seed release.
 
+> **Release-candidate discipline.** Before tagging anything that looks
+> like a 1.0 (`1.0.0-rc.1` or `1.0.0`), read
+> [Production Readiness → Release candidate discipline](production-readiness.md#release-candidate-discipline)
+> and run [`docs/hostile-1.0-readiness-audit-prompt.md`](hostile-1.0-readiness-audit-prompt.md).
+> The gates below cover every release; the 1.0 gates are stricter and
+> live in that section.
+
 ## 1. Run the release check
 
 One command runs every automated gate:
@@ -89,9 +96,25 @@ See [`docs/data-room-guide.md`](data-room-guide.md#permission-fallbacks) for the
 
 ## 6. Tag and push
 
+For an alpha release:
+
 ```bash
 git tag v0.4.0-alpha
 git push origin main --tags
 ```
 
 The version consistency check inside `release-check` will fail if `package.json`, `CHANGELOG.md`, and the `git tag vX.Y.Z` instruction above drift apart — bump them together.
+
+For a `1.0.0-rc.1` or `1.0.0` tag, do **not** treat this checklist as
+sufficient. Run, in order:
+
+1. The full release-check including a fresh-clone harness run on the tag
+   commit (`bun run seed release-check` without `--skip-fresh-clone`).
+2. The reusable hostile 1.0 audit prompt at
+   [`docs/hostile-1.0-readiness-audit-prompt.md`](hostile-1.0-readiness-audit-prompt.md).
+3. The Milestone 5 "must have" list in
+   [`docs/production-readiness.md`](production-readiness.md#milestone-5--10-candidate)
+   and the [release-candidate discipline](production-readiness.md#release-candidate-discipline)
+   section.
+
+If any of those return open P0/P1 blockers, do **not** tag 1.0.

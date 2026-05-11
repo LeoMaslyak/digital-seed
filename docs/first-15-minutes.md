@@ -22,7 +22,7 @@ If you finish day one and the local loop is already useful, you have permission 
 
 By the end, your AI agent should know enough about you to help with one real problem this week.
 
-> Want a head start? The [Examples Gallery](examples/README.md) shows fictional student, founder, researcher, and freelancer profiles — copy the shape that fits your situation.
+> Want a head start? The [Examples Gallery](examples/README.md) shows fictional student, founder, researcher, and freelancer profiles — copy the shape that fits your situation. To see the full path acted out before you start, read the [Demo Transcript](demo-transcript.md). For concrete first-win shapes, see [First Useful Outcomes](first-useful-outcomes.md).
 
 ## 1. Check the setup
 
@@ -90,4 +90,4 @@ This creates `user/FIRST-WIN.md` (only if missing — pass `--force` to overwrit
 
 Do not add dashboards, messaging bots, email automations, cloud databases, scheduler/digest tasks, repo-bot learning, Excel/deck generation, the marketplace, Drive publishing, or multi-agent routing until the local workflow is already useful. Those commands exist (run `bun run seed help`) but are deliberately not part of the first-run promise.
 
-The first win should be boring and real: a better weekly plan, a cleaner project list, a searchable notes folder, or a useful first draft.
+The first win should be boring and real: a better weekly plan, a cleaner project list, a searchable notes folder, or a useful first draft. See [First Useful Outcomes](first-useful-outcomes.md) for five concrete shapes (and the shapes that look like first wins but are not).

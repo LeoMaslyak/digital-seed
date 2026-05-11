@@ -110,6 +110,8 @@ Day one stops here. Scheduler, digest, repo learning, web/drive tooling, Excel/d
 Beginner path:
 
 - [First 15 Minutes](docs/first-15-minutes.md) — the canonical short path
+- [Demo Transcript](docs/demo-transcript.md) — fictional first 15-minute walkthrough you can read before cloning
+- [First Useful Outcomes](docs/first-useful-outcomes.md) — concrete examples of the boring real win
 - [Examples Gallery](docs/examples/README.md) — fictional student, founder, researcher, and freelancer profiles
 - [Getting Started](docs/getting-started.md) — extended walkthrough with optional extras
 - [AI Agent Install](docs/ai-agent-install.md) — let a terminal-capable agent install it for you
@@ -123,6 +125,7 @@ Reference:
 - [Architecture Map](docs/architecture-map.md) — how the moving parts fit together
 - [Dashboard Options](docs/dashboard-options.md) — visual dashboards Digital Seed does not bundle
 - [Known Alpha Limits](docs/known-alpha-limits.md) — what you should not expect yet
+- [Supported Platforms](docs/supported-platforms.md) — what is tested, what is best-effort, what is not supported
 - [What Leaves Your Machine?](docs/what-leaves-your-machine.md) — local-first privacy and external-data boundaries
 - [Production Readiness](docs/production-readiness.md) — public-ready gaps and release criteria
 - [Release Checklist](docs/release-checklist.md) — maintainer release gate

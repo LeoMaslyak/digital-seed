@@ -33,6 +33,12 @@ OpenClaw, Hermes, Telegram bots, scheduled tasks, and background automation are 
 
 Digital Seed helps structure context and workflows. It does not remove the need to review AI output, protect private data, or understand what external tools are allowed to do. For the practical data boundary, read [What Leaves Your Machine?](what-leaves-your-machine.md).
 
+## Platform support is narrow
+
+The alpha is actively tested on macOS and Linux in CI. WSL2 is best-effort
+and not in CI. Windows-native (PowerShell / cmd.exe) is not supported. See
+[Supported Platforms](supported-platforms.md) for the full stance.
+
 ## Current best use case
 
 The best current use case is narrow and practical:

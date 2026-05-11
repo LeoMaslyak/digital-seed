@@ -41,14 +41,33 @@ Milestone 4 has shipped at the repo level. External-user validation is still nee
 
 ## Immediate next sprint — Milestone 5 prep
 
-Now that the surface is coherent, the next gate is the run to a 1.0 candidate. Focus areas:
+Now that the surface is coherent, the next gate is the run to a 1.0
+candidate. Repo-side prep shipped 2026-05-11; the remaining work is
+real-user validation, not more docs.
 
-1. Supported-platform proof on macOS + Linux (and an honest Windows/WSL stance).
-2. **Real** external tester walkthroughs — invite 3–5 people to run the first-15-minute path cold. Simulated persona audits do not substitute.
+Shipped 2026-05-11 (Milestone 5 repo-side prep):
+
+- `docs/supported-platforms.md` — explicit stance (macOS + Linux
+  supported in CI, WSL2 best-effort, Windows-native out of scope).
+- `docs/demo-transcript.md` — fictional first 15-minute walkthrough.
+- `docs/first-useful-outcomes.md` — concrete first-win shapes (and
+  what to defer).
+- Release-candidate discipline section in `docs/production-readiness.md`
+  with explicit `1.0.0-rc.1` / `1.0.0` gates.
+- `docs/hostile-1.0-readiness-audit-prompt.md` — reusable pre-RC audit
+  prompt focused on blockers, not polish.
+- `docs/release-checklist.md` now points at the RC discipline and the
+  1.0 audit prompt for any 1.0-flavored tag.
+
+Open (Milestone 5 real-validation work, treated as the actual gate):
+
+1. **Real** external tester walkthroughs — invite 3–5 people to run the first-15-minute path cold. Simulated persona audits do not substitute.
+2. Cold runs of the first-15-minute path on a clean macOS *and* a clean Linux machine; capture friction in issues.
 3. Tighten the privacy/security explanation in `what-leaves-your-machine.md` once real users push back on it. (One pass on 2026-05-11 clarified the `bun install` network nuance based on a simulated skeptic.)
 4. Audit again for maintainer-only assumptions that sneak into beginner docs.
 5. Decide whether any ADVANCED commands should be deprecated or split out before 1.0.
 6. Address remaining P2 items from `docs/simulated-external-user-audit-2026-05-11.md` (CONTRIBUTING repo-shape gaps, ordering ambiguity in `seed onboard` step 3, privacy-scan deny-list commentary).
+7. When the external-tester bar is met, run `docs/hostile-1.0-readiness-audit-prompt.md`. Only after a clean verdict consider tagging `1.0.0-rc.1`.
 
 ## Completed Milestone 3 open-source usability work
 

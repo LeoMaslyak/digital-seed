@@ -2,6 +2,25 @@
 
 All notable changes to Digital Seed will be documented in this file.
 
+## [Unreleased]
+### Added
+- `docs/supported-platforms.md` — explicit stance: macOS + Linux supported in CI, WSL2 best-effort, Windows-native out of scope.
+- `docs/demo-transcript.md` — fictional first 15-minute walkthrough that readers can skim before cloning.
+- `docs/first-useful-outcomes.md` — concrete first-win shapes (weekly plan, project priority list, notes search, first draft, weekly reflection) plus shapes to defer.
+- `docs/hostile-1.0-readiness-audit-prompt.md` — reusable pre-1.0 audit prompt that asks "would calling this 1.0 be dishonest?" and focuses on blockers, not polish.
+
+### Changed
+- `docs/production-readiness.md` now includes a "Release candidate discipline" section with explicit `1.0.0-rc.1` and `1.0.0` gates, honest red flags, and the version-bump rule (`package.json` ↔ `CHANGELOG.md` ↔ release checklist).
+- Milestone 5 in `docs/production-readiness.md` is annotated as "prep in progress" with shipped repo-side prep and the open real-validation gates.
+- `docs/release-checklist.md` points to the RC discipline section and the hostile 1.0 audit prompt for any 1.0-flavored tag.
+- `docs/repo-improvement-roadmap.md` lists Milestone 5 repo-side prep as shipped and frames the remaining work as real-user validation.
+- `docs/known-alpha-limits.md` now links to the supported-platforms doc.
+- README guides section adds the demo transcript, first useful outcomes, and supported platforms entries.
+- `docs/first-15-minutes.md` links to the demo transcript and first-useful-outcomes doc from the head and "Stop there" sections.
+
+### Notes
+- Version stays at `0.4.0-alpha`. Repo is broader-alpha ready with Milestone 5 *prep* shipped; real external-tester validation is still required before any `1.0.0-rc.1` consideration.
+
 ## [0.4.0-alpha] - 2026-05-11
 ### Added
 - GitHub Actions CI workflow (`.github/workflows/ci.yml`) that runs install, health, privacy scan, visual QA, onboard, first-prompt, and Markdown link checks on `ubuntu-latest` and `macos-latest` for every push and PR.

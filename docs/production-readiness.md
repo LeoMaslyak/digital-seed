@@ -153,26 +153,126 @@ Exit criteria:
 
 Goal: stable enough to recommend widely, not merely alpha-useful.
 
-Must have:
+Status: **prep in progress.** Repo-side scaffolding for the 1.0 candidate
+(supported-platform stance, fictional demo transcript, first-use outcome
+examples, RC discipline doc, reusable hostile 1.0 audit prompt) is shipped.
+Real external validation is still the gating step before any `1.0.0-rc.1` tag.
 
-- Reliable install on supported macOS + Linux versions.
-- Clear Windows/WSL stance.
+Shipped (repo-side prep, 2026-05-11):
+
+- [Supported Platforms](supported-platforms.md) — explicit stance:
+  macOS + Linux supported in CI, WSL2 best-effort, Windows-native out of
+  scope.
+- [Demo Transcript](demo-transcript.md) — fictional first 15-minute
+  walkthrough that a stranger can read end-to-end before cloning.
+- [First Useful Outcomes](first-useful-outcomes.md) — concrete examples
+  of the boring real win the alpha is built around.
+- [Release Candidate Discipline](#release-candidate-discipline) (this
+  doc) — what must be true before tagging `1.0.0-rc.1` or `1.0.0`.
+- [Hostile 1.0 Readiness Audit Prompt](hostile-1.0-readiness-audit-prompt.md)
+  — reusable audit prompt for the final pre-RC gate.
+
+Must have before `1.0.0-rc.1`:
+
+- Reliable install on supported macOS + Linux versions (CI green on at
+  least one full release cycle).
+- Clear Windows/WSL stance (shipped).
 - CI green across supported platforms.
-- No known P0/P1 docs contradictions.
-- Security/privacy page strong enough for skeptical users.
-- At least 5 external tester walkthroughs or equivalent fresh-user sessions.
-- Changelog + semver discipline.
-- Public examples/demo transcript using fictional data.
-- Precise “what data leaves your machine?” explanation.
+- No known P0/P1 docs contradictions in the beginner path.
+- Security/privacy page strong enough for skeptical users (see
+  [What Leaves Your Machine?](what-leaves-your-machine.md)).
+- At least 5 **real** external tester walkthroughs or equivalent
+  fresh-user sessions. Simulated persona audits do not count.
+- Changelog + semver discipline (no silent version drift).
+- Public examples/demo transcript using fictional data only (shipped).
+- Precise "what data leaves your machine?" explanation (shipped).
 - No maintainer-only assumptions in the beginner path.
+- A final hostile 1.0 readiness audit answering: "would calling this 1.0
+  be dishonest?" (prompt shipped; the audit itself is the gate).
 
 Exit criteria:
 
-- Tagging `1.0.0` would feel honest, not aspirational.
+- Tagging `1.0.0-rc.1` would feel honest, not aspirational.
+- Tagging `1.0.0` after a 2–4 week RC soak would feel honest, not
+  aspirational.
+
+## Release candidate discipline
+
+The jump from `0.x.y-alpha` to `1.0.0` is not a polish exercise — it is a
+trust contract. This section defines the discipline that protects that
+contract.
+
+### What `1.0.0-rc.1` means
+
+`1.0.0-rc.1` is the **first** version that says: "if we ship this exact
+state as 1.0, we would not be lying." It is not a marketing milestone.
+
+To tag `1.0.0-rc.1`, all of these must be true:
+
+1. The Milestone 5 "must have" list above is satisfied.
+2. The release-check gate
+   (`bun run seed release-check --skip-fresh-clone` + at least one local
+   `scripts/fresh-clone-check.sh` run) is green on the tag commit.
+3. CI is green on `ubuntu-latest` and `macos-latest` for the tag commit.
+4. The reusable hostile 1.0 audit prompt
+   ([`hostile-1.0-readiness-audit-prompt.md`](hostile-1.0-readiness-audit-prompt.md))
+   has been run in a fresh session and produced a "ready for 1.0" verdict
+   with no open P0/P1 blockers.
+5. At least 5 real external testers have walked the first-15-minute path
+   (any platform combination of macOS + Linux + WSL2), with their
+   friction captured in issues or PRs and either fixed or explicitly
+   deferred with rationale.
+6. `CHANGELOG.md` has an `[1.0.0-rc.1]` section that names everything
+   shipped since the last alpha and links to relevant issues/PRs.
+
+### What `1.0.0` means
+
+`1.0.0` is `1.0.0-rc.1` after a 2–4 week RC soak in which **no P0
+regressions** were reported, all P1 fixes from the RC period are merged,
+and at least one additional fresh external tester confirms the path.
+
+`1.0.0` does **not** mean:
+
+- "the project is done" — alpha-style improvement continues.
+- "every command is supported" — beginner/advanced/maintainer split is
+  load-bearing, and only the beginner surface carries the 1.0 trust
+  contract.
+- "every integration recipe is production-grade" — recipes keep their
+  "Official alpha-supported" vs "Experimental / adapt-yourself" labels.
+
+### Honest red flags that block `1.0.0`
+
+Stop and re-cut RCs if any of these is true the day before tagging:
+
+- README or `docs/first-15-minutes.md` was edited in the last 7 days
+  in a way that changes the first-run path.
+- Any docs contradict each other on a load-bearing command.
+- The fresh-clone harness has not been run on the tag commit.
+- The audit prompt has not been re-run against the tag commit.
+- No external tester has walked the path on the current main in the
+  last 30 days.
+
+### How to bump the version
+
+Version strings live in three places and must move together:
+
+- `package.json` → `"version"`
+- `CHANGELOG.md` → new `## [X.Y.Z] - YYYY-MM-DD` entry
+- `docs/release-checklist.md` → the `git tag vX.Y.Z` instruction
+
+The release-check enforces this. Do not bump just one.
+
+### Until then
+
+The current honest version is `0.4.0-alpha`. Do not change it without
+either (a) tagging an `0.4.x-alpha` follow-up patch with a clear
+justification in `CHANGELOG.md`, or (b) cutting `1.0.0-rc.1` with the
+discipline above. There is no in-between.
 
 ## Immediate next sprint
 
-Focus: prep for Milestone 5 — 1.0 candidate.
+Focus: prep for Milestone 5 — 1.0 candidate. Repo-side prep is shipped
+(2026-05-11). The remaining work is real-user validation.
 
 1. Run the first-15-minute path cold on a clean macOS and a clean Linux machine; capture any friction.
 2. Invite 3–5 **real** external testers to walk through onboarding and report where they got stuck. Simulated persona audits are useful for cleanup but cannot replace real friction.
@@ -180,13 +280,23 @@ Focus: prep for Milestone 5 — 1.0 candidate.
 4. Tighten `what-leaves-your-machine.md` with whatever real users surface as confusing.
 5. Keep collecting outside-user friction from issues and PRs to validate Milestones 3 and 4.
 6. Periodically re-run a simulated hostile-persona audit (cheap) but treat it strictly as a sanity check, not validation.
+7. When the external-tester bar is met, run the reusable hostile 1.0 audit prompt and only then consider tagging `1.0.0-rc.1`.
 
 ## Next audit gate
 
-Before calling Digital Seed production-grade or tagging a 1.0 candidate, run another hostile audit focused on external-user usability, not just alpha release gates.
+Before calling Digital Seed production-grade or tagging a 1.0 candidate,
+run the reusable hostile 1.0 audit prompt at
+[`hostile-1.0-readiness-audit-prompt.md`](hostile-1.0-readiness-audit-prompt.md).
+The audit must explicitly answer "would calling this 1.0 be dishonest?"
+and focus on blockers, not polish.
 
 ## Release recommendation
 
-Current honest status: `0.4.0-alpha`, broader-alpha ready.
+Current honest status: `0.4.0-alpha`, broader-alpha ready with Milestone 5
+repo-side prep shipped.
 
-Do **not** call this `1.0` until the production-grade milestones above are complete and validated with external-user walkthroughs.
+Do **not** call this `1.0` (or even `1.0.0-rc.1`) until:
+
+1. The Milestone 5 "must have" list is satisfied.
+2. The release-candidate discipline above is followed.
+3. The hostile 1.0 readiness audit returns a clean verdict.
