@@ -109,6 +109,7 @@ Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
 
 ```bash
 bun run seed onboard          # Show the first 15-minute path
+bun run seed intro            # Show the terminal Digital Seed intro
 bun run seed doctor           # Check local setup health
 bun run seed first-prompt     # Print the first agent prompt
 bun run seed privacy-scan     # Check for common private leftovers

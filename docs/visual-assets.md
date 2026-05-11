@@ -28,6 +28,21 @@ The generator requires Pillow. If `ffmpeg` is available, it also exports MP4 and
 - Particle density is intentionally restrained so the middle of the loop feels like controlled growth, not a chaotic sci-fi explosion.
 - Warm gold is reserved for the seed/bloom moments; mint/aqua carry the data-growth language.
 
+## Terminal intro
+
+The CLI also has a terminal-native Digital Seed intro:
+
+```bash
+bun run seed intro
+```
+
+- `bun run seed intro --static` prints a non-animated version.
+- `bun run seed intro --frames=72 --delay=45` controls the animation length/speed.
+- `bun run seed onboard` shows the intro before the first-15-minute path when running in an interactive terminal.
+- `./setup.sh` uses a compact static version in the setup header.
+
+The terminal visual intentionally uses ANSI glyphs/colors rather than image protocols, so it works in ordinary terminals without requiring Kitty/iTerm image support.
+
 ## Current audit notes
 
 Latest hostile visual audit result: production-ready.
@@ -35,9 +50,10 @@ Latest hostile visual audit result: production-ready.
 Measured loop checks after regeneration:
 
 - GIF: 72 frames, ~5.76s at 80ms/frame, infinite loop flag enabled.
-- GIF wrap seam: last→first mean difference ~1.34, lower than/roughly comparable to normal first→second motion (~1.72), so the wrap should not read as a hiccup.
-- Source wrap seam: last→first mean difference ~0.98, comparable to source first→second motion (~1.05).
+- GIF wrap seam: last→first mean difference ~1.37, lower than/roughly comparable to normal first→second motion (~1.59), so the wrap should not read as a hiccup.
+- Source wrap seam: last→first mean difference ~0.99, comparable to source first→second motion (~0.96).
 - Edge samples at the corners match GitHub dark `(13, 17, 23)`.
+- Bottom seed glow is explicitly feathered into GitHub dark before the image boundary to avoid a hard shine cutoff.
 
 If the loop starts to look jumpy again, check for either:
 

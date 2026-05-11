@@ -223,8 +223,10 @@ def render_frame(i: int) -> Image.Image:
         d.ellipse((sx - r, sy - r, sx + r, sy + r), fill=rgba(WHITE, a))
 
     cx, seed_y = W / 2, 292
-    composite_glow(img, (cx, seed_y), AQUA, 215, 0.075 + 0.125 * grow)
-    composite_glow(img, (cx, seed_y), VIOLET, 160, 0.045 + 0.065 * canopy_p)
+    # Keep the broad seed shine contained; otherwise the lower glow terminates
+    # against the asset boundary and breaks the GitHub-embedded illusion.
+    composite_glow(img, (cx, seed_y - 10), AQUA, 172, 0.07 + 0.11 * grow)
+    composite_glow(img, (cx, seed_y - 16), VIOLET, 126, 0.04 + 0.055 * canopy_p)
     composite_glow(img, (cx, seed_y), GOLD, 58, 0.62 * seed_energy)
     composite_glow(img, (cx, seed_y), MINT, 86, 0.34 * seed_energy)
 
@@ -325,6 +327,17 @@ def render_frame(i: int) -> Image.Image:
     edge = Image.eval(edge.filter(ImageFilter.GaussianBlur(54)), lambda p: 255 - p)
     edge_layer.putalpha(edge.point(lambda p: int(p * 0.62)))
     img.alpha_composite(edge_layer)
+
+    # Bottom glow feather: the seed shine should dissolve into GitHub dark before
+    # it reaches the image boundary, not get cut off by it.
+    bottom_fade = Image.new("RGBA", (W, H), (*GITHUB_BG, 0))
+    bd = ImageDraw.Draw(bottom_fade)
+    for y in range(H):
+        a = smoothstep(H * 0.72, H - 1, y)
+        if a > 0:
+            bd.line((0, y, W, y), fill=(*GITHUB_BG, int(210 * a)))
+    bottom_fade = bottom_fade.filter(ImageFilter.GaussianBlur(10))
+    img.alpha_composite(bottom_fade)
     return img.convert("RGB")
 
 

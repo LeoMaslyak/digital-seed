@@ -45,6 +45,112 @@ function run(script: string, scriptArgs: string[]): void {
   process.exit(result.status ?? 0);
 }
 
+const USE_ANSI = Boolean(process.stdout.isTTY || process.env.FORCE_COLOR);
+
+const ANSI = {
+  reset: "\x1b[0m",
+  bold: "\x1b[1m",
+  dim: "\x1b[2m",
+  clear: "\x1b[2J\x1b[H",
+  hide: "\x1b[?25l",
+  show: "\x1b[?25h",
+  mint: "\x1b[38;5;121m",
+  aqua: "\x1b[38;5;81m",
+  gold: "\x1b[38;5;222m",
+  violet: "\x1b[38;5;141m",
+  muted: "\x1b[38;5;240m",
+  text: "\x1b[38;5;250m",
+};
+
+function sleep(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function stripAnsi(text: string): string {
+  return text.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
+}
+
+function terminalSeedFrame(frame: number, total: number): string {
+  const width = 54;
+  const height = 14;
+  const phase = (frame % total) / total;
+  const grid = Array.from({ length: height }, () => Array.from({ length: width }, () => " "));
+  const color = Array.from({ length: height }, () => Array.from({ length: width }, () => ANSI.muted));
+  const cx = Math.floor(width / 2);
+  const cy = 8;
+  const reset = Math.max(0, Math.min(1, (phase - 0.78) / 0.22));
+  const grow = Math.sin(Math.PI * Math.min(1, phase / 0.78));
+
+  function put(x: number, y: number, ch: string, c = ANSI.mint) {
+    if (x >= 0 && x < width && y >= 0 && y < height) { grid[y][x] = ch; color[y][x] = c; }
+  }
+
+  // GitHub-dark friendly terminal artifact: subtle orbit, seed, then data-tree.
+  for (let i = 0; i < 44; i++) {
+    const a = i / 44 * Math.PI * 2 + phase * Math.PI * 2;
+    const rx = 18 + 2 * Math.sin(phase * Math.PI * 2);
+    const ry = 4;
+    const x = Math.round(cx + Math.cos(a) * rx);
+    const y = Math.round(cy - 1 + Math.sin(a) * ry);
+    if (i % 3 === 0) put(x, y, i % 2 ? "·" : "•", i % 4 ? ANSI.aqua : ANSI.gold);
+  }
+
+  const trunk = Math.max(0, Math.min(1, (phase - 0.22) / 0.34)) * (1 - reset);
+  const canopy = Math.max(0, Math.min(1, (phase - 0.42) / 0.28)) * (1 - reset);
+  const roots = Math.max(0, Math.min(1, (phase - 0.12) / 0.24)) * (1 - reset);
+
+  for (let y = 0; y < Math.round(5 * trunk); y++) {
+    put(cx, cy - y, "│", ANSI.mint);
+    if (y > 1 && y % 2 === 0) put(cx + 1, cy - y, "╱", ANSI.aqua);
+  }
+  const branchRows = Math.round(4 * canopy);
+  for (let r = 0; r < branchRows; r++) {
+    const y = cy - 4 - r;
+    for (let dx = -r * 3 - 2; dx <= r * 3 + 2; dx += 3) {
+      put(cx + dx, y, r % 2 ? "✦" : "✧", dx % 2 ? ANSI.gold : ANSI.mint);
+    }
+  }
+  for (let r = 1; r <= Math.round(4 * roots); r++) {
+    put(cx - r * 2, cy + r, "╲", ANSI.aqua);
+    put(cx + r * 2, cy + r, "╱", ANSI.aqua);
+  }
+
+  const seedPulse = phase < 0.18 || phase > 0.82 ? "◉" : "✺";
+  put(cx, cy, seedPulse, ANSI.gold);
+  put(cx - 1, cy, "(", ANSI.gold);
+  put(cx + 1, cy, ")", ANSI.gold);
+
+  const lines = grid.map((row, y) => row.map((ch, x) => `${color[y][x]}${ch}`).join("") + ANSI.reset);
+  return [
+    `${ANSI.bold}${ANSI.mint}🌱 Digital Seed${ANSI.reset} ${ANSI.dim}— grow your personal AI context${ANSI.reset}`,
+    "",
+    ...lines,
+    "",
+    `${ANSI.text}local-first · agent-neutral · privacy-aware${ANSI.reset}`,
+  ].join("\n");
+}
+
+function printTerminalSeedIntro(options: { animate?: boolean; frames?: number; delayMs?: number } = {}): void {
+  const frames = options.frames ?? 54;
+  const delayMs = options.delayMs ?? 55;
+  const animate = options.animate ?? (process.stdout.isTTY && !process.env.CI);
+  if (!animate) {
+    const frame = terminalSeedFrame(Math.floor(frames * 0.55), frames);
+    console.log(USE_ANSI ? frame : stripAnsi(frame));
+    return;
+  }
+  process.stdout.write(ANSI.hide);
+  try {
+    for (let i = 0; i < frames; i++) {
+      process.stdout.write(ANSI.clear + terminalSeedFrame(i, frames));
+      sleep(delayMs);
+    }
+    process.stdout.write("\n");
+  } finally {
+    process.stdout.write(ANSI.show + ANSI.reset);
+  }
+}
+
 
 function walkFiles(dir: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
@@ -62,6 +168,8 @@ function walkFiles(dir: string, out: string[] = []): string[] {
 
 
 function printOnboard(): void {
+  printTerminalSeedIntro({ animate: process.stdout.isTTY && !process.env.CI, frames: 48, delayMs: 45 });
+  console.log("");
   const lines = [
     "Digital Seed — first 15 minutes",
     "",
@@ -226,6 +334,7 @@ PATTERNS
 BEGINNER SETUP
   bun run seed doctor                  Friendly setup health check
   bun run seed onboard                 Show the first 15-minute path
+  bun run seed intro                   Show the terminal Digital Seed intro
   bun run seed first-prompt            Print the first agent prompt
   bun run seed privacy-scan            Check for common private leftovers
   bun run seed recipe list             List integration recipes
@@ -299,6 +408,13 @@ else if (cmd === "patterns"){ run("scripts/marketplace.ts", ["list"]); }
 else if (cmd === "packs")   { run("scripts/marketplace.ts", ["list", "--packs-only"]); }
 else if (cmd === "doctor")  { run("scripts/health-check.ts", rest); }
 else if (cmd === "onboard" || cmd === "init") { printOnboard(); }
+else if (cmd === "intro") {
+  const framesArg = rest.find((arg) => arg.startsWith("--frames="));
+  const delayArg = rest.find((arg) => arg.startsWith("--delay="));
+  const frames = framesArg ? Number(framesArg.split("=")[1]) : 72;
+  const delayMs = delayArg ? Number(delayArg.split("=")[1]) : 55;
+  printTerminalSeedIntro({ animate: !rest.includes("--static") && USE_ANSI, frames, delayMs });
+}
 else if (cmd === "first-prompt") { printFirstPrompt(); }
 else if (cmd === "privacy-scan") { privacyScan(); }
 else if (cmd === "recipe") { recipe(rest); }
