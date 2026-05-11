@@ -20,8 +20,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "docs" / "assets"
 FRAMES = ROOT / "tmp" / "visual-frames"
 W, H = 960, 416
-FPS = 18
-N = 126
+FPS = 24
+N = 127  # includes a closing frame that matches the opening frame for seamless loops
 DURATION = N / FPS
 
 BG_TOP = (5, 9, 22)
@@ -99,9 +99,9 @@ def path_points(points, progress):
     return points[:keep]
 
 
-stars = [(random.randrange(40, W - 40), random.randrange(24, H - 70), random.random()) for _ in range(140)]
+stars = [(random.randrange(40, W - 40), random.randrange(24, H - 70), random.random()) for _ in range(96)]
 particles = []
-for i in range(92):
+for i in range(56):
     ang = random.random() * math.tau
     rad = random.uniform(52, 245)
     z = random.random()
@@ -146,7 +146,7 @@ for base in branch_paths:
         branchlet_paths.append([quadratic(anchor, ctrl, out, u / 24) for u in range(25)])
 
 canopy_nodes = []
-for i in range(240):
+for i in range(154):
     # elliptical canopy with hollow-ish center
     theta = random.random() * math.tau
     rr = math.sqrt(random.random())
@@ -179,10 +179,15 @@ def background() -> Image.Image:
 
 
 def render_frame(i: int) -> Image.Image:
-    phase = i / N
+    # Include a closing frame that exactly matches the opener, so GIF/video
+    # loop seams are invisible instead of relying on a lossy near-match.
+    phase = 0.0 if i == N - 1 else i / (N - 1)
+    reset = smoothstep(0.88, 1.0, phase)
     # loop time with dissolve in final fifth
     grow = smoothstep(0.07, 0.72, phase) * (1 - smoothstep(0.83, 0.99, phase))
-    seed_energy = 0.55 + 0.45 * bell(phase, 0.12, 0.12) + 0.25 * bell(phase, 0.91, 0.06)
+    initial_seed_energy = 0.55 + 0.45 * bell(0, 0.12, 0.12)
+    seed_energy_raw = 0.55 + 0.45 * bell(phase, 0.12, 0.12) + 0.25 * bell(phase, 0.91, 0.06)
+    seed_energy = seed_energy_raw * (1 - reset) + initial_seed_energy * reset
     root_p = smoothstep(0.15, 0.42, phase) * (1 - smoothstep(0.84, 0.98, phase))
     trunk_p = smoothstep(0.30, 0.58, phase) * (1 - smoothstep(0.83, 0.98, phase))
     branch_p = smoothstep(0.45, 0.74, phase) * (1 - smoothstep(0.83, 0.98, phase))
@@ -195,36 +200,51 @@ def render_frame(i: int) -> Image.Image:
     # stars / space dust
     for sx, sy, z in stars:
         tw = 0.35 + 0.65 * math.sin(math.tau * (phase + z)) ** 2
-        a = 0.08 + 0.20 * tw * (1 - 0.5 * grow)
+        tw0 = 0.35 + 0.65 * math.sin(math.tau * z) ** 2
+        a_raw = 0.08 + 0.20 * tw * (1 - 0.5 * grow)
+        a0 = 0.08 + 0.20 * tw0
+        a = a_raw * (1 - reset) + a0 * reset
         r = 0.6 + z * 1.2
         d.ellipse((sx - r, sy - r, sx + r, sy + r), fill=rgba(WHITE, a))
 
     cx, seed_y = W / 2, 292
-    composite_glow(img, (cx, seed_y), AQUA, 230, 0.09 + 0.15 * grow)
-    composite_glow(img, (cx, seed_y), VIOLET, 170, 0.06 + 0.08 * canopy_p)
+    composite_glow(img, (cx, seed_y), AQUA, 215, 0.075 + 0.125 * grow)
+    composite_glow(img, (cx, seed_y), VIOLET, 160, 0.045 + 0.065 * canopy_p)
     composite_glow(img, (cx, seed_y), GOLD, 58, 0.62 * seed_energy)
     composite_glow(img, (cx, seed_y), MINT, 86, 0.34 * seed_energy)
 
     # water-like horizon ripple
     for k in range(4):
-        rp = (phase * 1.45 + k * 0.22) % 1
-        a = (1 - rp) * 0.15 * (0.5 + root_p)
+        rp_raw = (phase * 1.45 + k * 0.22) % 1
+        rp0 = (k * 0.22) % 1
+        rp = rp_raw * (1 - reset) + rp0 * reset
+        a_raw = (1 - rp_raw) * 0.15 * (0.5 + root_p)
+        a0 = (1 - rp0) * 0.15 * 0.5
+        a = a_raw * (1 - reset) + a0 * reset
         rx = 70 + rp * 310
         ry = 10 + rp * 32
         d.ellipse((cx - rx, seed_y - ry, cx + rx, seed_y + ry), outline=rgba(MINT, a), width=1)
 
     # orbiting particles / continuity of care
     for ang, rad, z, tilt in particles:
-        local = phase * (0.30 + z * 0.25) + z
+        # Integer-ish cycles keep orbital dust from jumping at the loop seam.
+        local = phase * (1 + int(z * 3)) + z
         gather = 1 - smoothstep(0.02, 0.26, phase)
         rr = rad * (0.22 + 0.78 * (1 - gather))
-        x = cx + math.cos(ang + local * math.tau) * rr
-        y = 198 + math.sin(ang + local * math.tau) * rr * (0.38 + tilt)
+        x_raw = cx + math.cos(ang + local * math.tau) * rr
+        y_raw = 198 + math.sin(ang + local * math.tau) * rr * (0.38 + tilt)
         # dissolve drift upward
-        y -= dissolve * (40 + 80 * z)
-        a = (0.18 + 0.42 * z) * (0.35 + 0.65 * math.sin(local * math.tau) ** 2) * (1 - 0.72 * dissolve)
+        y_raw -= dissolve * (40 + 80 * z)
+        x0 = cx + math.cos(ang + z * math.tau) * rad
+        y0 = 198 + math.sin(ang + z * math.tau) * rad * (0.38 + tilt)
+        x = x_raw * (1 - reset) + x0 * reset
+        y = y_raw * (1 - reset) + y0 * reset
+        a_raw = (0.14 + 0.34 * z) * (0.35 + 0.65 * math.sin(local * math.tau) ** 2) * (1 - 0.72 * dissolve)
+        local0 = z
+        a0 = (0.14 + 0.34 * z) * (0.35 + 0.65 * math.sin(local0 * math.tau) ** 2)
+        a = a_raw * (1 - reset) + a0 * reset
         r = 1.0 + 2.2 * z
-        color = MINT if z > 0.35 else GOLD
+        color = MINT if z > 0.50 else GOLD
         d.ellipse((x - r, y - r, x + r, y + r), fill=rgba(color, a))
 
     # roots
@@ -255,8 +275,8 @@ def render_frame(i: int) -> Image.Image:
     if canopy_p > 0:
         canopy_glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         cd = ImageDraw.Draw(canopy_glow)
-        cd.ellipse((260, 28, 805, 244), fill=rgba(MINT, 0.10 * canopy_p * (1 - dissolve)))
-        cd.ellipse((333, 18, 742, 196), fill=rgba(GOLD, 0.055 * canopy_p * (1 - dissolve)))
+        cd.ellipse((260, 28, 805, 244), fill=rgba(MINT, 0.075 * canopy_p * (1 - dissolve)))
+        cd.ellipse((333, 18, 742, 196), fill=rgba(GOLD, 0.065 * canopy_p * (1 - dissolve)))
         canopy_glow = canopy_glow.filter(ImageFilter.GaussianBlur(34))
         img.alpha_composite(canopy_glow)
 
@@ -269,7 +289,7 @@ def render_frame(i: int) -> Image.Image:
         dx = math.sin(math.tau * (phase * 0.23 + z)) * 4
         dy = math.cos(math.tau * (phase * 0.19 + z)) * 3 - dissolve * (16 + z * 45)
         a = birth * pulse * (1 - 0.85 * dissolve)
-        col = MINT if z > 0.32 else (GOLD if z > 0.16 else AQUA)
+        col = MINT if z > 0.46 else (GOLD if z > 0.12 else AQUA)
         d.ellipse((x + dx - r, y + dy - r, x + dx + r, y + dy + r), fill=rgba(col, 0.26 * a))
         if z > 0.55:
             composite_glow(img, (x + dx, y + dy), col, r * 6.5, 0.055 * a)
