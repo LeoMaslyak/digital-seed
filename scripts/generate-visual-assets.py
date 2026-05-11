@@ -149,7 +149,7 @@ for base in branch_paths:
         branchlet_paths.append([quadratic(anchor, ctrl, out, u / 24) for u in range(25)])
 
 canopy_nodes = []
-for i in range(154):
+for i in range(220):
     # elliptical canopy with hollow-ish center
     theta = random.random() * math.tau
     rr = math.sqrt(random.random())
@@ -197,7 +197,7 @@ def render_frame(i: int) -> Image.Image:
     # create a perceptible hold/hiccup in GIF playback. Instead, every animated
     # element eases close to its opening state before the player wraps.
     phase = i / N
-    reset = smoothstep(0.80, 0.992, phase)
+    reset = smoothstep(0.76, 0.985, phase)
     # loop time with dissolve in final fifth
     grow = smoothstep(0.07, 0.72, phase) * (1 - smoothstep(0.83, 0.99, phase))
     initial_seed_energy = 0.55 + 0.45 * bell(0, 0.12, 0.12)
@@ -205,9 +205,10 @@ def render_frame(i: int) -> Image.Image:
     seed_energy = seed_energy_raw * (1 - reset) + initial_seed_energy * reset
     root_p = smoothstep(0.15, 0.42, phase) * (1 - smoothstep(0.84, 0.98, phase))
     trunk_p = smoothstep(0.30, 0.58, phase) * (1 - smoothstep(0.83, 0.98, phase))
-    branch_p = smoothstep(0.45, 0.74, phase) * (1 - smoothstep(0.83, 0.98, phase))
-    canopy_p = smoothstep(0.56, 0.80, phase) * (1 - smoothstep(0.82, 0.98, phase))
-    dissolve = smoothstep(0.80, 0.98, phase)
+    branch_p = smoothstep(0.43, 0.70, phase) * (1 - smoothstep(0.86, 0.982, phase))
+    canopy_p = smoothstep(0.52, 0.76, phase) * (1 - smoothstep(0.86, 0.982, phase))
+    fruit_p = smoothstep(0.64, 0.82, phase) * (1 - smoothstep(0.84, 0.970, phase))
+    dissolve = smoothstep(0.84, 0.982, phase)
 
     img = background()
     d = ImageDraw.Draw(img)
@@ -292,8 +293,9 @@ def render_frame(i: int) -> Image.Image:
     if canopy_p > 0:
         canopy_glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         cd = ImageDraw.Draw(canopy_glow)
-        cd.ellipse((260, 28, 805, 244), fill=rgba(MINT, 0.075 * canopy_p * (1 - dissolve)))
-        cd.ellipse((333, 18, 742, 196), fill=rgba(GOLD, 0.065 * canopy_p * (1 - dissolve)))
+        cd.ellipse((240, 22, 826, 252), fill=rgba(MINT, 0.095 * canopy_p * (1 - dissolve)))
+        cd.ellipse((305, 10, 765, 212), fill=rgba(GOLD, 0.085 * canopy_p * (1 - dissolve)))
+        cd.ellipse((210, 66, 860, 270), fill=rgba(AQUA, 0.045 * canopy_p * (1 - dissolve)))
         canopy_glow = canopy_glow.filter(ImageFilter.GaussianBlur(34))
         img.alpha_composite(canopy_glow)
 
@@ -310,6 +312,23 @@ def render_frame(i: int) -> Image.Image:
         d.ellipse((x + dx - r, y + dy - r, x + dx + r, y + dy + r), fill=rgba(col, 0.26 * a))
         if z > 0.55:
             composite_glow(img, (x + dx, y + dy), col, r * 6.5, 0.055 * a)
+
+
+    # Late-loop fruit: warm nodes make the mature tree feel alive before it
+    # dissolves back into a seed. They are deterministic, generated from the
+    # canopy node list, and fade before the loop reset.
+    if fruit_p > 0:
+        for idx, (x, y, r, z) in enumerate(canopy_nodes[::11]):
+            if idx >= 18:
+                break
+            phase_offset = (idx * 0.137 + z) % 1
+            pulse = 0.7 + 0.3 * math.sin(math.tau * (phase * 1.2 + phase_offset))
+            fx = x + math.sin(math.tau * (phase * 0.18 + z)) * 3
+            fy = y + 6 + math.cos(math.tau * (phase * 0.16 + z)) * 2 - dissolve * (10 + z * 26)
+            rr = 2.0 + 2.3 * (idx % 3) / 2
+            a = fruit_p * pulse * (1 - 0.72 * dissolve)
+            d.ellipse((fx - rr, fy - rr, fx + rr, fy + rr), fill=rgba(GOLD, 0.55 * a))
+            composite_glow(img, (fx, fy), GOLD, rr * 5.2, 0.08 * a)
 
     # seed core last, breathing and reset
     seed_r_raw = 8 + 8 * seed_energy + 3 * math.sin(math.tau * phase * 2)

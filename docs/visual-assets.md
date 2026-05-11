@@ -26,7 +26,8 @@ The generator requires Pillow. If `ffmpeg` is available, it also exports MP4 and
 - Edges are pinned and feathered to GitHub dark `#0d1117`, so the visual reads as an embedded artifact rather than a pasted rectangle.
 - The GIF avoids a duplicated terminal frame. Duplicating the opening frame at the end produced a perceptible end-loop hold; the current loop eases close to the opener and lets playback wrap naturally.
 - Particle density is intentionally restrained so the middle of the loop feels like controlled growth, not a chaotic sci-fi explosion.
-- Warm gold is reserved for the seed/bloom moments; mint/aqua carry the data-growth language.
+- Warm gold is reserved for the seed/bloom/fruit moments; mint/aqua carry the data-growth language.
+- The mature phase uses a denser canopy plus small warm fruit nodes so the tree reads as alive before it dissolves back into the seed.
 
 ## Terminal intro
 
@@ -50,7 +51,7 @@ Latest hostile visual audit result: production-ready.
 Measured loop checks after regeneration:
 
 - GIF: 72 frames, ~5.76s at 80ms/frame, infinite loop flag enabled.
-- GIF wrap seam: last→first mean difference ~1.16, roughly comparable to normal first→second motion (~0.93), so the wrap should not read as a hiccup.
+- GIF wrap seam: last→first mean difference ~1.14, roughly comparable to normal first→second motion (~0.93), so the wrap should not read as a hiccup.
 - Source wrap seam: last→first mean difference ~0.99, comparable to source first→second motion (~0.96).
 - Edge samples at the corners match GitHub dark `(13, 17, 23)`.
 - Bottom seed glow is explicitly feathered into GitHub dark before the image boundary to avoid a hard shine cutoff; the lower fade begins above the former visible edge and ramps gently to the border.
