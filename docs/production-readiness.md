@@ -60,6 +60,10 @@ All P0 items have shipped. Recap:
 - Add more robust local search ranking or optional semantic search path.
 - Add integration-specific validation for recipes.
 
+## Next audit gate
+
+Before a broader alpha announcement, run the hostile production-alpha audit in `docs/hostile-audit-production-alpha-prompt.md`. The expected result should be either "ready for broader alpha announcement" or a short P0 fix list.
+
 ## Release recommendation
 
 Do not call this `1.0`. With the P0 list complete, the honest next release is `0.4.0-alpha`:

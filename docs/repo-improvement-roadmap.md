@@ -37,7 +37,13 @@ P0 items shipped in this pass:
 4. ✅ Data room publish fallback — `--no-delete`, `--replace-strategy`, `--strict`; the default delete path now warns instead of hard-failing on permission errors.
 5. ✅ README first-screen tightening — 15-minute promise, quick start, data room, who for / not for.
 
-Remaining P1 polish before a larger public push:
+Next gate before a larger public push:
+
+- Run the hostile production-alpha audit in `docs/hostile-audit-production-alpha-prompt.md`.
+- Fix any P0 findings from that audit.
+- Decide whether to tag/publish `v0.4.0-alpha` after audit fixes.
+
+Remaining P1 polish after the hostile audit:
 
 - Local Markdown link checker.
 - Examples gallery (student / founder / investor / researcher).
