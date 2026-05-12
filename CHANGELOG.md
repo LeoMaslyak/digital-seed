@@ -4,7 +4,44 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
-(No new changes since `0.4.1-alpha`.)
+(No new changes since `0.4.2-alpha`.)
+
+## [0.4.2-alpha] - 2026-05-12
+
+### Added
+
+- **Phase system** (`docs/phases.md`) — four explicit phases users choose from: Local context (required) → Local search → Integrations → Always-on agent. Replaces the vague "pick a profile" model with a clear, ordered progression.
+- **`bun run seed plan`** — prints a paste-ready agent prompt that interviews the user, recommends phases, and runs setup commands. `--write-plan` creates `user/MY-PLAN.md`.
+- **`bun run seed what-next`** — reads `user/MY-PLAN.md` and prints exactly one next action. Removes the "I finished Phase 1, now what?" blankness.
+- **`bun run seed feedback`** — prints direct GitHub issue-template links for first-run friction, docs confusion, and bugs. `--write-draft` creates `user/FEEDBACK-DRAFT.md`.
+- **`.github/ISSUE_TEMPLATE/first_run_friction.yml`** — dedicated non-technical issue template for "I got confused / this felt too technical" reports.
+- **`docs/feedback.md`** — non-technical path to GitHub issues and GitHub-web PR edits without local Git knowledge.
+- **`docs/install-codex-cli.md`** — complete beginner install guide for Codex CLI (OpenAI): macOS + WSL2 steps, login, first run, troubleshooting.
+- **`docs/install-gemini-cli.md`** — complete beginner install guide for Gemini CLI (Google): same structure.
+- **`docs/simulated-public-alpha-readiness-2026-05-12.md`** — hostile audit of all 2026-05-12 changes. Verdict: public-alpha usable, not announcement-ready until version drift is resolved (resolved in this release).
+- **`docs/public-usability-roadmap.md`** — concrete M1–M8 milestone list for reaching ~95% usability without external users.
+- **`docs/releases/v0.4.1-alpha.md`** — draft release notes for v0.4.1-alpha (not yet published as a GitHub Release).
+
+### Changed
+
+- **Agent prerequisite now surfaced first** — README prereqs block reordered (agent first, not last) with a plain warning: without a terminal-capable agent, the guided setup will not work.
+- **`docs/agent-chooser.md` fully rewritten** — Claude Code, Codex CLI, Gemini CLI, Ollama, Cursor/Windsurf, OpenClaw/Hermes all documented with install commands, honest caveats, and a quick-pick table. Ollama section includes an honest caveat that <30B models are unreliable for guided setup.
+- **`docs/install-claude-code.md`** — now opens with a note that Claude Code is one of several options, with links to Codex and Gemini alternatives.
+- **`setup.sh` phase chooser** — replaces the flat profile picker with a phase-aware step: explains all four phases, asks which to enable now, prompts for notes folder (Phase 2) and recipe choice (Phase 3) inline.
+- **`bun run seed doctor`** — now detects `claude`, `codex`, `gemini`, `cursor`, `windsurf`, and `ollama`. Missing-agent warning lists all four install paths.
+- **`bun run seed onboard --plain`** — now includes agent install options (Claude Code, Codex, Gemini, Ollama) in Step 3, and a "Done? Run: `bun run seed what-next`" footer.
+- **README prereqs** — AI agent bullet now lists all four agent options with one-line install commands and links to beginner guides.
+- **`docs/production-readiness.md`** — scorecard updated to ~85% overall; agent onboarding and feedback/friction reporting areas added.
+- **Agent login commands corrected** — `claude login` → `claude auth login`; `gemini auth login` → "run `gemini` and follow the sign-in prompt" (hostile audit finding, `783f001`).
+- **`SECURITY.md`** — API Key Management section now references `bun run seed privacy-scan` as the local scanner.
+- **`CONTRIBUTING.md`** — Repo shape section now lists all top-level directories including `agents/`, `collab/`, `config/`, `core/`, `data/`, `exports/`, `integrations/`, `mcp/`, `packs/`, `patterns/`.
+- **`docs/troubleshooting.md`** — added agent-specific troubleshooting for Codex CLI (`codex: command not found`), Gemini CLI (`gemini: command not found`), and Ollama reliability.
+
+### Notes
+
+- No new runtime dependencies. No new external services on the beginner path.
+- This is a documentation, DX, and onboarding release. No changes to core CLI behavior beyond the two new commands (`plan`, `what-next`) and the agent detection improvements in `doctor`.
+- The 1.0 gates remain open: real external testers have not yet walked the path.
 
 ## [0.4.1-alpha] - 2026-05-11
 ### Added
