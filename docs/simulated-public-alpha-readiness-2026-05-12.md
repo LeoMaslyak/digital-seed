@@ -98,5 +98,6 @@ Verification after fix:
 
 ## Final state
 
-- Final `git status --short --branch`: clean on `main...origin/main` after pushing the fix commit.
+- Final `git status --short --branch`: clean on `main...origin/main` after pushing the audit commits.
+- Follow-up note: a P2 backlog cleanup commit (`c435495`) landed after the first audit-doc commit; this file was updated afterward so the audit doc remains the final commit in the audit sequence.
 - No external publishing, messaging, or uploads performed.
