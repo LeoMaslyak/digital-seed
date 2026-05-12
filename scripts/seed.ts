@@ -243,6 +243,7 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     "",
     dim("Rule: do not connect email, messaging, or cloud automation until the local workflow is useful."),
     dim("Stuck? Run: bun run seed feedback"),
+    dim("Done? Run: bun run seed what-next"),
     dim("Full guide: docs/first-15-minutes.md · Examples: docs/examples/README.md"),
   ];
   const text = lines.join("\n");
@@ -403,6 +404,57 @@ function privacyScan(): void {
   if (hits.length > 0) process.exit(1);
 }
 
+
+
+function nonEmptyFile(rel: string): boolean {
+  const full = join(ROOT, rel);
+  if (!existsSync(full)) return false;
+  try { return readFileSync(full, "utf-8").trim().length > 0; } catch { return false; }
+}
+
+function hasLocalIndex(): boolean {
+  const dataDir = join(ROOT, "data");
+  if (!existsSync(dataDir)) return false;
+  const files = walkFiles(dataDir);
+  return files.some((file) => {
+    const rel = file.slice(ROOT.length + 1).toLowerCase();
+    return rel.includes("embedding") || rel.includes("vector") || rel.endsWith("data/rag/status.json");
+  });
+}
+
+function printWhatNext(): void {
+  const planPath = join(ROOT, "user", "MY-PLAN.md");
+  if (!existsSync(planPath)) {
+    console.log("Run: bun run seed plan --write-plan — then paste the output into your agent to choose your phases.");
+    return;
+  }
+
+  const phase1Done = ["user/USER.md", "user/COMPASS.md", "user/GOALS.md"].every(nonEmptyFile);
+  if (!phase1Done) {
+    console.log("Run: bun run seed onboard --plain — then fill in user/USER.md, COMPASS.md, and GOALS.md.");
+    return;
+  }
+
+  let plan = "";
+  try { plan = readFileSync(planPath, "utf-8"); } catch { plan = ""; }
+  const checkedPhaseLines = plan.split(/\r?\n/).filter((line) => /^\s*- \[x\]/i.test(line));
+  const phaseTicked = (n: number) => checkedPhaseLines.some((line) => new RegExp(`phase\\s*${n}\\b`, "i").test(line));
+  const phase2Ticked = phaseTicked(2);
+  const phase3Ticked = phaseTicked(3);
+  const indexExists = hasLocalIndex();
+
+  if (!phase2Ticked && !indexExists) {
+    console.log("Run: bun run seed index <your-notes-folder> — indexes a local folder for search.");
+    return;
+  }
+
+  if ((phase2Ticked || indexExists) && !phase3Ticked) {
+    console.log("Run: bun run seed recipe list — pick one integration and follow its README.");
+    return;
+  }
+
+  console.log("Your plan is complete. Run: bun run seed feedback if anything felt unclear. Or add a new phase: bun run seed plan");
+}
 
 function localSearch(query: string): void {
   const q = query.trim().toLowerCase();
@@ -727,7 +779,7 @@ Rules:
     console.log("⚠️  No terminal-capable AI agent detected on your PATH.");
     console.log("");
     console.log("   You need one before this prompt will work. Options:");
-    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude auth login");
+    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude login");
     console.log("     Codex CLI (OpenAI)        — npm install -g @openai/codex + codex login");
     console.log("     Gemini CLI (Google)       — npm install -g @google/gemini-cli, then run gemini and follow the sign-in prompt");
     console.log("     Ollama (local, no cloud)  — https://ollama.ai");
@@ -785,6 +837,7 @@ BEGINNER — first 15 minutes
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed recipe list             List integration recipes
   bun run seed plan                    Print the AI-guided phase-selection prompt
+  bun run seed what-next               Print one recommended next action
   bun run seed feedback                Show the easiest ways to report friction
   bun run seed hooks install           Install pre-commit secret-scan hook
   bun run seed hooks status            Show pre-commit hook status
@@ -888,6 +941,7 @@ else if (cmd === "intro") {
 }
 else if (cmd === "first-prompt") { printFirstPrompt(); }
 else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") }); }
+else if (cmd === "what-next") { printWhatNext(); }
 else if (cmd === "feedback") { printFeedback({ writeDraft: rest.includes("--write-draft") }); }
 else if (cmd === "privacy-scan") { privacyScan(); }
 else if (cmd === "visual-qa") {

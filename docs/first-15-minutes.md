@@ -71,6 +71,8 @@ bun run seed recipe list
 
 Choose one integration path only. Good starting choices:
 
+Done with step 5? Run `bun run seed what-next` for exactly one recommended next action.
+
 - Obsidian, if you already use notes
 - GitHub repo assistant, if your work is code/project-heavy
 - Google Drive, if your useful files live there
