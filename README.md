@@ -31,9 +31,11 @@ Digital Seed is a small repo of editable context files plus a CLI that walks you
 
 **Prerequisites (one-time):**
 
-- **Git** — to clone the repo (most systems have it; install via `xcode-select --install` on macOS or your distro's package manager on Linux).
+> **Start here if you are new.** The most common first blocker is not having an AI agent installed. Digital Seed is a folder your AI agent reads and works in — without one, you can read the files but not run the guided setup. Install one before you clone.
+
+- **A terminal-capable AI agent** — this is what actually uses your context files. The easiest starting choice is **Claude Code** (free to install; needs a claude.ai account). Full install guide: [docs/install-claude-code.md](docs/install-claude-code.md). Not sure which agent to pick? See [docs/agent-chooser.md](docs/agent-chooser.md).
 - **Bun** — the JS runtime Digital Seed uses (`curl -fsSL https://bun.sh/install | bash`, then `exec $SHELL -l`). Plain `node` is not supported. See [Troubleshooting → Bun is missing](docs/troubleshooting.md#bun-is-missing-or-the-wrong-version) if `bun --version` does not work.
-- **A terminal-capable AI agent** — Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or another agent that can run shell commands in this folder. New to terminals? Let [an AI agent install it for you](docs/ai-agent-install.md).
+- **Git** — to clone the repo (most systems have it; install via `xcode-select --install` on macOS or your distro's package manager on Linux).
 
 Then:
 

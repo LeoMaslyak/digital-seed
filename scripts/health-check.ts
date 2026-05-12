@@ -39,6 +39,27 @@ check("User context", () => {
   };
 });
 
+// Check AI agent CLI
+check("AI agent", () => {
+  const { spawnSync: sp } = require("child_process");
+  const agents = [
+    { name: "claude", label: "Claude Code" },
+    { name: "cursor", label: "Cursor" },
+    { name: "windsurf", label: "Windsurf" },
+  ];
+  const found = agents.filter((a) => sp("which", [a.name], { stdio: "pipe" }).status === 0);
+  if (found.length > 0) {
+    return { ok: true, detail: found.map((a) => a.label).join(", ") + " found" };
+  }
+  return {
+    ok: false,
+    detail:
+      "No terminal-capable AI agent found (claude, cursor, windsurf). " +
+      "You need one to use Digital Seed. " +
+      "Install guide: docs/install-claude-code.md · Agent comparison: docs/agent-chooser.md",
+  };
+});
+
 // Check AI provider
 check("AI provider", () => {
   const envFile = join(ROOT, ".env");

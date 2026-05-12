@@ -90,15 +90,32 @@ check_prerequisites() {
     [ -z "${DEFAULT_AGENT:-}" ] && DEFAULT_AGENT="cursor"
   fi
   if [ "$agent_found" -eq 0 ]; then
-    echo -e "  ${YELLOW}⚠${NC} No AI agent detected (Claude Code, Cursor)"
-    # Note: Claude Code is an npm package from Anthropic — we use npm here for the
-    # one-time global install only. Everything inside this repo uses bun.
+    echo ""
+    echo -e "  ${RED}⚠ IMPORTANT — no AI agent found${NC}"
+    echo ""
+    echo "  Digital Seed needs a terminal-capable AI agent to be useful."
+    echo "  The agent reads your context files, interviews you, and runs setup."
+    echo "  Without one, you can still edit files, but the guided experience will not work."
+    echo ""
+    echo "  Recommended: Claude Code (free to install, needs a claude.ai account)"
     if command -v bun &>/dev/null; then
-      echo -e "    Install Claude Code (via bun): ${CYAN}bun install -g @anthropic-ai/claude-code${NC}"
+      echo -e "    Install: ${CYAN}bun install -g @anthropic-ai/claude-code${NC}"
     else
-      echo -e "    Install Claude Code (via npm): ${CYAN}npm install -g @anthropic-ai/claude-code${NC}"
+      echo -e "    Install: ${CYAN}npm install -g @anthropic-ai/claude-code${NC}"
     fi
-    echo -e "    You can still use the kit with any MCP-compatible agent."
+    echo -e "    Then log in: ${CYAN}claude login${NC}"
+    echo -e "    Full guide:  ${CYAN}docs/install-claude-code.md${NC}"
+    echo -e "    Other agents: ${CYAN}docs/agent-chooser.md${NC}"
+    echo ""
+    echo -ne "  Continue setup without an agent? [y/N]: "
+    read -r continue_ans
+    if [ "${continue_ans:-N}" != "y" ] && [ "${continue_ans:-N}" != "Y" ]; then
+      echo ""
+      echo "  Smart choice. Install an agent first, then re-run: ./setup.sh"
+      echo "  Or follow the install guide: docs/install-claude-code.md"
+      echo ""
+      exit 0
+    fi
     DEFAULT_AGENT="generic"
   fi
 
