@@ -4,9 +4,9 @@ contact_links:
     url: https://github.com/LeoMaslyak/digital-seed/issues/new?template=docs_confusion.yml
     about: |
       Stuck on the first 15 minutes, or unsure whether something is a bug or expected
-      behavior? Use the "Docs confusion" template — it lets you describe what was
-      unclear without forcing it into the bug-report shape. (Discussions are not
-      enabled on this repo yet.)
+      behavior? Use the first-run friction or docs-confusion template — both let
+      you describe what was unclear without forcing it into the bug-report shape.
+      (Discussions are not enabled on this repo yet.)
   - name: Security issue (private disclosure)
     url: https://github.com/LeoMaslyak/digital-seed/security/advisories/new
     about: |

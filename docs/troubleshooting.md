@@ -108,3 +108,5 @@ Most common causes:
 ## "It still does not work"
 
 Open `bun run seed doctor` output, copy it, and ask your agent: "Here is the Digital Seed doctor output — what is wrong and how do I fix it?" The doctor output is designed to be paste-ready for an AI agent.
+
+If the problem still blocks you, run `bun run seed feedback` for the fastest GitHub issue links, or `bun run seed feedback --write-draft` to create `user/FEEDBACK-DRAFT.md` before opening an issue. See [Feedback and Small Fixes](feedback.md).

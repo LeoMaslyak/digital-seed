@@ -16,8 +16,23 @@ You do not need to understand the whole project to improve one page or one recip
 
 ## Before opening an issue
 
+If GitHub or bug reports feel intimidating, run:
+
+```bash
+bun run seed feedback
+```
+
+For a copy-paste draft, run:
+
+```bash
+bun run seed feedback --write-draft
+```
+
+See [Feedback and Small Fixes](docs/feedback.md) for the non-technical path to issues and tiny docs PRs.
+
 Please choose the closest issue template:
 
+- **First-run friction** — the first 15 minutes felt confusing, too technical, scary, or unclear.
 - **Bug report** — a command failed, generated the wrong output, or behaved differently on your platform.
 - **Docs confusion** — a page was unclear, contradictory, missing context, or too advanced for the first-run path.
 - **Integration recipe request** — you want a safe recipe for a tool or workflow Digital Seed does not cover yet.

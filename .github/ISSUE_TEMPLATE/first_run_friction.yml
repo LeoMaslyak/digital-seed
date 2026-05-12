@@ -1,0 +1,79 @@
+name: First-run friction
+description: Report anything that made the first 15 minutes confusing, scary, or harder than expected
+title: "First-run: "
+labels: [first-run, usability]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this even if you are not sure whether anything is "broken". If you hesitated, got confused, or needed background knowledge the docs did not give you, that is useful feedback.
+
+        Please remove secrets, private notes, real names, email addresses, tokens, and private file paths before pasting output.
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where did you get stuck?
+      options:
+        - Understanding what Digital Seed is
+        - Installing Git / Bun / prerequisites
+        - Running `bun install`
+        - Running `bun run seed onboard`
+        - Editing USER.md / COMPASS.md / GOALS.md
+        - Running or pasting `bun run seed first-prompt`
+        - Choosing a recipe
+        - Understanding privacy / what leaves my machine
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: story
+    attributes:
+      label: What happened?
+      description: Plain language is perfect. Screenshots or copied terminal output help, but are optional.
+      placeholder: "I was trying to..., then I got stuck because..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What would have made this easier?
+      placeholder: "A shorter sentence / a screenshot / an exact command / a warning before..."
+    validations:
+      required: true
+  - type: textarea
+    id: commands
+    attributes:
+      label: Commands or pages involved
+      description: Paste the command you ran or the page you were reading, if you know it.
+      placeholder: |
+        README.md
+        docs/first-15-minutes.md
+        bun run seed onboard
+        bun run seed first-prompt
+  - type: input
+    id: os
+    attributes:
+      label: Your setup
+      placeholder: "macOS, Ubuntu/Linux, WSL2, Windows-native, not sure"
+  - type: input
+    id: bun-version
+    attributes:
+      label: Bun version, if known
+      placeholder: "Run: bun --version"
+  - type: dropdown
+    id: technical-comfort
+    attributes:
+      label: How comfortable are you with terminals/GitHub?
+      options:
+        - New to terminals and GitHub
+        - Comfortable following exact commands
+        - Comfortable debugging some things
+        - Technical contributor
+        - Prefer not to say
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed secrets, tokens, private notes, personal data, and local-only config from this report.
+          required: true

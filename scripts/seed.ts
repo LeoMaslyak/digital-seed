@@ -236,6 +236,7 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     `   ${cmd("bun run seed onboard --write-first-win")}  ${dim("# creates user/FIRST-WIN.md if missing")}`,
     "",
     dim("Rule: do not connect email, messaging, or cloud automation until the local workflow is useful."),
+    dim("Stuck? Run: bun run seed feedback"),
     dim("Full guide: docs/first-15-minutes.md · Examples: docs/examples/README.md"),
   ];
   const text = lines.join("\n");
@@ -585,6 +586,92 @@ function recipe(args: string[]): void {
 }
 
 
+function feedbackDraftTemplate(): string {
+  return `# Digital Seed Feedback Draft
+
+> Copy this into a GitHub issue, or paste it into your AI agent and ask it to help you clean it up.
+> Remove secrets, tokens, private notes, real names, email addresses, and private file paths first.
+
+## What I was trying to do
+
+I was trying to...
+
+## Where I got stuck
+
+- Page or command:
+- What happened:
+- What I expected:
+
+## Steps I took
+
+1. \`git clone https://github.com/LeoMaslyak/digital-seed.git\`
+2. \`cd digital-seed\`
+3. \`bun install\`
+4. \`bun run seed onboard\`
+5. ...
+
+## Output or screenshot
+
+Paste the smallest useful error output here. Remove private data first.
+
+\`\`\`text
+
+\`\`\`
+
+## My setup
+
+- OS: macOS / Linux / WSL2 / other
+- Bun version (\`bun --version\`):
+- Agent used, if any: Claude Code / Cursor / Windsurf / OpenClaw / Hermes / other
+
+## Impact
+
+- [ ] Blocks the first 15-minute path
+- [ ] Makes the docs confusing
+- [ ] Affects optional integrations only
+- [ ] I am not sure
+
+## Privacy check
+
+- [ ] I removed secrets, tokens, private notes, personal data, and local-only config from this report.
+`;
+}
+
+function printFeedback(options: { writeDraft?: boolean } = {}): void {
+  const issueBase = "https://github.com/LeoMaslyak/digital-seed/issues/new/choose";
+  const docsConfusion = "https://github.com/LeoMaslyak/digital-seed/issues/new?template=docs_confusion.yml";
+  const firstRun = "https://github.com/LeoMaslyak/digital-seed/issues/new?template=first_run_friction.yml";
+  const bug = "https://github.com/LeoMaslyak/digital-seed/issues/new?template=bug_report.yml";
+  console.log("Digital Seed feedback — fastest paths");
+  console.log("");
+  console.log("If the first 15 minutes were confusing:");
+  console.log(`  ${firstRun}`);
+  console.log("");
+  console.log("If a doc page sent you the wrong way:");
+  console.log(`  ${docsConfusion}`);
+  console.log("");
+  console.log("If a command failed:");
+  console.log(`  ${bug}`);
+  console.log("");
+  console.log("Not sure? Choose from all templates:");
+  console.log(`  ${issueBase}`);
+  console.log("");
+  console.log("Want to suggest a wording fix without Git? Open the page on GitHub, click the pencil icon, edit the text, and GitHub will offer to create a PR for you.");
+  console.log("Full guide: docs/feedback.md");
+
+  if (options.writeDraft) {
+    const outDir = join(ROOT, "user");
+    mkdirSync(outDir, { recursive: true });
+    const out = join(outDir, "FEEDBACK-DRAFT.md");
+    writeFileSync(out, feedbackDraftTemplate(), "utf-8");
+    console.log("");
+    console.log(`✅ Wrote ${out}`);
+    console.log("Fill it in, remove private data, then paste it into the matching GitHub issue template.");
+  }
+}
+
+
+
 function usage(): void {
   console.log(`
 Digital Seed — Personal AI Infrastructure
@@ -602,12 +689,14 @@ BEGINNER — first 15 minutes
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed recipe list             List integration recipes
+  bun run seed feedback                Show the easiest ways to report friction
   bun run seed hooks install           Install pre-commit secret-scan hook
   bun run seed hooks status            Show pre-commit hook status
 
   Optional flags on the beginner path:
   bun run seed onboard --write-first-win        Create user/FIRST-WIN.md if missing
   bun run seed onboard --write-first-win --force    Overwrite user/FIRST-WIN.md
+  bun run seed feedback --write-draft           Create user/FEEDBACK-DRAFT.md
 
 ADVANCED — optional power-user workflows
   Not part of the first-run promise. Skip on day one. Each command has its
@@ -701,6 +790,7 @@ else if (cmd === "intro") {
   printTerminalSeedIntro({ animate: !rest.includes("--static") && USE_ANSI, frames, delayMs });
 }
 else if (cmd === "first-prompt") { printFirstPrompt(); }
+else if (cmd === "feedback") { printFeedback({ writeDraft: rest.includes("--write-draft") }); }
 else if (cmd === "privacy-scan") { privacyScan(); }
 else if (cmd === "visual-qa") {
   const result = spawnSync("python3", [join(ROOT, "scripts/visual-qa.py"), ...rest], {

@@ -108,6 +108,7 @@ bun run seed onboard          # First 15-minute path (--plain for no animation)
 bun run seed doctor           # Check local setup health
 bun run seed first-prompt     # Print the first agent prompt
 bun run seed privacy-scan     # Check for common private leftovers
+bun run seed feedback         # Report first-run friction or docs confusion
 bun run seed index <folder>   # Build a local retrieval index
 bun run seed search "query"   # Search local indexed notes/docs
 bun run seed recipe list      # Show integration recipes
@@ -135,6 +136,8 @@ Reference:
 - [Architecture Map](docs/architecture-map.md) — how the moving parts fit together
 - [Dashboard Options](docs/dashboard-options.md) — visual dashboards Digital Seed does not bundle
 - [Known Alpha Limits](docs/known-alpha-limits.md) — what you should not expect yet
+- [Feedback and Small Fixes](docs/feedback.md) — easiest way to report friction or suggest a docs fix
+- [Public Usability Roadmap](docs/public-usability-roadmap.md) — what remains before 100% public usability
 - [Supported Platforms](docs/supported-platforms.md) — what is tested, what is best-effort, what is not supported
 - [What Leaves Your Machine?](docs/what-leaves-your-machine.md) — local-first privacy and external-data boundaries
 - [Production Readiness](docs/production-readiness.md) — public-ready gaps and release criteria
@@ -155,7 +158,7 @@ Digital Seed is alpha software. It is useful today, but it is intentionally a st
 
 ## Contributing & code of conduct
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the contributor flow and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations. Security issues should go through a private GitHub security advisory — see [SECURITY.md](SECURITY.md).
+See [Feedback and Small Fixes](docs/feedback.md) if something is confusing, [CONTRIBUTING.md](CONTRIBUTING.md) for the contributor flow, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community expectations. Security issues should go through a private GitHub security advisory — see [SECURITY.md](SECURITY.md).
 
 ## License
 
