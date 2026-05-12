@@ -672,6 +672,72 @@ function printFeedback(options: { writeDraft?: boolean } = {}): void {
 
 
 
+function printPlan(options: { writePlan?: boolean } = {}): void {
+  const phasePrompt = `You are helping a user set up Digital Seed — a local-first personal AI context starter kit.
+
+Read the phases doc at docs/phases.md before starting.
+
+Your job:
+1. Ask 4–6 short questions to understand the user's workflow, tools, and goals.
+   Good questions to cover:
+   - What AI agent do you use or plan to use? (Claude Code, Cursor, Windsurf, other, not sure)
+   - Do you have a folder of notes you already use? (Obsidian, plain text, Notion export, etc.)
+   - Is there a specific tool you use daily that you want the AI to work alongside? (Drive, GitHub, Telegram, etc.)
+   - Do you want always-on automation (background tasks, scheduled messages) eventually?
+   - Are you comfortable with terminals, or do you prefer to be guided step by step?
+
+2. Based on their answers, recommend which phases to enable and in what order.
+   - Phase 1 (Local context) is always first and required.
+   - Phase 2 (Local search) only if they have notes or documents worth searching.
+   - Phase 3 (Integrations) only if a specific tool matters to them now.
+   - Phase 4 (Always-on agent) only if they explicitly want background automation.
+
+3. After they confirm the plan, run the setup commands for Phase 1 first:
+   - bun run seed doctor
+   - bun run seed onboard --plain
+   - bun run seed hooks install
+   - bun run seed first-prompt
+
+4. For each additional phase they chose, read the relevant recipe or docs section and walk them through it one step at a time. Do not install anything that requires API keys, external accounts, or credentials without explicitly telling them what it connects to and asking for confirmation first.
+
+5. After setup, write a short summary of what was installed to user/MY-PLAN.md.
+
+Rules:
+- Default to local-first. Prefer commands that stay on the user's machine.
+- Never install multiple integrations at once.
+- Never send, upload, delete, or publish anything without user confirmation.
+- If the user does not understand a concept, explain it in one sentence before asking.
+- Keep the whole conversation short. This should take under 20 minutes.`;
+
+  const issueBase = "https://github.com/LeoMaslyak/digital-seed/issues/new/choose";
+  console.log("Digital Seed — guided setup plan");
+  console.log("");
+  console.log("Paste the prompt below into your AI agent (Claude Code, Cursor, Windsurf, etc.).");
+  console.log("The agent will ask you a few questions, recommend phases, and run setup for you.");
+  console.log("");
+  console.log("----- copy from below this line -----");
+  console.log(phasePrompt);
+  console.log("----- copy from above this line -----");
+  console.log("");
+  console.log("Phases reference: docs/phases.md");
+  console.log("Recipes available: bun run seed recipe list");
+  console.log("Stuck? " + issueBase);
+
+  if (options.writePlan) {
+    const outDir = join(ROOT, "user");
+    mkdirSync(outDir, { recursive: true });
+    const out = join(outDir, "MY-PLAN.md");
+    if (!existsSync(out)) {
+      writeFileSync(out, `# My Digital Seed Plan\n\n> Ask your agent to fill this in after guided setup, or edit it yourself.\n\n## Phases I am enabling\n\n- [ ] Phase 1 — Local context (required)\n- [ ] Phase 2 — Local search\n- [ ] Phase 3 — Integrations (which tools?):\n- [ ] Phase 4 — Always-on agent\n\n## What I use daily\n\n- AI agent: \n- Notes: \n- Main tools: \n\n## First win\n\nThe one useful thing I want from this week:\n\n## Notes from setup\n\n`, "utf-8");
+      console.log("");
+      console.log(`✅ Created user/MY-PLAN.md — edit it or ask your agent to fill it in.`);
+    } else {
+      console.log("");
+      console.log("user/MY-PLAN.md already exists — open it and update as needed.");
+    }
+  }
+}
+
 function usage(): void {
   console.log(`
 Digital Seed — Personal AI Infrastructure
@@ -689,6 +755,7 @@ BEGINNER — first 15 minutes
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed recipe list             List integration recipes
+  bun run seed plan                    Print the AI-guided phase-selection prompt
   bun run seed feedback                Show the easiest ways to report friction
   bun run seed hooks install           Install pre-commit secret-scan hook
   bun run seed hooks status            Show pre-commit hook status
@@ -696,6 +763,7 @@ BEGINNER — first 15 minutes
   Optional flags on the beginner path:
   bun run seed onboard --write-first-win        Create user/FIRST-WIN.md if missing
   bun run seed onboard --write-first-win --force    Overwrite user/FIRST-WIN.md
+  bun run seed plan --write-plan               Create user/MY-PLAN.md
   bun run seed feedback --write-draft           Create user/FEEDBACK-DRAFT.md
 
 ADVANCED — optional power-user workflows
@@ -790,6 +858,7 @@ else if (cmd === "intro") {
   printTerminalSeedIntro({ animate: !rest.includes("--static") && USE_ANSI, frames, delayMs });
 }
 else if (cmd === "first-prompt") { printFirstPrompt(); }
+else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") }); }
 else if (cmd === "feedback") { printFeedback({ writeDraft: rest.includes("--write-draft") }); }
 else if (cmd === "privacy-scan") { privacyScan(); }
 else if (cmd === "visual-qa") {

@@ -224,18 +224,39 @@ configure_providers() {
 }
 
 
-# ─── Step 3: Setup Profile ───
+# ─── Step 3: Phase Selection ───
 
 select_setup_profile() {
-  echo -e "${BOLD}Step 3/7 — Setup Profile${NC}"
+  echo -e "${BOLD}Step 3/7 — Phase Selection${NC}"
   echo ""
-  echo "Pick the starting shape that matches what you want this week."
-  echo "You can change this later; it only sets friendly defaults."
+  echo "Digital Seed grows in phases. You do not need to install everything now."
+  echo "Each phase is fully useful on its own. Add the next one only when the current one is paying off."
   echo ""
-  echo "  1. Simple local workspace        — context files + first prompt only"
-  echo "  2. Notes/documents search        — add local retrieval for folders/notes"
-  echo "  3. Project/GitHub helper         — add repo/project assistant defaults"
-  echo "  4. Always-on assistant later     — document the path, but keep setup local now"
+  echo -e "  ${BOLD}Phase 1 — Local context${NC} (always required)"
+  echo "    Your agent knows who you are, what you're working on, and what to avoid."
+  echo "    Everything stays on your machine. Takes 15 minutes."
+  echo ""
+  echo -e "  ${BOLD}Phase 2 — Local search${NC}"
+  echo "    Index a folder of notes, documents, or an Obsidian vault for local retrieval."
+  echo "    No cloud service needed."
+  echo ""
+  echo -e "  ${BOLD}Phase 3 — Integrations${NC}"
+  echo "    Connect one specific tool you already use daily (Drive, GitHub, Obsidian, Telegram...)."
+  echo "    One integration at a time, reviewed before connecting."
+  echo ""
+  echo -e "  ${BOLD}Phase 4 — Always-on agent${NC}"
+  echo "    Background automation: scheduled tasks, digest messages, always-on assistant."
+  echo "    Only after Phases 1–3 are working and trusted."
+  echo ""
+  echo "Tip: After setup, run  bun run seed plan  and paste the output into your agent."
+  echo "     Your agent will interview you, recommend phases, and run everything for you."
+  echo ""
+  echo "Which phases do you want to enable now?"
+  echo ""
+  echo "  1. Phase 1 only        — context files + first prompt (recommended start)"
+  echo "  2. Phases 1–2          — add local notes search"
+  echo "  3. Phases 1–3          — add one integration (you choose which after setup)"
+  echo "  4. Let my agent decide — just do Phase 1 now, agent guides the rest"
   echo ""
   echo -ne "  Enter choice [1]: "
   read -r profile_choice
@@ -244,135 +265,126 @@ select_setup_profile() {
   mkdir -p "$SCRIPT_DIR/user"
   case "$profile_choice" in
     1)
-      SETUP_PROFILE="simple-local"
-      PROFILE_LABEL="Simple local workspace"
+      SETUP_PROFILE="phase-1"
+      PROFILE_LABEL="Phase 1 — Local context"
+      PHASE_MAX=1
       ;;
     2)
-      SETUP_PROFILE="notes-search"
-      PROFILE_LABEL="Notes/documents search"
+      SETUP_PROFILE="phase-1-2"
+      PROFILE_LABEL="Phases 1–2 — Local context + search"
+      PHASE_MAX=2
       ;;
     3)
-      SETUP_PROFILE="project-github"
-      PROFILE_LABEL="Project/GitHub helper"
+      SETUP_PROFILE="phase-1-2-3"
+      PROFILE_LABEL="Phases 1–3 — Local context + search + integrations"
+      PHASE_MAX=3
       ;;
     4)
-      SETUP_PROFILE="always-on-later"
-      PROFILE_LABEL="Always-on assistant later"
+      SETUP_PROFILE="agent-guided"
+      PROFILE_LABEL="Agent-guided — Phase 1 now, agent leads the rest"
+      PHASE_MAX=1
       ;;
     *)
-      SETUP_PROFILE="simple-local"
-      PROFILE_LABEL="Simple local workspace"
+      SETUP_PROFILE="phase-1"
+      PROFILE_LABEL="Phase 1 — Local context"
+      PHASE_MAX=1
       ;;
   esac
 
   set_env_var "DIGITAL_SEED_PROFILE" "$SETUP_PROFILE"
-  cat > "$SCRIPT_DIR/user/PROFILE.md" << PROFILEEOF
-# Digital Seed Setup Profile
 
-- **Profile:** $PROFILE_LABEL
-- **Profile ID:** $SETUP_PROFILE
+  cat > "$SCRIPT_DIR/user/MY-PLAN.md" << PLANEOF
+# My Digital Seed Plan
 
-## What this means
+- **Phase selection:** $PROFILE_LABEL
+- **Selected in setup wizard:** $(date '+%Y-%m-%d')
 
-This is a starting default, not a permanent commitment. Ask your AI agent to update this file as your workspace becomes more useful.
+## Phases I am enabling
 
-## Suggested first week
+PLANEOF
 
-PROFILEEOF
+  echo "- [x] Phase 1 — Local context (required)" >> "$SCRIPT_DIR/user/MY-PLAN.md"
+  if [ "$PHASE_MAX" -ge 2 ]; then
+    echo "- [x] Phase 2 — Local search" >> "$SCRIPT_DIR/user/MY-PLAN.md"
+  else
+    echo "- [ ] Phase 2 — Local search (add later: bun run seed index <folder>)" >> "$SCRIPT_DIR/user/MY-PLAN.md"
+  fi
+  if [ "$PHASE_MAX" -ge 3 ]; then
+    echo "- [x] Phase 3 — Integrations (see: bun run seed recipe list)" >> "$SCRIPT_DIR/user/MY-PLAN.md"
+  else
+    echo "- [ ] Phase 3 — Integrations (add later: bun run seed recipe list)" >> "$SCRIPT_DIR/user/MY-PLAN.md"
+  fi
+  echo "- [ ] Phase 4 — Always-on agent (add later: bun run seed recipe openclaw init)" >> "$SCRIPT_DIR/user/MY-PLAN.md"
 
-  case "$SETUP_PROFILE" in
-    simple-local)
-      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
-- Fill in `user/USER.md`, `user/GOALS.md`, and `user/COMPASS.md`.
-- Use `bun run seed first-prompt` with your preferred AI agent.
-- Avoid external integrations until the local workflow feels useful.
-PROFILEEOF
-      ;;
-    notes-search)
-      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
-- Choose one folder of notes or documents.
-- Run `bun run seed index <folder>`.
-- Try `bun run seed search "what do I know about X?"`.
-- Keep sources local unless you explicitly choose a hosted service later.
-PROFILEEOF
-      ;;
-    project-github)
-      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
-- Point your agent at one active project or GitHub repo.
-- Run `bun run seed learn owner/repo` for public repos you want searchable.
-- Ask the agent to create a weekly project checklist and decision log.
-PROFILEEOF
-      ;;
-    always-on-later)
-      cat >> "$SCRIPT_DIR/user/PROFILE.md" << 'PROFILEEOF'
-- Start local-first; do not connect messaging, email, or cloud automation yet.
-- Read `docs/free-first-setup.md` and `docs/architecture-map.md`.
-- When ready, add OpenClaw/Hermes/Telegram/Drive as explicit opt-in integrations.
-PROFILEEOF
-      ;;
-  esac
+  cat >> "$SCRIPT_DIR/user/MY-PLAN.md" << 'PLANEOF'
 
-  echo -e "  ${GREEN}✓${NC} Profile selected: $PROFILE_LABEL"
-  echo -e "  ${GREEN}✓${NC} Wrote user/PROFILE.md"
+## What I use daily
+
+- AI agent:
+- Notes:
+- Main tools:
+
+## First win
+
+The one useful thing I want from this week:
+
+## Next step
+
+Run this to get the full agent-guided phase prompt:
+
+    bun run seed plan
+
+Paste the output into your AI agent and let it guide you through the rest.
+
+## Reference
+
+- Full phases guide: docs/phases.md
+- Integration recipes: bun run seed recipe list
+- Troubleshooting: docs/troubleshooting.md
+PLANEOF
+
+  echo -e "  ${GREEN}✓${NC} Plan written to user/MY-PLAN.md"
   echo ""
+
+  # Phase 2 — notes folder prompt
+  if [ "$PHASE_MAX" -ge 2 ]; then
+    echo -e "  ${BOLD}Phase 2 setup:${NC}"
+    echo -ne "  Path to your notes folder (Obsidian vault, ~/Documents/Notes, etc.) [skip]: "
+    read -r notes_path
+    notes_path="${notes_path/#\~/$HOME}"
+    if [ -n "$notes_path" ] && [ -d "$notes_path" ]; then
+      echo -e "  ${GREEN}✓${NC} Notes folder found: $notes_path"
+      set_env_var "DIGITAL_SEED_NOTES_PATH" "$notes_path"
+      echo "  Run after setup:  bun run seed index \"$notes_path\""
+    elif [ -n "$notes_path" ]; then
+      echo -e "  ${YELLOW}⚠${NC} Folder not found. Set DIGITAL_SEED_NOTES_PATH in .env and run: bun run seed index <path>"
+    fi
+    echo ""
+  fi
+
+  # Phase 3 — integration picker
+  if [ "$PHASE_MAX" -ge 3 ]; then
+    echo -e "  ${BOLD}Phase 3 setup:${NC}"
+    echo "  Which integration do you use daily? (You will set it up fully after this wizard.)"
+    echo ""
+    bun run scripts/seed.ts recipe list 2>/dev/null || true
+    echo ""
+    echo -ne "  Integration name to set up next (or press Enter to choose later): "
+    read -r chosen_recipe
+    if [ -n "$chosen_recipe" ]; then
+      echo "  Run after setup:  bun run seed recipe $chosen_recipe" >> "$SCRIPT_DIR/user/MY-PLAN.md"
+      echo -e "  ${GREEN}✓${NC} Noted. After setup, run:  bun run seed recipe $chosen_recipe"
+    fi
+    echo ""
+  fi
 }
 
-# ─── Step 3: Integrations ───
+# ─── Step 4: Integrations (phase-aware) ───
 
 configure_integrations() {
-  echo -e "${BOLD}Step 4/7 — Integrations${NC}"
-  echo ""
-  echo "Which integrations do you want to enable?"
-  echo ""
-
-  INTEGRATIONS=()
-
-  # Obsidian
-  echo -ne "  Obsidian (talk to your notes)? [Y/n]: "
-  read -r ans
-  if [ "${ans:-Y}" != "n" ] && [ "${ans:-Y}" != "N" ]; then
-    echo -ne "  Path to your Obsidian vault [~/Documents/Obsidian]: "
-    read -r vault_path
-    vault_path="${vault_path:-$HOME/Documents/Obsidian}"
-    vault_path="${vault_path/#\~/$HOME}"
-    if [ -d "$vault_path" ]; then
-      echo -e "  ${GREEN}✓${NC} Vault found at $vault_path"
-      grep -q "^OBSIDIAN_VAULT_PATH=" "$ENV_FILE" 2>/dev/null || \
-        echo "OBSIDIAN_VAULT_PATH=$vault_path" >> "$ENV_FILE"
-      INTEGRATIONS+=("obsidian")
-    else
-      echo -e "  ${YELLOW}⚠${NC} Path not found. You can set OBSIDIAN_VAULT_PATH in .env later."
-      INTEGRATIONS+=("obsidian")
-    fi
-  fi
-
-  # Email
-  echo -ne "  Email (Gmail triage)? [y/N]: "
-  read -r ans
-  if [ "${ans:-N}" = "y" ] || [ "${ans:-N}" = "Y" ]; then
-    INTEGRATIONS+=("email")
-    echo -e "  ${GREEN}✓${NC} Email integration — see integrations/email/setup.md for OAuth setup"
-  fi
-
-  # Calendar
-  echo -ne "  Google Calendar? [y/N]: "
-  read -r ans
-  if [ "${ans:-N}" = "y" ] || [ "${ans:-N}" = "Y" ]; then
-    INTEGRATIONS+=("calendar")
-    echo -e "  ${GREEN}✓${NC} Calendar integration — see integrations/calendar/setup.md"
-  fi
-
-  # Database
-  echo -ne "  Database connection (PostgreSQL, etc.)? [y/N]: "
-  read -r ans
-  if [ "${ans:-N}" = "y" ] || [ "${ans:-N}" = "Y" ]; then
-    INTEGRATIONS+=("database")
-    echo -e "  ${GREEN}✓${NC} Database — see integrations/databases/setup.md for connection setup"
-  fi
-
-  # Save integrations list
-  printf '%s\n' "${INTEGRATIONS[@]}" > "$CONFIG_DIR/integrations.txt" 2>/dev/null || true
-  echo ""
+  # Integrations are now handled inside select_setup_profile (phase-3 picker).
+  # This stub remains so the main() call order is unchanged.
+  :
 }
 
 # ─── Step 4: Personal Context ───
@@ -578,17 +590,23 @@ print_finish() {
   echo ""
   echo -e "  ${BOLD}Next steps:${NC}"
   echo ""
-  echo -e "  1. Start your AI agent in this directory"
-  echo -e "  2. Paste this first prompt:"
-  echo -e "     ${CYAN}\"Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.\"${NC}"
-  echo -e "  3. Improve ${CYAN}user/USER.md${NC}, ${CYAN}user/COMPASS.md${NC}, ${CYAN}user/GOALS.md${NC}, and ${CYAN}user/DOMAINS.md${NC} with your agent."
+  echo -e "  1. Run ${CYAN}bun run seed plan${NC} and paste the output into your AI agent."
+  echo -e "     Your agent will ask a few questions, recommend which phases to enable,"
+  echo -e "     and run the setup commands for you."
+  echo ""
+  echo -e "  2. Or start directly:"
+  echo -e "     ${CYAN}bun run seed first-prompt${NC}  — print the first agent prompt"
+  echo -e "     paste it into Claude Code, Cursor, Windsurf, or your preferred agent."
+  echo ""
+  echo -e "  3. Your plan is in ${CYAN}user/MY-PLAN.md${NC} — open it and fill in what you use."
   echo ""
   echo -e "  ${BOLD}Useful commands:${NC}"
   echo ""
-  echo -e "  ${CYAN}bun run seed onboard${NC} — Show the first 15-minute path"
-  echo -e "  ${CYAN}bun run health${NC}        — Check system health"
+  echo -e "  ${CYAN}bun run seed plan${NC}         — Get the AI-guided phase-selection prompt"
+  echo -e "  ${CYAN}bun run seed onboard${NC}      — Show the first 15-minute path"
+  echo -e "  ${CYAN}bun run seed doctor${NC}       — Check system health"
   echo -e "  ${CYAN}bun run seed first-prompt${NC} — Print your first AI-agent prompt"
-  echo -e "  ${CYAN}bun run tokens${NC}        — View token usage report"
+  echo -e "  ${CYAN}bun run seed recipe list${NC}  — Browse integration recipes"
   echo ""
   echo -e "  ${BOLD}Documentation:${NC} ${CYAN}docs/getting-started.md${NC}"
   echo -e "  ${BOLD}Agent install:${NC} ${CYAN}docs/ai-agent-install.md${NC}"

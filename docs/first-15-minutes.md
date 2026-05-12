@@ -22,7 +22,7 @@ If you finish day one and the local loop is already useful, you have permission 
 
 By the end, your AI agent should know enough about you to help with one real problem this week.
 
-> Want a head start? The [Examples Gallery](examples/README.md) shows fictional student, founder, researcher, and freelancer profiles — copy the shape that fits your situation. To see the full path acted out before you start, read the [Demo Transcript](demo-transcript.md). For concrete first-win shapes, see [First Useful Outcomes](first-useful-outcomes.md).
+> Want a head start? The [Examples Gallery](examples/README.md) shows fictional student, founder, researcher, and freelancer profiles — copy the shape that fits your situation. To see the full path acted out before you start, read the [Demo Transcript](demo-transcript.md). For concrete first-win shapes, see [First Useful Outcomes](first-useful-outcomes.md). Not sure what to install beyond day one? Run `bun run seed plan` and paste the output into your agent — it will interview you, recommend [phases](phases.md), and run setup for you.
 
 ## 1. Check the setup
 

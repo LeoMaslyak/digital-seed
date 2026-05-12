@@ -104,6 +104,7 @@ Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
 The beginner surface is intentionally short. Everything else is optional, advanced, or maintainer-only — run `bun run seed help` to see the full taxonomy.
 
 ```bash
+bun run seed plan             # Get the AI-guided phase-selection prompt (paste into your agent)
 bun run seed onboard          # First 15-minute path (--plain for no animation)
 bun run seed doctor           # Check local setup health
 bun run seed first-prompt     # Print the first agent prompt
@@ -136,6 +137,7 @@ Reference:
 - [Architecture Map](docs/architecture-map.md) — how the moving parts fit together
 - [Dashboard Options](docs/dashboard-options.md) — visual dashboards Digital Seed does not bundle
 - [Known Alpha Limits](docs/known-alpha-limits.md) — what you should not expect yet
+- [Phases](docs/phases.md) — what phases are available and how to choose them
 - [Feedback and Small Fixes](docs/feedback.md) — easiest way to report friction or suggest a docs fix
 - [Public Usability Roadmap](docs/public-usability-roadmap.md) — what remains before 100% public usability
 - [Supported Platforms](docs/supported-platforms.md) — what is tested, what is best-effort, what is not supported
