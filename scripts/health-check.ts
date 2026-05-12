@@ -44,8 +44,11 @@ check("AI agent", () => {
   const { spawnSync: sp } = require("child_process");
   const agents = [
     { name: "claude", label: "Claude Code" },
+    { name: "codex", label: "Codex CLI" },
+    { name: "gemini", label: "Gemini CLI" },
     { name: "cursor", label: "Cursor" },
     { name: "windsurf", label: "Windsurf" },
+    { name: "ollama", label: "Ollama (local)" },
   ];
   const found = agents.filter((a) => sp("which", [a.name], { stdio: "pipe" }).status === 0);
   if (found.length > 0) {
@@ -54,9 +57,9 @@ check("AI agent", () => {
   return {
     ok: false,
     detail:
-      "No terminal-capable AI agent found (claude, cursor, windsurf). " +
+      "No terminal-capable AI agent found (claude, codex, gemini, cursor, windsurf, ollama). " +
       "You need one to use Digital Seed. " +
-      "Install guide: docs/install-claude-code.md · Agent comparison: docs/agent-chooser.md",
+      "Agent comparison: docs/agent-chooser.md · Claude Code guide: docs/install-claude-code.md",
   };
 });
 

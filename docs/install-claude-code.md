@@ -2,6 +2,8 @@
 
 > **Never used a terminal before?** This guide is for you. We'll walk through every step on macOS and Windows. Takes about 10 minutes.
 >
+> **Claude Code is one option, not the only one.** If you prefer OpenAI (ChatGPT / GPT-4o), use Codex CLI instead. If you prefer Google, use Gemini CLI. If you want no cloud at all, use Ollama with a local model. All work with Digital Seed. See [docs/agent-chooser.md](agent-chooser.md) for the full comparison.
+>
 > **Important:** Digital Seed's scripts require **Bun** as the runtime. Running them with plain `node` is not supported. We install Bun first, then Claude Code on top of it.
 
 ---

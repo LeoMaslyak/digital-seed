@@ -33,7 +33,12 @@ Digital Seed is a small repo of editable context files plus a CLI that walks you
 
 > **Start here if you are new.** The most common first blocker is not having an AI agent installed. Digital Seed is a folder your AI agent reads and works in — without one, you can read the files but not run the guided setup. Install one before you clone.
 
-- **A terminal-capable AI agent** — this is what actually uses your context files. The easiest starting choice is **Claude Code** (free to install; needs a claude.ai account). Full install guide: [docs/install-claude-code.md](docs/install-claude-code.md). Not sure which agent to pick? See [docs/agent-chooser.md](docs/agent-chooser.md).
+- **A terminal-capable AI agent** — this is what actually uses your context files. Pick whichever you already have an account with:
+  - **Claude Code** (Anthropic) — `bun install -g @anthropic-ai/claude-code` + `claude login`. Full guide: [docs/install-claude-code.md](docs/install-claude-code.md).
+  - **Codex CLI** (OpenAI) — `npm install -g @openai/codex` + `codex login`.
+  - **Gemini CLI** (Google) — `npm install -g @google/gemini-cli` + `gemini auth login`.
+  - **Ollama** (local, no cloud, no account) — https://ollama.ai, then `ollama pull llama3.1:8b`. See caveat in [docs/agent-chooser.md](docs/agent-chooser.md) about local model reliability.
+  - Not sure? [docs/agent-chooser.md](docs/agent-chooser.md) has a quick pick table.
 - **Bun** — the JS runtime Digital Seed uses (`curl -fsSL https://bun.sh/install | bash`, then `exec $SHELL -l`). Plain `node` is not supported. See [Troubleshooting → Bun is missing](docs/troubleshooting.md#bun-is-missing-or-the-wrong-version) if `bun --version` does not work.
 - **Git** — to clone the repo (most systems have it; install via `xcode-select --install` on macOS or your distro's package manager on Linux).
 

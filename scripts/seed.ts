@@ -214,9 +214,12 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     dim("   Rough notes are fine. You can come back and edit any time."),
     "",
     h("3. Open your agent in this folder and paste the first prompt"),
-    dim("   Need to install an agent first? See docs/install-claude-code.md (Claude Code)"),
-    dim("   or docs/agent-chooser.md for a comparison. Claude Code is free to install;"),
-    dim("   it needs a claude.ai account."),
+    dim("   Need to install an agent first?"),
+    dim("   • Claude Code (easiest): docs/install-claude-code.md   claude.ai account required"),
+    dim("   • Codex CLI (OpenAI):   npm install -g @openai/codex   OpenAI account required"),
+    dim("   • Gemini CLI (Google):  npm install -g @google/gemini-cli   Google account required"),
+    dim("   • Ollama (local/free):  https://ollama.ai   no account, no cloud"),
+    dim("   Full comparison: docs/agent-chooser.md"),
     `   ${cmd("claude")}  ${dim("# or: cursor .  · windsurf .  · another terminal-capable agent")}`,
     `   ${cmd("bun run seed first-prompt")}`,
     "",
@@ -715,7 +718,7 @@ Rules:
   const issueBase = "https://github.com/LeoMaslyak/digital-seed/issues/new/choose";
   // Check whether any agent CLI is available
   const { spawnSync: sp } = require("child_process");
-  const agentCLIs = ["claude", "cursor", "windsurf"];
+  const agentCLIs = ["claude", "codex", "gemini", "cursor", "windsurf", "ollama"];
   const foundAgent = agentCLIs.find((a) => sp("which", [a], { stdio: "pipe" }).status === 0);
 
   console.log("Digital Seed — guided setup plan");
@@ -723,9 +726,14 @@ Rules:
   if (!foundAgent) {
     console.log("⚠️  No terminal-capable AI agent detected on your PATH.");
     console.log("");
-    console.log("   You need one before this prompt will work. The easiest option is Claude Code:");
-    console.log("   Install guide: docs/install-claude-code.md");
-    console.log("   Not sure which agent to pick? docs/agent-chooser.md");
+    console.log("   You need one before this prompt will work. Options:");
+    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude login");
+    console.log("     Codex CLI (OpenAI)        — npm install -g @openai/codex + codex login");
+    console.log("     Gemini CLI (Google)       — npm install -g @google/gemini-cli + gemini auth login");
+    console.log("     Ollama (local, no cloud)  — https://ollama.ai");
+    console.log("");
+    console.log("   Full comparison: docs/agent-chooser.md");
+    console.log("   Beginner guide (Claude Code): docs/install-claude-code.md");
     console.log("");
     console.log("   After you install and log in, re-run: bun run seed plan");
     console.log("");
