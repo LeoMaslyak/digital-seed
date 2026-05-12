@@ -54,6 +54,8 @@ bun install -g @openai/codex
 
 Verified locally: `codex` is on PATH after install. `codex login` is available in the current CLI help.
 
+Full guide: [docs/install-codex-cli.md](install-codex-cli.md)
+
 **Use with Digital Seed:** open the `digital-seed` folder in your terminal and run `codex` there. Paste the output of `bun run seed first-prompt` as your first message. Codex can read local files in the folder, run `bun run seed doctor`, and follow the same guided path as any other agent.
 
 **Notes:**
@@ -76,6 +78,8 @@ gemini
 ```
 
 Then follow the in-app authentication prompt. The current CLI help does not list a separate `gemini auth login` command, so start with `gemini` unless Google's official docs for your installed version say otherwise.
+
+Full guide: [docs/install-gemini-cli.md](install-gemini-cli.md)
 
 **Use with Digital Seed:** same as any other agent — open the folder, run `gemini`, paste the first-prompt output. Gemini CLI can read local files and run shell commands.
 
