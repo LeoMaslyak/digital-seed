@@ -61,10 +61,20 @@ Bun is required. Running the scripts with plain `node` is not supported. (`bun r
 
 The main surfaces are:
 
-- `user/` — editable personal context templates; do not add real private data here.
+- `agents/` — agent-facing context, routing, and assistant setup material.
+- `collab/` — shared-project and collaboration starter surfaces.
+- `config/` — local configuration templates and optional runtime settings.
+- `core/` — reusable TypeScript core modules.
+- `data/` — local runtime indexes and generated data; do not commit private data.
 - `docs/` — public guides, troubleshooting, examples, readiness notes, and trust docs.
+- `exports/` — generated exports and shareable outputs; review before publishing.
+- `integrations/` — optional integration glue and examples.
+- `mcp/` — Model Context Protocol server/config helpers.
+- `packs/` — reusable packs of context, prompts, or patterns.
+- `patterns/` — marketplace pattern sources and examples.
 - `recipes/` — optional integration patterns.
 - `scripts/` — CLI commands behind `bun run seed ...` and release/health checks.
+- `user/` — editable personal context templates; do not add real private data here.
 - `.github/` — CI, issue templates, and PR template.
 
 ## Contribution types

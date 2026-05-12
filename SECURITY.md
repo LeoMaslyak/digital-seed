@@ -36,6 +36,7 @@ A maintainer-side check inside `privacy-scan` looks for obvious personal content
 - Store keys only in `.env` (never in code, Markdown, or `config/` files).
 - Prefer a **dedicated key** for this project so you can revoke/rotate it without disrupting other tools.
 - Install the pre-commit hook (see next section). It is best-effort and not a substitute for review.
+- Run `bun run seed privacy-scan` before pushing or sharing a fork; it is the local scanner for common private leftovers.
 - Never share your `.env` file.
 
 ## Pre-commit secret hook

@@ -1,5 +1,7 @@
 # Audit Response — 2026-05-10
 
+> This audit predates the 2026-05-11 and 2026-05-12 audit passes. See docs/simulated-public-alpha-readiness-2026-05-11.md for the current status.
+
 Digital Seed received an independent hostile audit before broader promotion. The audit conclusion was useful and blunt: the idea is strong, but the repository looked mid-refactor and risked feeling performative.
 
 This document records what was changed in response.

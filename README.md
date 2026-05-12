@@ -76,6 +76,8 @@ If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agen
 
 The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) holds a non-technical walkthrough: start-here pack, visual story, guides, templates, recipes, and audit notes. Refresh it with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).
 
+(maintainer-published, optional)
+
 ## Who this is for
 
 Useful if you want to:
