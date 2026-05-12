@@ -40,7 +40,7 @@ Full guide: [docs/install-claude-code.md](install-claude-code.md)
 
 **Account required:** OpenAI account (platform.openai.com). Requires an API key or ChatGPT Plus subscription.
 
-**Install:**
+**Install (verified against npm package `@openai/codex`, which exposes the `codex` binary):**
 ```bash
 npm install -g @openai/codex
 codex login
@@ -51,6 +51,8 @@ Or via bun:
 ```bash
 bun install -g @openai/codex
 ```
+
+Verified locally: `codex` is on PATH after install. `codex login` is available in the current CLI help.
 
 **Use with Digital Seed:** open the `digital-seed` folder in your terminal and run `codex` there. Paste the output of `bun run seed first-prompt` as your first message. Codex can read local files in the folder, run `bun run seed doctor`, and follow the same guided path as any other agent.
 
@@ -67,12 +69,13 @@ bun install -g @openai/codex
 
 **Account required:** Google account. Gemini Advanced subscription or a Google AI Studio API key for best results.
 
-**Install:**
+**Install (verified against npm package `@google/gemini-cli`, which exposes the `gemini` binary):**
 ```bash
 npm install -g @google/gemini-cli
-gemini auth login
 gemini
 ```
+
+Then follow the in-app authentication prompt. The previously documented `gemini auth login` command is not listed in the current CLI help, so do not rely on it unless Google's official docs for your installed version say otherwise.
 
 **Use with Digital Seed:** same as any other agent — open the folder, run `gemini`, paste the first-prompt output. Gemini CLI can read local files and run shell commands.
 
@@ -110,7 +113,7 @@ ollama run llama3.1:8b
 
 Alternatively, point `bun run seed first-prompt` output at your Ollama model via Open WebUI and do the context-file editing manually.
 
-**Honest caveat:** local models below ~30B parameters often struggle with multi-step guided setup, especially reasoning about which phases to enable and running commands correctly. If setup feels unreliable, try a stronger model or switch to a cloud agent for the initial setup, then use the local model for ongoing conversations.
+**Honest caveat:** local models below ~30B parameters often struggle with multi-step guided setup, especially reasoning about which phases to enable and running commands correctly. This caveat matches local testing: Ollama may be installed and have capable models available, but smaller models can still be slow or unreliable for agentic repo setup. If setup feels unreliable, try a stronger model or switch to a cloud agent for the initial setup, then use the local model for ongoing conversations.
 
 **What it sends to the cloud:** nothing. All data stays on your machine.
 

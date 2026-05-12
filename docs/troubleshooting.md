@@ -51,6 +51,54 @@ Pick one terminal-capable agent:
 
 Any agent works as long as it can read the local Markdown files in `user/`.
 
+
+## Codex CLI: `codex: command not found`
+
+**Symptom:** you installed or selected Codex CLI, but your shell prints `codex: command not found`.
+
+Check and fix in order:
+
+```bash
+npm info @openai/codex name version bin
+npm install -g @openai/codex
+exec $SHELL -l
+which codex
+codex login
+```
+
+If `which codex` is still empty, your global npm bin directory is not on `PATH`. Run `npm bin -g` (or `npm config get prefix`) and add that `bin` directory to your shell profile.
+
+## Gemini CLI: `gemini: command not found`
+
+**Symptom:** you installed or selected Gemini CLI, but your shell prints `gemini: command not found`.
+
+Check and fix in order:
+
+```bash
+npm info @google/gemini-cli name version bin
+npm install -g @google/gemini-cli
+exec $SHELL -l
+which gemini
+gemini
+```
+
+Authenticate from the in-app prompt. The current CLI help does not list `gemini auth login`; if you see that command in older notes, prefer the current in-app authentication flow or Google's official docs for your installed version.
+
+If `which gemini` is still empty, your global npm bin directory is not on `PATH`. Run `npm bin -g` (or `npm config get prefix`) and add that `bin` directory to your shell profile.
+
+## Ollama model is too slow or unreliable
+
+**Symptom:** Ollama runs, but the local model takes a long time, ignores instructions, or fails multi-step setup.
+
+Check what is installed:
+
+```bash
+which ollama
+ollama list
+```
+
+Try a stronger coding model if your machine can handle it, for example `qwen2.5-coder:14b`, or use a smaller cloud agent for initial setup and keep Ollama for private follow-up work. Very small local models can be fine for chat but unreliable for editing repo files and running commands.
+
 ## Google Drive or `gog` wrapper unavailable
 
 **Symptom:** `bun run seed drive ...` errors with missing credentials, or `gmail-*` / `outlook-*` wrappers fail.
