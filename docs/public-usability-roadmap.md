@@ -1,77 +1,188 @@
 # Public usability roadmap
 
-Digital Seed is credible public alpha software. The next goal is not "more features" by default — it is making the starter kit obvious, trustworthy, and repairable for strangers.
+Digital Seed is credible public alpha software. The next goal is not "more features" — it is making the starter kit obvious, trustworthy, and repairable for strangers.
 
-## What can be done before real external users
+Last updated: 2026-05-12. Reflects all changes shipped in this session.
 
-These are the useful no-external-user milestones:
+---
 
-1. **Make feedback effortless**
-   - Keep `bun run seed feedback` visible in README, troubleshooting, and onboarding docs.
-   - Maintain a dedicated first-run friction issue template for non-technical users.
-   - Keep GitHub-web PR instructions short enough that a typo fix does not require local Git knowledge.
+## Current scorecard (updated 2026-05-12)
 
-2. **Keep reducing first-run ambiguity**
-   - Audit README, `docs/first-15-minutes.md`, `docs/ai-agent-install.md`, and `bun run seed onboard --plain` together.
-   - Every load-bearing step should answer: what command, where to run it, what success looks like, and where to go if it fails.
+| Area | Score | Status |
+|---|---|---|
+| Core concept / positioning | ~92% | Clear local-first personal AI context starter kit |
+| First-run beginner path | ~88% | Phase system + plan command + agent prereq surfaced; needs real-user proof |
+| Agent onboarding | ~85% | Claude Code, Codex CLI, Gemini CLI, Ollama all documented and detected; local model caveats honest |
+| Feedback / friction reporting | ~90% | `seed feedback`, first-run friction template, GitHub-web PR path all in place |
+| Phases / feature selection | ~85% | Phases doc + `seed plan` + setup wizard phase chooser all shipped |
+| Docs / trust / safety | ~83% | Privacy caveats, what-leaves-your-machine, security hooks, agent prereq warnings |
+| Release engineering | ~78% | Full release-check gate; CI on tags; fresh-clone harness; needs more real release cycles |
+| Open-source contributor readiness | ~80% | Issue templates, PR template, contributing guide, troubleshooting; needs real contributors |
+| Product coherence | ~82% | Beginner / advanced / maintainer surfaces labeled in CLI, README, and docs |
+| External validation | ~0% | Zero real outside walkthroughs yet — hard gate for 1.0 |
 
-3. **Preserve the beginner / advanced / maintainer boundary**
-   - Beginner: onboard, doctor, first-prompt, privacy-scan, index/search, recipe list, feedback.
-   - Advanced: integrations, Drive, web, scheduler, digest, repo learning, Excel/deck generation.
-   - Maintainer: release, CI, visual QA, data-room publishing.
+**Overall: ~85% without external users. External validation is the main remaining gap.**
 
-4. **Strengthen safety defaults**
-   - Keep privacy scan, tracked-template warnings, and pre-commit hook instructions easy to find.
-   - Prefer explicit warnings over hidden automation.
-   - Do not add sending/uploading/deleting flows to the first-run path.
+---
 
-5. **Make every failure report actionable**
-   - Ask for OS, Bun version, command/page, expected behavior, and exact friction.
-   - Never require a perfect reproduction from non-technical users.
-   - Let maintainers relabel and reshape messy reports.
+## What shipped today (2026-05-12)
 
-## What still requires real users
+- `docs/releases/v0.4.1-alpha.md` — honest release notes for public GitHub Release (draft, not published).
+- `bun run seed feedback` + `--write-draft` — effortless friction reporting; links to first-run friction issue template.
+- `.github/ISSUE_TEMPLATE/first_run_friction.yml` — non-technical issue template for "I got confused" reports.
+- `docs/feedback.md` — non-technical path to GitHub issues and GitHub-web PR edits.
+- `docs/phases.md` — canonical four-phase system (Local context → Local search → Integrations → Always-on).
+- `bun run seed plan` + `--write-plan` — agent-guided phase-selection prompt; creates `user/MY-PLAN.md`.
+- `setup.sh` phase chooser — replaces flat profile picker; includes Phase 2 notes-folder prompt and Phase 3 recipe picker.
+- Agent prereq surfaced prominently — README prereqs block reordered; `seed doctor` detects claude, codex, gemini, cursor, windsurf, ollama; `setup.sh` stops on missing agent.
+- `docs/agent-chooser.md` rewritten — Claude Code, Codex CLI, Gemini CLI, Ollama, Cursor/Windsurf, OpenClaw/Hermes; quick-pick table; honest Ollama caveat.
+- `docs/install-claude-code.md` — now opens with "Claude Code is one option, not the only one."
+- `docs/public-usability-roadmap.md` (this file) — updated scorecard and milestone list.
 
-These cannot be honestly closed internally:
+---
 
-- 5+ real external first-15-minute walkthroughs.
-- Proof that non-technical users understand what to do after cloning.
-- Evidence that issue templates are easy enough for strangers.
-- Real objections to the privacy/security explanation.
-- Real confirmation that the beginner command surface feels small enough.
+## Milestones to ~95% without external users
 
-Simulated hostile audits are useful, but they do not replace these.
+These are the remaining concrete tasks achievable without real outside testers. They are ordered by leverage.
 
-## Useful concepts from the broader personal-AI system
+### M1 — Run a new simulated hostile audit (2026-05-12 pass)
 
-The larger personal AI operating-system idea has several concepts that are useful to public Digital Seed users if kept small and optional:
+**Why:** everything has changed since the last audit. The phases system, plan command, agent chooser, and feedback loop are all new. A fresh hostile audit from a non-technical first-time persona will find gaps in the updated flow before real users do.
 
-- **Context files as the source of truth** — `USER.md`, `COMPASS.md`, `GOALS.md`, preferences, anti-goals, and memory are easier for beginners to trust than opaque app state.
-- **First-win discipline** — the assistant should help produce one boring real result before integrations or automation.
-- **Local-first retrieval** — indexing one local folder is enough for many users; hosted vector databases should stay optional.
-- **Recipes instead of monolithic setup** — integrations should be small, inspectable, and labeled official alpha-supported vs experimental.
-- **Doctor / privacy-scan / feedback loop** — users need simple commands that answer: is my setup healthy, is this safe to publish, and how do I report friction?
-- **Agent-neutral prompts** — the project should keep working with Claude Code, Cursor, Windsurf, OpenClaw, Hermes, or any terminal-capable agent.
-- **Draft-before-action safety** — anything that sends, uploads, deletes, publishes, or changes external accounts should start as a draft and require human confirmation.
-- **Audit notes as public trust artifacts** — hostile-readiness audits are valuable when they stay honest and do not overclaim 1.0 readiness.
+**What to run:**
+- Re-run `docs/hostile-1.0-readiness-audit-prompt.md` against the current main in a fresh session.
+- Focus personas: (1) someone who has never used a terminal, (2) someone who uses Gemini/ChatGPT but not Claude, (3) someone who wants notes search and Obsidian but not always-on agents.
+- Fix any P0/P1 findings.
+- Document result as `docs/simulated-public-alpha-readiness-2026-05-12.md`.
 
-## Feature ideas worth considering later
+**Exit criteria:** No open P0/P1 blockers on the updated beginner path.
 
-Only add these if they make the first public-user loop simpler:
+---
 
-- `seed feedback --write-draft` style helpers for other surfaces, such as `seed support-bundle` that prints redacted setup facts without private content.
-- A tiny terminal "what now?" command after onboarding that suggests exactly one next action.
-- A guided docs-edit flow that opens the right GitHub file URL for small wording fixes.
-- Optional example packs for common personas: student, founder, researcher, freelancer, caregiver, investor.
-- A local-only onboarding transcript saved under `user/` so users can resume setup without remembering what they answered.
+### M2 — Verify the Codex CLI and Gemini CLI paths end-to-end
 
-Avoid adding:
+**Why:** both are now documented and recommended but neither has been walked through in a Digital Seed context. The Claude Code path is proven. The others are not.
 
-- default cloud accounts,
-- always-on messaging bots,
-- hosted databases,
-- complex dashboards,
-- email/calendar automation,
-- or multi-agent orchestration to the day-one path.
+**What to do:**
+- Walk through `bun run seed plan` output using Codex CLI: does it correctly read the context files, follow the phase prompt, and run the commands?
+- Walk through the same with Gemini CLI.
+- Walk through the Ollama path with a 8B model (llama3.1:8b or similar) — confirm honest caveats are accurate.
+- Fix any commands, wording, or docs that break.
+- Add any agent-specific troubleshooting to `docs/troubleshooting.md`.
 
-Those are useful later, but they will make the public alpha worse if they crowd the first 15 minutes.
+**Exit criteria:** `docs/agent-chooser.md` install and usage steps verified by a real run. Any path that cannot be verified honestly is labeled "unverified" rather than presented as equivalent.
+
+---
+
+### M3 — Add a `seed what-next` command
+
+**Why:** the most common non-technical user failure point after Phase 1 is "I ran onboard, now what?" There is no gentle push to the next action. `bun run seed plan` requires deliberate opt-in. A small "what should I do next?" output at the end of onboarding removes that moment of blankness.
+
+**What to build:**
+- `bun run seed what-next` — reads `user/MY-PLAN.md` (if present), checks which phases are ticked, checks doctor output, and prints exactly one next action.
+- If `MY-PLAN.md` is missing: suggest running `bun run seed plan --write-plan`.
+- If Phase 1 is done but Phase 2 is not: suggest `bun run seed index <folder>`.
+- If all chosen phases are done: suggest one recipe from `bun run seed recipe list` or confirm the local loop is complete.
+- Wire it into the onboard output footer: "Done with Phase 1? Run: `bun run seed what-next`".
+
+**Exit criteria:** running `bun run seed what-next` always prints exactly one actionable next step, never a wall of options.
+
+---
+
+### M4 — Honest agent-specific install guides for Codex and Gemini
+
+**Why:** `docs/install-claude-code.md` is a complete beginner guide (terminal intro, macOS + Windows/WSL2, login, first run). Codex and Gemini have only one-liner install commands in `docs/agent-chooser.md`. Non-technical users who choose Codex or Gemini have no equivalent handholding.
+
+**What to build:**
+- `docs/install-codex-cli.md` — mirrors the structure of `install-claude-code.md`: what it is, macOS + WSL2 steps, install, login, first run, troubleshooting.
+- `docs/install-gemini-cli.md` — same structure for Gemini CLI.
+- Link both from `docs/agent-chooser.md` and from the README prereqs block.
+- Update `docs/install-claude-code.md` title to make clear it covers only Claude Code (already started; complete the cross-link pass).
+
+**Exit criteria:** a non-technical user can follow any of the three cloud-agent install guides without needing to search externally.
+
+---
+
+### M5 — Tighten the onboarding → first win → feedback loop
+
+**Why:** the gap between "I ran onboard" and "I got something useful" is still implicit. A first-time user who completes Phase 1 and runs `seed first-prompt` should land in a well-defined interview loop with a concrete output, not an open-ended chat.
+
+**What to do:**
+- Audit `bun run seed first-prompt` output: does it tell the agent clearly to produce *one* specific output before ending the session?
+- Audit the `bun run seed plan` agent prompt: does it instruct the agent to write `user/MY-PLAN.md` and confirm completion?
+- If either is vague, tighten the printed prompts.
+- Add a "Session done?" footer to the first-prompt output: "When you have your first useful output, run: `bun run seed feedback` to report any friction."
+
+**Exit criteria:** the first-prompt output consistently produces one usable artifact (a weekly plan, a cleaned-up goals file, a searchable index) without requiring the user to know what to ask for.
+
+---
+
+### M6 — Canonicalize the CHANGELOG and update the release draft
+
+**Why:** the `docs/releases/v0.4.1-alpha.md` draft was written before phases, plan, feedback loop, and agent chooser improvements shipped. The CHANGELOG has no entry for today's work. Both need updating before any public announcement.
+
+**What to do:**
+- Add a `[0.4.2-alpha]` CHANGELOG entry covering all 2026-05-12 additions (phases, plan, feedback, agent chooser expansion, prereq surfacing).
+- Update `docs/releases/v0.4.1-alpha.md` or draft a new `v0.4.2-alpha.md` reflecting the full current state.
+- Bump `package.json`, `CHANGELOG.md`, and `docs/release-checklist.md` together.
+- Run `bun run seed release-check --skip-fresh-clone` and confirm green.
+
+**Exit criteria:** CHANGELOG, package.json, and release notes are consistent. A new version tag is ready to cut when Leo approves.
+
+---
+
+### M7 — Reduce simulated-audit P2 backlog
+
+**Why:** several P2 items from previous audits are still open. They are not blockers but they make the repo look unfinished to a careful reader.
+
+Open P2s (from `docs/hostile-1.0-readiness-audit-2026-05-11.md`):
+- README "Public data room" section should carry a "maintainer-published, optional" qualifier.
+- `SECURITY.md` "API Key Management" section does not reference `bun run seed privacy-scan`.
+- `CONTRIBUTING.md` "Repo shape" omits several top-level directories.
+- Old audit docs could be folded into a single "audit log" index page.
+- `seed onboard --plain` step 3 ordering could use a clearer "in a second pane" hint.
+
+**What to do:** fix as many as possible in a single targeted pass. Mark each resolved with a dated inline note.
+
+**Exit criteria:** all documented P2s are either fixed or explicitly deferred with rationale.
+
+---
+
+### M8 — Final pre-announcement checklist
+
+Before any public announcement (social post, HackerNews, Product Hunt):
+
+- [ ] M1–M7 above are complete.
+- [ ] `bun run seed release-check` (with fresh-clone harness) is green on the tag commit.
+- [ ] A GitHub Release has been published (with Leo's explicit approval) pointing to `docs/releases/v0.4.2-alpha.md`.
+- [ ] The public data room is refreshed: `bun run seed drive publish-data-room --account lm@avantgaera.com`.
+- [ ] README status badge says "alpha" and links to `docs/known-alpha-limits.md`.
+- [ ] No maintainer-only assumptions have leaked into beginner docs.
+- [ ] `bun run seed doctor` output on a fresh clone is clean with no warnings.
+
+---
+
+## What still requires real users (cannot be internally closed)
+
+These are honest hard gates:
+
+- **5+ real external first-15-minute walkthroughs.** No simulation substitutes.
+- **Proof non-technical users understand what to do after cloning.**
+- **Real objections to the privacy/security explanation.**
+- **At least one real outside contributor** filing an issue or opening a PR.
+- **CI green on a tag commit that a stranger used.** Currently CI is green on maintainer-triggered tags only.
+
+None of these block the public announcement. They block calling it 1.0.
+
+---
+
+## What to avoid adding before real-user validation
+
+- Default cloud accounts.
+- Always-on messaging bots.
+- Hosted databases.
+- Complex dashboards.
+- Email/calendar automation.
+- Multi-agent orchestration on the day-one path.
+
+These are useful in Phase 3/4. They will make the public alpha worse if they crowd Phases 1/2.

@@ -4,21 +4,26 @@ Digital Seed is production-stable for public use as an alpha: a new user can clo
 
 It is **not** 1.0 yet. The next objective is to turn the useful alpha into a production-grade, easy-to-use open-source project for strangers.
 
-## Current status: broader-alpha ready (~80% toward production-grade OSS usability)
+## Current status: broader-alpha ready (~85% toward production-grade OSS usability)
 
-Digital Seed is no longer in “make it work” mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode. Milestones 3 (open-source usability) and 4 (product coherence) are shipped at the repo level; both still need real outside-contributor use to prove the flow.
+*Scorecard updated 2026-05-12 after phases system, agent chooser expansion, feedback loop, and plan command were shipped. See `docs/public-usability-roadmap.md` for the full milestone list.*
+
+Digital Seed is no longer in "make it work" mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode.
 
 Current usability scorecard:
 
-- **Core concept / positioning:** ~90% — clear local-first personal AI context starter kit.
-- **First-run beginner path:** ~85% — beginner surface is now narrow (onboard, doctor, first-prompt, privacy-scan, index, search, recipe list); still needs real-user walkthroughs.
-- **Release engineering:** ~75% — unified release check, CI smoke, link/version checks, fresh-clone validation; needs repeated real release practice.
-- **Docs / trust / safety:** ~80% — examples, troubleshooting, known limits, privacy caveats, and a dedicated “what leaves your machine?” trust page.
-- **Open-source contributor readiness:** ~80% — tightened contributor guide, issue templates, PR template, and external-user reporting flow are in place; needs real contributor validation.
-- **Product coherence:** ~80% — beginner / advanced / maintainer surfaces are explicitly labeled in CLI help and README; recipes are labeled official alpha-supported vs experimental/adapt-yourself.
-- **External validation:** ~25–30% — real outside-user walkthroughs have not happened yet. One simulated hostile-persona pass (`docs/simulated-external-user-audit-2026-05-11.md`) caught a small batch of beginner-path P0/P1 contradictions, but a simulation is not a substitute for real outside testers.
+- **Core concept / positioning:** ~92% — clear local-first personal AI context starter kit.
+- **First-run beginner path:** ~88% — phases system, plan command, and agent prereq surfacing all shipped; still needs real-user walkthroughs to confirm.
+- **Agent onboarding:** ~85% — Claude Code, Codex CLI, Gemini CLI, and Ollama all documented, detected by doctor, and covered in agent-chooser; honest Ollama caveats in place.
+- **Feedback / friction reporting:** ~90% — `seed feedback`, first-run friction template, and GitHub-web PR path all live.
+- **Phases / feature selection:** ~85% — phases doc, `seed plan`, setup wizard phase chooser all shipped.
+- **Release engineering:** ~78% — unified release check, CI smoke, link/version checks, fresh-clone validation; needs repeated real release practice and a version bump for 2026-05-12 changes.
+- **Docs / trust / safety:** ~83% — examples, troubleshooting, known limits, privacy caveats, what-leaves-your-machine, agent prereq warnings.
+- **Open-source contributor readiness:** ~80% — issue templates, PR template, contributing guide, troubleshooting guide all in place; needs real contributor validation.
+- **Product coherence:** ~82% — beginner / advanced / maintainer surfaces labeled in CLI, README, and docs.
+- **External validation:** ~0% — zero real outside-user walkthroughs yet. This is the main remaining gap and the hard gate for any 1.0 tag.
 
-Overall assessment: **~80% of 100% usable OSS project**. Broader-alpha ready, not production-grade OSS / 1.0 yet.
+Overall assessment: **~85% of 100% usable OSS project** without external users. External validation is the ceiling on the remaining 15%.
 
 Shipped and verified:
 
@@ -39,7 +44,7 @@ Shipped and verified:
 - Markdown link checker exists locally and in CI.
 - Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
 - Simulated external-user audit: three hostile fresh-user personas walked through README → first-15-minutes → CLI help (`docs/simulated-external-user-audit-2026-05-11.md`). P0/P1 contradictions in the beginner install path were fixed in the same pass. This is *not* a substitute for real outside-tester walkthroughs.
-- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest — do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). Two P0s remain (real external testers; one green CI cycle on the tag commit) and one P1 contradiction in `docs/ai-agent-install.md` was fixed in the same pass. Repo subsequently shipped a public-alpha readiness pass and now sits at `0.4.1-alpha`; the 1.0 gates remain open.
+- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest - do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). Two P0s remain (real external testers; one green CI cycle on the tag commit) and one P1 contradiction in `docs/ai-agent-install.md` was fixed in the same pass. Repo subsequently shipped a public-alpha readiness pass and now sits at `0.4.1-alpha`; the 1.0 gates remain open.
 
 Current public data room:
 
@@ -49,18 +54,18 @@ Current public data room:
 
 Digital Seed should be considered production-grade open source when these are all true:
 
-1. **Beginner first win** — a stranger can understand the project in 60 seconds and get one useful outcome in 15 minutes without premature complexity.
-2. **First-run reliability** — a fresh user can clone, install, run `bun run seed onboard`, `bun run seed doctor`, and `bun run seed first-prompt` without hand-holding on macOS/Linux.
-3. **Safety clarity** — docs consistently explain what stays local, what is optional, what leaves the machine, and what requires explicit permission.
-4. **No private residue** — privacy scan passes and README/docs contain no private, project-internal, or founder-specific leftovers.
-5. **Release repeatability** — visual assets, data room sync, health checks, privacy scan, link checks, fresh-clone validation, and changelog update are captured in automated or checklist gates.
-6. **Open-source usability** — issue templates, PR template, contributing guide, troubleshooting guide, and command taxonomy make it easy for external users to report problems and contribute.
-7. **Product coherence** — beginner commands stay simple; advanced/legacy commands are clearly separated from the first-run path.
-8. **Support expectations** — alpha limits, security reporting, contribution flow, supported platforms, and unsupported setups are explicit.
+1. **Beginner first win** - a stranger can understand the project in 60 seconds and get one useful outcome in 15 minutes without premature complexity.
+2. **First-run reliability** - a fresh user can clone, install, run `bun run seed onboard`, `bun run seed doctor`, and `bun run seed first-prompt` without hand-holding on macOS/Linux.
+3. **Safety clarity** - docs consistently explain what stays local, what is optional, what leaves the machine, and what requires explicit permission.
+4. **No private residue** - privacy scan passes and README/docs contain no private, project-internal, or founder-specific leftovers.
+5. **Release repeatability** - visual assets, data room sync, health checks, privacy scan, link checks, fresh-clone validation, and changelog update are captured in automated or checklist gates.
+6. **Open-source usability** - issue templates, PR template, contributing guide, troubleshooting guide, and command taxonomy make it easy for external users to report problems and contribute.
+7. **Product coherence** - beginner commands stay simple; advanced/legacy commands are clearly separated from the first-run path.
+8. **Support expectations** - alpha limits, security reporting, contribution flow, supported platforms, and unsupported setups are explicit.
 
 ## Milestones to production-grade OSS
 
-### Milestone 1 — Beginner trust + first win
+### Milestone 1 - Beginner trust + first win
 
 Goal: a stranger understands what to do and gets one useful result quickly.
 
@@ -75,14 +80,14 @@ Shipped:
 
 Also shipped:
 
-- README / first-15-minutes “day one / not day one” guidance box.
+- README / first-15-minutes "day one / not day one" guidance box.
 
 Exit criteria:
 
 - A new user can pick an example, edit three context files, write a first win, and paste a first prompt with no extra docs.
-- `bun run health` no longer says “All checks passed” when warnings exist.
+- `bun run health` no longer says "All checks passed" when warnings exist.
 
-### Milestone 2 — Release engineering
+### Milestone 2 - Release engineering
 
 Goal: releases are boring and repeatable.
 
@@ -108,7 +113,7 @@ Exit criteria:
 - Release gate can be run locally and in CI without remembering scattered commands.
 - A failed link/version/data-room check blocks release confidence.
 
-### Milestone 3 — Open-source usability
+### Milestone 3 - Open-source usability
 
 Goal: outside contributors/users can understand, debug, and extend it.
 
@@ -128,7 +133,7 @@ Exit criteria:
 - A user can file a good issue without prior context.
 - A contributor can make a docs/recipe PR without asking how the repo works.
 
-### Milestone 4 — Product coherence
+### Milestone 4 - Product coherence
 
 Goal: Digital Seed feels focused rather than like a broad toolbox.
 
@@ -148,9 +153,9 @@ Exit criteria:
 - `bun run seed help` is beginner-safe. ✅
 - Advanced commands are discoverable but not part of the first-run promise. ✅
 - Recipes carry an explicit status label. ✅
-- Real outside users confirm the beginner surface still feels right — open.
+- Real outside users confirm the beginner surface still feels right - open.
 
-### Milestone 5 — 1.0 candidate
+### Milestone 5 - 1.0 candidate
 
 Goal: stable enough to recommend widely, not merely alpha-useful.
 
@@ -161,17 +166,17 @@ Real external validation is still the gating step before any `1.0.0-rc.1` tag.
 
 Shipped (repo-side prep, 2026-05-11):
 
-- [Supported Platforms](supported-platforms.md) — explicit stance:
+- [Supported Platforms](supported-platforms.md) - explicit stance:
   macOS + Linux supported in CI, WSL2 best-effort, Windows-native out of
   scope.
-- [Demo Transcript](demo-transcript.md) — fictional first 15-minute
+- [Demo Transcript](demo-transcript.md) - fictional first 15-minute
   walkthrough that a stranger can read end-to-end before cloning.
-- [First Useful Outcomes](first-useful-outcomes.md) — concrete examples
+- [First Useful Outcomes](first-useful-outcomes.md) - concrete examples
   of the boring real win the alpha is built around.
 - [Release Candidate Discipline](#release-candidate-discipline) (this
-  doc) — what must be true before tagging `1.0.0-rc.1` or `1.0.0`.
+  doc) - what must be true before tagging `1.0.0-rc.1` or `1.0.0`.
 - [Hostile 1.0 Readiness Audit Prompt](hostile-1.0-readiness-audit-prompt.md)
-  — reusable audit prompt for the final pre-RC gate.
+  - reusable audit prompt for the final pre-RC gate.
 
 Must have before `1.0.0-rc.1`:
 
@@ -194,12 +199,12 @@ Must have before `1.0.0-rc.1`:
 Exit criteria:
 
 - Tagging `1.0.0-rc.1` would feel honest, not aspirational.
-- Tagging `1.0.0` after a 2–4 week RC soak would feel honest, not
+- Tagging `1.0.0` after a 2-4 week RC soak would feel honest, not
   aspirational.
 
 ## Release candidate discipline
 
-The jump from `0.x.y-alpha` to `1.0.0` is not a polish exercise — it is a
+The jump from `0.x.y-alpha` to `1.0.0` is not a polish exercise - it is a
 trust contract. This section defines the discipline that protects that
 contract.
 
@@ -228,17 +233,17 @@ To tag `1.0.0-rc.1`, all of these must be true:
 
 ### What `1.0.0` means
 
-`1.0.0` is `1.0.0-rc.1` after a 2–4 week RC soak in which **no P0
+`1.0.0` is `1.0.0-rc.1` after a 2-4 week RC soak in which **no P0
 regressions** were reported, all P1 fixes from the RC period are merged,
 and at least one additional fresh external tester confirms the path.
 
 `1.0.0` does **not** mean:
 
-- "the project is done" — alpha-style improvement continues.
-- "every command is supported" — beginner/advanced/maintainer split is
+- "the project is done" - alpha-style improvement continues.
+- "every command is supported" - beginner/advanced/maintainer split is
   load-bearing, and only the beginner surface carries the 1.0 trust
   contract.
-- "every integration recipe is production-grade" — recipes keep their
+- "every integration recipe is production-grade" - recipes keep their
   "Official alpha-supported" vs "Experimental / adapt-yourself" labels.
 
 ### Honest red flags that block `1.0.0`
@@ -272,11 +277,11 @@ discipline above. There is no in-between.
 
 ## Immediate next sprint
 
-Focus: prep for Milestone 5 — 1.0 candidate. Repo-side prep is shipped
+Focus: prep for Milestone 5 - 1.0 candidate. Repo-side prep is shipped
 (2026-05-11). The remaining work is real-user validation.
 
 1. Run the first-15-minute path cold on a clean macOS and a clean Linux machine; capture any friction.
-2. Invite 3–5 **real** external testers to walk through onboarding and report where they got stuck. Simulated persona audits are useful for cleanup but cannot replace real friction.
+2. Invite 3-5 **real** external testers to walk through onboarding and report where they got stuck. Simulated persona audits are useful for cleanup but cannot replace real friction.
 3. Decide whether any ADVANCED commands should be deprecated, renamed, or split into a separate "labs" surface before 1.0.
 4. Tighten `what-leaves-your-machine.md` with whatever real users surface as confusing.
 5. Keep collecting outside-user friction from issues and PRs to validate Milestones 3 and 4.
@@ -293,7 +298,7 @@ and focus on blockers, not polish.
 
 The most recent run of that audit
 ([`docs/hostile-1.0-readiness-audit-2026-05-11.md`](hostile-1.0-readiness-audit-2026-05-11.md))
-returned **"1.0 would be dishonest — do not tag yet"** with two open
+returned **"1.0 would be dishonest - do not tag yet"** with two open
 P0s: (1) no real external testers, and (2) no green CI cycle on a tag
 commit. Re-run the prompt only after both can be answered with
 evidence.
