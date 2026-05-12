@@ -101,17 +101,17 @@ check_prerequisites() {
     echo ""
     if command -v bun &>/dev/null; then
       echo -e "  ${BOLD}Claude Code${NC} (Anthropic — easiest beginner option):"
-      echo -e "    ${CYAN}bun install -g @anthropic-ai/claude-code && claude login${NC}"
+      echo -e "    ${CYAN}bun install -g @anthropic-ai/claude-code && claude auth login${NC}"
     else
       echo -e "  ${BOLD}Claude Code${NC} (Anthropic — easiest beginner option):"
-      echo -e "    ${CYAN}npm install -g @anthropic-ai/claude-code && claude login${NC}"
+      echo -e "    ${CYAN}npm install -g @anthropic-ai/claude-code && claude auth login${NC}"
     fi
     echo ""
     echo -e "  ${BOLD}Codex CLI${NC} (OpenAI / ChatGPT):"
     echo -e "    ${CYAN}npm install -g @openai/codex && codex login${NC}"
     echo ""
     echo -e "  ${BOLD}Gemini CLI${NC} (Google):"
-    echo -e "    ${CYAN}npm install -g @google/gemini-cli && gemini auth login${NC}"
+    echo -e "    ${CYAN}npm install -g @google/gemini-cli && gemini${NC}"
     echo ""
     echo -e "  ${BOLD}Ollama${NC} (local model, no cloud, no account):"
     echo -e "    ${CYAN}https://ollama.ai${NC} — then: ollama pull llama3.1:8b"

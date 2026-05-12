@@ -76,7 +76,7 @@ You may see yellow warning messages about version upgrades — safe to ignore.
 **Do not skip this step.** Without it, Claude Code will fail with a connection error even if your internet is working fine.
 
 ```bash
-claude login
+claude auth login
 ```
 
 This opens a browser window. Log in with your Anthropic account (or create one at claude.ai). Once authenticated, return to the terminal.
@@ -151,7 +151,7 @@ Yellow warnings about version upgrades — safe to ignore.
 ### Step 5 — Log In (mandatory — do not skip)
 
 ```bash
-claude login
+claude auth login
 ```
 
 This opens a browser window. Log in with your Anthropic account (or create one at claude.ai). Once authenticated, return to the Ubuntu terminal.
@@ -160,7 +160,7 @@ This opens a browser window. Log in with your Anthropic account (or create one a
 > ```
 > Failed to connect to api.anthropic.com: ETIMEDOUT
 > ```
-> This looks like a network error but it is actually a missing auth token. Running `claude login` once fixes it permanently — this is NOT caused by your region, VPN, or firewall.
+> This looks like a network error but it is actually a missing auth token. Running `claude auth login` once fixes it permanently — this is NOT caused by your region, VPN, or firewall.
 
 ### Step 6 — Launch Claude Code
 
@@ -198,7 +198,7 @@ exec $SHELL -l
 Or open a new terminal window. If `bun` is still missing, see [troubleshooting.md](troubleshooting.md) → "Bun is missing or the wrong version."
 
 **`ETIMEDOUT` when running `claude`**
-You haven't logged in yet. Always run `claude login` before first use.
+You haven't logged in yet. Always run `claude auth login` before first use.
 
 **`claude: command not found` after install**
 ```bash

@@ -217,7 +217,7 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     dim("   Need to install an agent first?"),
     dim("   • Claude Code (easiest): docs/install-claude-code.md   claude.ai account required"),
     dim("   • Codex CLI (OpenAI):   npm install -g @openai/codex   OpenAI account required"),
-    dim("   • Gemini CLI (Google):  npm install -g @google/gemini-cli   Google account required"),
+    dim("   • Gemini CLI (Google):  npm install -g @google/gemini-cli, then run gemini   Google account required"),
     dim("   • Ollama (local/free):  https://ollama.ai   no account, no cloud"),
     dim("   Full comparison: docs/agent-chooser.md"),
     `   ${cmd("claude")}  ${dim("# or: cursor .  · windsurf .  · another terminal-capable agent")}`,
@@ -727,9 +727,9 @@ Rules:
     console.log("⚠️  No terminal-capable AI agent detected on your PATH.");
     console.log("");
     console.log("   You need one before this prompt will work. Options:");
-    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude login");
+    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude auth login");
     console.log("     Codex CLI (OpenAI)        — npm install -g @openai/codex + codex login");
-    console.log("     Gemini CLI (Google)       — npm install -g @google/gemini-cli + gemini auth login");
+    console.log("     Gemini CLI (Google)       — npm install -g @google/gemini-cli, then run gemini and follow the sign-in prompt");
     console.log("     Ollama (local, no cloud)  — https://ollama.ai");
     console.log("");
     console.log("   Full comparison: docs/agent-chooser.md");

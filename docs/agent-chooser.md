@@ -24,7 +24,7 @@ Digital Seed works with any terminal-capable AI agent. This guide helps you pick
 **Install:**
 ```bash
 bun install -g @anthropic-ai/claude-code
-claude login
+claude auth login
 claude
 ```
 
@@ -75,7 +75,7 @@ npm install -g @google/gemini-cli
 gemini
 ```
 
-Then follow the in-app authentication prompt. The previously documented `gemini auth login` command is not listed in the current CLI help, so do not rely on it unless Google's official docs for your installed version say otherwise.
+Then follow the in-app authentication prompt. The current CLI help does not list a separate `gemini auth login` command, so start with `gemini` unless Google's official docs for your installed version say otherwise.
 
 **Use with Digital Seed:** same as any other agent — open the folder, run `gemini`, paste the first-prompt output. Gemini CLI can read local files and run shell commands.
 
