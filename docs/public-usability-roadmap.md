@@ -2,7 +2,7 @@
 
 Digital Seed is credible public alpha software. The next goal is not "more features" — it is making the starter kit obvious, trustworthy, and repairable for strangers.
 
-Last updated: 2026-05-12. Reflects all changes shipped in this session.
+Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha posture, and remaining external-user usefulness gaps.
 
 ---
 
@@ -21,7 +21,18 @@ Last updated: 2026-05-12. Reflects all changes shipped in this session.
 | Product coherence | ~82% | Beginner / advanced / maintainer surfaces labeled in CLI, README, and docs |
 | External validation | ~0% | Zero real outside walkthroughs yet — hard gate for 1.0 |
 
-**Overall: ~85% without external users. External validation is the main remaining gap.**
+**Overall external-user usefulness score: 8/10 as a public alpha.** It is coherent, installable, documented, CI-gated, and visually credible enough for strangers to try. It is not yet a 9-10 because real outside-user walkthroughs, post-onboarding next-step guidance, and agent-specific end-to-end validation are still thin.
+
+**Overall production-grade OSS readiness: ~85% without external users. External validation is the main remaining gap.**
+
+## Highest-leverage work to make it more useful for strangers
+
+1. **Run 5 real first-time user walkthroughs.** Watch people clone the repo, choose an agent, run `bun run seed onboard`, and produce one useful output. Capture every confusion point as an issue. This is the hard gate for raising the score above 8/10.
+2. **Ship `seed what-next`.** After onboarding, users need one concrete next action, not another menu. The command should read local state and print exactly one recommendation.
+3. **Verify Codex CLI, Gemini CLI, and Ollama paths end-to-end.** The docs are credible, but the non-Claude paths need real walkthrough proof or honest "unverified" labels.
+4. **Tighten the first-prompt loop.** Make the default first session reliably produce one artifact, then point users to `seed feedback` when they are done.
+5. **Cut a fresh patch alpha release from the current main.** The README visual and docs are ahead of the published release tag; a patch release would make the public story consistent.
+6. **Resolve remaining P2 trust polish.** Add the optional/maintainer-published qualifier around the public data room, add the privacy-scan pointer in `SECURITY.md`, and clear old simulated-audit leftovers.
 
 ---
 

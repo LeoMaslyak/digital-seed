@@ -51,6 +51,13 @@ The terminal visual intentionally uses ANSI glyphs/colors rather than image prot
 
 Latest hostile visual audit result: production-ready.
 
+2026-05-14 final visual pass:
+
+- Branch-owned mature canopy: 13 major branches retain 51 canopy nodes each, 663 total.
+- Stem density: each branch reserves at least 15 retained nodes in the inner/stem section.
+- Center warmth: middle branches preserve controlled warm-gold accents between mint/aqua leaves and receive a few extra fruit nodes so the center does not read colder than the sides.
+- GitHub CI passed after the final center-warmth pass: `25855072841`.
+
 Measured loop checks after regeneration:
 
 - GIF: 72 frames, ~5.76s at 80ms/frame, infinite loop flag enabled.
