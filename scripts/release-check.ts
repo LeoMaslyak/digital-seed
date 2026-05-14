@@ -187,6 +187,7 @@ runStep("Privacy scan",          "bun", ["run", "seed", "privacy-scan"]);
 runStep("Visual QA",             "bun", ["run", "seed", "visual-qa"]);
 runStep("Onboard (--plain)",     "bun", ["run", "seed", "onboard", "--plain"]);
 runStep("First prompt",          "bun", ["run", "seed", "first-prompt"]);
+runStep("What next",             "bun", ["run", "seed", "what-next"]);
 runStep("Markdown link check",   "bun", ["run", "check:links"]);
 
 checkVersionConsistency();

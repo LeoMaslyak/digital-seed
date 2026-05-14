@@ -243,7 +243,7 @@ function printOnboard(options: { plain?: boolean } = {}): void {
     "",
     dim("Rule: do not connect email, messaging, or cloud automation until the local workflow is useful."),
     dim("Stuck? Run: bun run seed feedback"),
-    dim("Done? Run: bun run seed what-next"),
+    dim("Done with Phase 1? Run: bun run seed what-next"),
     dim("Full guide: docs/first-15-minutes.md · Examples: docs/examples/README.md"),
   ];
   const text = lines.join("\n");
@@ -304,7 +304,12 @@ function writeFirstWin(options: { force?: boolean } = {}): void {
 function printFirstPrompt(): void {
   const firstWinPath = join(ROOT, "user", "FIRST-WIN.md");
   const hasFirstWin = existsSync(firstWinPath);
-  const base = "Read my Digital Seed context files. Interview me for missing context, explain anything I do not understand, and help me make this useful this week.";
+  const base = [
+    "Read my Digital Seed context files.",
+    "Interview me for missing context, explain anything I do not understand, and help me produce one concrete useful artifact before this session ends.",
+    "Default artifact if I have not chosen one: a one-page weekly plan or next-action list based on user/USER.md, user/COMPASS.md, and user/GOALS.md.",
+    "Do not suggest new tools, accounts, automations, or integrations until that artifact exists."
+  ].join(" ");
   const prompt = hasFirstWin
     ? `${base} Start from user/FIRST-WIN.md — help me finish that specific win before suggesting anything else.`
     : base;
@@ -313,12 +318,14 @@ function printFirstPrompt(): void {
   const subHeader = USE_ANSI ? `${ANSI.dim}# (open a terminal in this folder and run \`claude\`, or \`cursor .\`, or \`windsurf .\` — then paste.)${ANSI.reset}` : "# (open a terminal in this folder and run `claude`, or `cursor .`, or `windsurf .` — then paste.)";
   const ruler = USE_ANSI ? `${ANSI.dim}----- copy from below this line -----${ANSI.reset}` : "----- copy from below this line -----";
   const endRuler = USE_ANSI ? `${ANSI.dim}----- copy from above this line -----${ANSI.reset}` : "----- copy from above this line -----";
+  const footer = USE_ANSI ? `${ANSI.dim}After your first useful output, run: bun run seed feedback${ANSI.reset}` : "After your first useful output, run: bun run seed feedback";
 
   console.log(header);
   console.log(subHeader);
   console.log(ruler);
   console.log(prompt);
   console.log(endRuler);
+  console.log(footer);
 }
 
 function privacyScan(): void {
@@ -413,25 +420,36 @@ function nonEmptyFile(rel: string): boolean {
 }
 
 function hasLocalIndex(): boolean {
-  const dataDir = join(ROOT, "data");
-  if (!existsSync(dataDir)) return false;
-  const files = walkFiles(dataDir);
-  return files.some((file) => {
-    const rel = file.slice(ROOT.length + 1).toLowerCase();
-    return rel.includes("embedding") || rel.includes("vector") || rel.endsWith("data/rag/status.json");
-  });
+  const vectorsPath = join(ROOT, "data", "rag", "vectors.json");
+  if (existsSync(vectorsPath)) {
+    try {
+      const store = JSON.parse(readFileSync(vectorsPath, "utf-8"));
+      if (Array.isArray(store.documents) && store.documents.length > 0) return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const statusPath = join(ROOT, "data", "rag", "status.json");
+  if (!existsSync(statusPath)) return false;
+  try {
+    const status = JSON.parse(readFileSync(statusPath, "utf-8"));
+    return Number(status.totalDocuments ?? 0) > 0 || Number(status.totalChunks ?? 0) > 0;
+  } catch {
+    return false;
+  }
 }
 
 function printWhatNext(): void {
   const planPath = join(ROOT, "user", "MY-PLAN.md");
   if (!existsSync(planPath)) {
-    console.log("Run: bun run seed plan --write-plan — then paste the output into your agent to choose your phases.");
+    console.log("Next: bun run seed plan --write-plan");
     return;
   }
 
   const phase1Done = ["user/USER.md", "user/COMPASS.md", "user/GOALS.md"].every(nonEmptyFile);
   if (!phase1Done) {
-    console.log("Run: bun run seed onboard --plain — then fill in user/USER.md, COMPASS.md, and GOALS.md.");
+    console.log("Next: bun run seed onboard --plain");
     return;
   }
 
@@ -439,21 +457,20 @@ function printWhatNext(): void {
   try { plan = readFileSync(planPath, "utf-8"); } catch { plan = ""; }
   const checkedPhaseLines = plan.split(/\r?\n/).filter((line) => /^\s*- \[x\]/i.test(line));
   const phaseTicked = (n: number) => checkedPhaseLines.some((line) => new RegExp(`phase\\s*${n}\\b`, "i").test(line));
-  const phase2Ticked = phaseTicked(2);
   const phase3Ticked = phaseTicked(3);
   const indexExists = hasLocalIndex();
 
-  if (!phase2Ticked && !indexExists) {
-    console.log("Run: bun run seed index <your-notes-folder> — indexes a local folder for search.");
+  if (!indexExists) {
+    console.log("Next: bun run seed index <your-notes-folder>");
     return;
   }
 
-  if ((phase2Ticked || indexExists) && !phase3Ticked) {
-    console.log("Run: bun run seed recipe list — pick one integration and follow its README.");
+  if (phase3Ticked) {
+    console.log("Next: bun run seed recipe list");
     return;
   }
 
-  console.log("Your plan is complete. Run: bun run seed feedback if anything felt unclear. Or add a new phase: bun run seed plan");
+  console.log("Next: use your agent to produce one weekly plan or next-action list from your Digital Seed context.");
 }
 
 function localSearch(query: string): void {
@@ -779,7 +796,7 @@ Rules:
     console.log("⚠️  No terminal-capable AI agent detected on your PATH.");
     console.log("");
     console.log("   You need one before this prompt will work. Options:");
-    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude login");
+    console.log("     Claude Code (Anthropic)  — bun install -g @anthropic-ai/claude-code + claude auth login");
     console.log("     Codex CLI (OpenAI)        — npm install -g @openai/codex + codex login");
     console.log("     Gemini CLI (Google)       — npm install -g @google/gemini-cli, then run gemini and follow the sign-in prompt");
     console.log("     Ollama (local, no cloud)  — https://ollama.ai");

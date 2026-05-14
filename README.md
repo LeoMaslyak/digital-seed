@@ -117,6 +117,7 @@ bun run seed plan             # Get the AI-guided phase-selection prompt (paste 
 bun run seed onboard          # First 15-minute path (--plain for no animation)
 bun run seed doctor           # Check local setup health
 bun run seed first-prompt     # Print the first agent prompt
+bun run seed what-next        # Print exactly one recommended next action
 bun run seed privacy-scan     # Check for common private leftovers
 bun run seed feedback         # Report first-run friction or docs confusion
 bun run seed index <folder>   # Build a local retrieval index

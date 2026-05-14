@@ -28,9 +28,9 @@ Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha
 ## Highest-leverage work to make it more useful for strangers
 
 1. **Run 5 real first-time user walkthroughs.** Watch people clone the repo, choose an agent, run `bun run seed onboard`, and produce one useful output. Capture every confusion point as an issue. This is the hard gate for raising the score above 8/10.
-2. **Ship `seed what-next`.** After onboarding, users need one concrete next action, not another menu. The command should read local state and print exactly one recommendation.
+2. **Validate `seed what-next` with real users.** The command now prints one concrete next action based on local state; confirm it removes the post-onboarding blank moment.
 3. **Verify Codex CLI, Gemini CLI, and Ollama paths end-to-end.** The docs are credible, but the non-Claude paths need real walkthrough proof or honest "unverified" labels.
-4. **Tighten the first-prompt loop.** Make the default first session reliably produce one artifact, then point users to `seed feedback` when they are done.
+4. **Validate the first-prompt loop.** The default first session now asks for one artifact and points users to `seed feedback`; confirm it reliably produces a useful output.
 5. **Cut a fresh patch alpha release from the current main.** The README visual and docs are ahead of the published release tag; a patch release would make the public story consistent.
 6. **Resolve remaining P2 trust polish.** Add the optional/maintainer-published qualifier around the public data room, add the privacy-scan pointer in `SECURITY.md`, and clear old simulated-audit leftovers.
 
@@ -87,6 +87,8 @@ These are the remaining concrete tasks achievable without real outside testers. 
 
 ### M3 — Add a `seed what-next` command
 
+**Status:** Shipped 2026-05-14. Needs real-user validation.
+
 **Why:** the most common non-technical user failure point after Phase 1 is "I ran onboard, now what?" There is no gentle push to the next action. `bun run seed plan` requires deliberate opt-in. A small "what should I do next?" output at the end of onboarding removes that moment of blankness.
 
 **What to build:**
@@ -115,6 +117,8 @@ These are the remaining concrete tasks achievable without real outside testers. 
 ---
 
 ### M5 — Tighten the onboarding → first win → feedback loop
+
+**Status:** Shipped 2026-05-14. Needs real-user validation.
 
 **Why:** the gap between "I ran onboard" and "I got something useful" is still implicit. A first-time user who completes Phase 1 and runs `seed first-prompt` should land in a well-defined interview loop with a concrete output, not an open-ended chat.
 

@@ -28,9 +28,9 @@ Overall assessment: **8/10 as a public alpha for external users** and **~85% of 
 Next score-raising work, in priority order:
 
 1. **Run 5 real first-time user walkthroughs.** Watch people clone the repo, choose an agent, run `bun run seed onboard`, and produce one useful output. Simulated audits do not count.
-2. **Ship `seed what-next`.** After onboarding, users need exactly one clear next action based on local state.
+2. **Validate `seed what-next`.** After onboarding, users now get exactly one clear next action based on local state; real users need to confirm it helps.
 3. **Verify Codex CLI, Gemini CLI, and Ollama end-to-end.** Keep any unverified path honestly labeled.
-4. **Tighten `seed first-prompt`.** The default first session should reliably produce one useful artifact.
+4. **Validate `seed first-prompt`.** The default first session now asks for one useful artifact; real users need to confirm it lands.
 5. **Cut a fresh patch alpha release from current `main`.** The public release should match the improved README visual and docs.
 6. **Close remaining P2 trust polish.** Make the public data room qualifier explicit and point `SECURITY.md` at `privacy-scan`.
 

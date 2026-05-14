@@ -51,12 +51,12 @@ Priority order:
 1. **Real external walkthroughs.** Invite 5 first-time users to run the
    README → first-15-minutes → `bun run seed onboard` → `seed first-prompt`
    path cold. Capture every confusion point as an issue or doc patch.
-2. **`seed what-next`.** Add a command that reads local state and prints exactly
-   one next action. Wire it into the onboarding footer.
+2. ~~**`seed what-next`.** Add a command that reads local state and prints exactly
+   one next action. Wire it into the onboarding footer.~~ ✅
 3. **Agent-path validation.** Walk through Codex CLI, Gemini CLI, and Ollama
    with Digital Seed. Update docs/troubleshooting or label any path unverified.
-4. **First-prompt tightening.** Make the printed prompt reliably produce one
-   useful artifact before the session ends, then point to `seed feedback`.
+4. ~~**First-prompt tightening.** Make the printed prompt reliably produce one
+   useful artifact before the session ends, then point to `seed feedback`.~~ ✅
 5. **Fresh patch alpha release.** Cut a new patch release from current `main`
    so the release tag, README visual, roadmap, and docs tell the same story.
 6. **P2 trust polish.** Add the optional/maintainer-published data room
