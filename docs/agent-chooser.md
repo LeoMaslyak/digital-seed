@@ -52,7 +52,9 @@ Or via bun:
 bun install -g @openai/codex
 ```
 
-Verified locally: `codex` is on PATH after install. `codex login` is available in the current CLI help.
+Verified locally 2026-05-14: `codex` is on PATH, `codex login status`
+reports an active login, and a read-only headless `codex exec` run can read
+this repo's `README.md`. See [Agent Path Validation — 2026-05-14](agent-path-validation-2026-05-14.md).
 
 Full guide: [docs/install-codex-cli.md](install-codex-cli.md)
 
@@ -78,6 +80,10 @@ gemini
 ```
 
 Then follow the in-app authentication prompt. The current CLI help does not list a separate `gemini auth login` command, so start with `gemini` unless Google's official docs for your installed version say otherwise.
+
+Verified locally 2026-05-14: `gemini` is on PATH, headless prompt mode works,
+and `--approval-mode plan` can read this repo's `README.md` without editing
+files. See [Agent Path Validation — 2026-05-14](agent-path-validation-2026-05-14.md).
 
 Full guide: [docs/install-gemini-cli.md](install-gemini-cli.md)
 
@@ -118,6 +124,11 @@ ollama run llama3.1:8b
 Alternatively, point `bun run seed first-prompt` output at your Ollama model via Open WebUI and do the context-file editing manually.
 
 **Honest caveat:** local models below ~30B parameters often struggle with multi-step guided setup, especially reasoning about which phases to enable and running commands correctly. This caveat matches local testing: Ollama may be installed and have capable models available, but smaller models can still be slow or unreliable for agentic repo setup. If setup feels unreliable, try a stronger model or switch to a cloud agent for the initial setup, then use the local model for ongoing conversations.
+
+Verified locally 2026-05-14: `ollama` is installed, several local models are
+available, and `qwen2.5:14b` can answer a basic local prompt. This verifies
+model availability, not full file-editing agent behavior. See
+[Agent Path Validation — 2026-05-14](agent-path-validation-2026-05-14.md).
 
 **What it sends to the cloud:** nothing. All data stays on your machine.
 

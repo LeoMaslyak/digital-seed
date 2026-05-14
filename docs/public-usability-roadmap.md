@@ -80,6 +80,9 @@ These are the remaining concrete tasks achievable without real outside testers. 
 
 ### M2 — Verify the Codex CLI and Gemini CLI paths end-to-end
 
+**Status:** Internally validated 2026-05-14; still needs fresh-user proof.
+See [Agent Path Validation — 2026-05-14](agent-path-validation-2026-05-14.md).
+
 **Why:** both are now documented and recommended but neither has been walked through in a Digital Seed context. The Claude Code path is proven. The others are not.
 
 **What to do:**
@@ -156,14 +159,17 @@ These are the remaining concrete tasks achievable without real outside testers. 
 
 ### M7 — Reduce simulated-audit P2 backlog
 
+**Status:** Resolved internally. Needs real users to validate whether these
+cleanup choices are actually clear.
+
 **Why:** several P2 items from previous audits are still open. They are not blockers but they make the repo look unfinished to a careful reader.
 
 Open P2s (from `docs/hostile-1.0-readiness-audit-2026-05-11.md`):
-- README "Public data room" section should carry a "maintainer-published, optional" qualifier.
-- `SECURITY.md` "API Key Management" section does not reference `bun run seed privacy-scan`.
-- `CONTRIBUTING.md` "Repo shape" omits several top-level directories.
-- Old audit docs could be folded into a single "audit log" index page.
-- `seed onboard --plain` step 3 ordering could use a clearer "in a second pane" hint.
+- ✅ README "Public data room" section carries a "maintainer-published, optional" qualifier.
+- ✅ `SECURITY.md` "API Key Management" section references `bun run seed privacy-scan`.
+- ✅ `CONTRIBUTING.md` "Repo shape" covers the current top-level directories.
+- ✅ Old audit docs are indexed in `docs/audit-log.md`.
+- ✅ `seed onboard --plain` step 3 includes a clearer "in a second pane" hint.
 
 **What to do:** fix as many as possible in a single targeted pass. Mark each resolved with a dated inline note.
 

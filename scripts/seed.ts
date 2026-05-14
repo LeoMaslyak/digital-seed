@@ -531,7 +531,7 @@ function preCommitHookBody(): string {
 # Installed by: bun run seed hooks install
 # Best-effort scan of staged additions for likely API keys / private keys.
 
-ADDED=$(git diff --cached --diff-filter=ACM | grep -E '^\\+' | grep -v '^\\+\\+\\+')
+ADDED=$(git diff --cached --diff-filter=ACM | grep '^+' | grep -v '^+++')
 if [ -z "$ADDED" ]; then exit 0; fi
 
 PATTERNS=(

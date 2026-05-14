@@ -155,6 +155,7 @@ Reference:
 - [Production Readiness](docs/production-readiness.md) — public-ready gaps and release criteria
 - [Release Checklist](docs/release-checklist.md) — maintainer release gate
 - [Fresh-Clone Validation](docs/fresh-clone-validation.md) — clean-environment smoke test
+- [Audit Log](docs/audit-log.md) — simulated audits, hostile audits, and validation notes
 - [Audit Response](docs/audit-response-2026-05-10.md) — cleanup status
 - [Public-Alpha Readiness Audit](docs/simulated-public-alpha-readiness-2026-05-11.md) — consolidated 2026-05-11 simulated audit (the fixes shipped in `0.4.1-alpha`)
 

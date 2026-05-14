@@ -55,6 +55,9 @@ Priority order:
    one next action. Wire it into the onboarding footer.~~ ✅
 3. **Agent-path validation.** Walk through Codex CLI, Gemini CLI, and Ollama
    with Digital Seed. Update docs/troubleshooting or label any path unverified.
+   - Internally validated 2026-05-14; see
+     `docs/agent-path-validation-2026-05-14.md`.
+   - Still needs fresh-user proof before this can count as external validation.
 4. ~~**First-prompt tightening.** Make the printed prompt reliably produce one
    useful artifact before the session ends, then point to `seed feedback`.~~ ✅
    - Shipped 2026-05-14 in `3eb98e5` (`feat: guide users to one next action`).
@@ -62,9 +65,11 @@ Priority order:
      `bun run check:links`, and green GitHub CI on macOS + Ubuntu.
 5. **Fresh patch alpha release.** Cut a new patch release from current `main`
    so the release tag, README visual, roadmap, and docs tell the same story.
-6. **P2 trust polish.** Add the optional/maintainer-published data room
+6. ~~**P2 trust polish.** Add the optional/maintainer-published data room
    qualifier, add a direct `privacy-scan` pointer in `SECURITY.md`, and clear
-   old simulated-audit leftovers.
+   old simulated-audit leftovers.~~ ✅
+   - Resolved internally by README/SECURITY/CONTRIBUTING/onboarding cleanup and
+     `docs/audit-log.md`.
 
 Milestone 5 / 1.0 prep remains below; real-user validation is the actual gate.
 

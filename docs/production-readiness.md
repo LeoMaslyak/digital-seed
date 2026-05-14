@@ -56,6 +56,9 @@ Shipped and verified:
 - Commit `3eb98e5` (`feat: guide users to one next action`) passed
   `bun run seed release-check --ci --skip-install`, `bun run check:links`, and
   GitHub CI on macOS + Ubuntu.
+- Codex CLI and Gemini CLI were internally validated on 2026-05-14 with
+  headless read-only repo checks; Ollama was validated as a local model runner.
+  See `docs/agent-path-validation-2026-05-14.md`.
 - Health and privacy scans pass locally.
 - Health output now distinguishes clean pass from pass-with-warnings.
 - Markdown link checker exists locally and in CI.
