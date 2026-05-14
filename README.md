@@ -74,7 +74,7 @@ If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agen
 
 ## Public data room
 
-The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) is an optional workshop/share pack for people who do not want to start in GitHub: start-here notes, visual story, guides, templates, recipes, audit notes, and NotebookLM intro-video source material. GitHub remains the source of truth. Refresh the data room with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).
+The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) is an optional workshop/share pack for people who do not want to start in GitHub: start-here notes, visual story, guides, templates, recipes, audit notes, and the [NotebookLM intro video](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk). GitHub remains the source of truth. Refresh the data room with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).
 
 (maintainer-published, optional)
 
@@ -136,7 +136,7 @@ Beginner path:
 - [First Useful Outcomes](docs/first-useful-outcomes.md) — concrete examples of the boring real win
 - [Examples Gallery](docs/examples/README.md) — fictional student, founder, researcher, and freelancer profiles
 - [External Tester Guide](docs/external-tester-guide.md) — simple instructions for non-technical testers and feedback
-- [NotebookLM Intro Video](docs/notebooklm-intro-video.md) — source pack and prompt for a short overview video
+- [NotebookLM Intro Video](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk) — 3-minute overview; see [production notes](docs/notebooklm-intro-video.md)
 - [Getting Started](docs/getting-started.md) — extended walkthrough with optional extras
 - [AI Agent Install](docs/ai-agent-install.md) — let a terminal-capable agent install it for you
 - [Troubleshooting](docs/troubleshooting.md) — when something does not work

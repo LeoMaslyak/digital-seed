@@ -77,8 +77,8 @@ Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
 - `03 Templates/` — copy-paste personal context files
 - `04 Recipes/` — small, safe integration paths
 - `05 Audit and Safety/` — governance and audit notes
-- `06 NotebookLM Intro Video/` — source text and generation instructions for a
-  short intro explainer
+- `06 NotebookLM Intro Video/` — the short intro explainer, plus its source
+  text and generation instructions
 
 ## Privacy model
 

@@ -1,8 +1,19 @@
 # NotebookLM Intro Video
 
-This page is the production plan for a short NotebookLM Video Overview that
+This page records the production plan for a short NotebookLM Video Overview that
 explains Digital Seed as a DIY workshop in a box for building a personal AI
 operating context.
+
+## Published video
+
+- **Video:** [Digital Seed - Building a Local-First Personal AI.mp4](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk)
+- **Location:** public data room, `06 NotebookLM Intro Video/`
+- **Generated:** May 14, 2026, in NotebookLM Cinematic mode
+- **Runtime:** 3:26
+- **Downloaded file:** `~/Downloads/Digital_Seed__Building_a_Local-First_Personal_AI.mp4`
+
+The repo keeps the source text, prompt, and production notes. The video file is
+hosted outside git to avoid adding a large binary to the repository.
 
 ## Do we still need the data room?
 
@@ -145,9 +156,13 @@ building your own AI-assisted personal OS, one useful loop at a time.
    - Add the video to a GitHub Release asset and link it.
    - Commit only a small poster image or transcript to the repo.
 
+The May 14, 2026 video followed this path: downloaded from NotebookLM, checked
+with `ffprobe`, uploaded to the public data room, and linked from README and the
+first-use docs.
+
 ## GitHub insertion plan
 
-After the final video exists, update:
+After a final video exists, update:
 
 - `README.md` — add one short "Watch the 3-minute overview" link near the
   first 15-minute section.
