@@ -139,13 +139,10 @@ branch_specs = [
 for spec in branch_specs:
     branch_paths.append([cubic(*spec, u / 48) for u in range(49)])
 
-# Canopy nodes seeded along all branch paths for even left+right distribution.
-# We build these after branch_paths and branchlet_paths are defined.
-canopy_nodes = []
-
 # Secondary branchlets make the image read as a living tree rather than a radial data diagram.
 branchlet_paths = []
-for base in branch_paths:
+branchlet_owners = []
+for branch_idx, base in enumerate(branch_paths):
     for j in range(2):
         anchor = base[18 + j * 11]
         direction = -1 if anchor[0] < W / 2 else 1
@@ -158,42 +155,82 @@ for base in branch_paths:
             (anchor[1] + out[1]) / 2 - random.uniform(18, 42),
         )
         branchlet_paths.append([quadratic(anchor, ctrl, out, u / 24) for u in range(25)])
+        branchlet_owners.append(branch_idx)
 
-# Populate canopy_nodes uniformly along every branch — same sample count
-# for every branch so no zone is denser than any other.
-for pts in branch_paths:
-    n_samples = 31  # +20% again from 26
-    for k in range(n_samples):
-        frac = 0.25 + 0.75 * (k / (n_samples - 1))
-        anchor_idx = int(frac * (len(pts) - 1))
-        bx, by = pts[anchor_idx]
-        scatter = random.uniform(8, 38)
-        angle = random.random() * math.tau
-        x = bx + math.cos(angle) * scatter
-        y = by + math.sin(angle) * scatter * 0.65
-        if 180 < x < 920 and 16 < y < 268:
-            canopy_nodes.append((x, y, random.uniform(1.8, 5.5), random.random()))
+# Branch-owned canopy nodes keep the mature tree healthy-looking. Earlier
+# versions used a global particle pool plus a center fill, which made some
+# branches lush while others looked thin after de-clustering.
+canopy_nodes_by_branch = {idx: [] for idx in range(len(branch_paths))}
 
-# Center fill — +20% again (115 nodes).
-for _ in range(115):
-    x = random.uniform(430, 690)
-    y = random.uniform(22, 195)
-    z_val = random.uniform(0.0, 0.90)
-    r_val = random.uniform(1.8, 5.0)
-    canopy_nodes.append((x, y, r_val, z_val))
 
-for pts in branchlet_paths:
-    n_samples = 14  # +20% again
+def canopy_node_for_path(pts, branch_id, frac, scatter_min, scatter_max, r_min, r_max):
+    anchor_idx = int(frac * (len(pts) - 1))
+    bx, by = pts[anchor_idx]
+    scatter = random.uniform(scatter_min, scatter_max)
+    angle = random.random() * math.tau
+    x = bx + math.cos(angle) * scatter
+    y = by + math.sin(angle) * scatter * 0.64
+    if not (180 < x < 920 and 16 < y < 268):
+        return None
+    z_val = random.random()
+    return (x, y, random.uniform(r_min, r_max), z_val, branch_id)
+
+
+for branch_id, pts in enumerate(branch_paths):
+    for k in range(52):
+        # Bias samples toward the outer third so every visible tip has a
+        # consistent living halo instead of a bare line endpoint.
+        t = k / 51
+        frac = 0.24 + 0.76 * (t ** 0.82)
+        node = canopy_node_for_path(pts, branch_id, frac, 8, 34, 1.8, 5.2)
+        if node:
+            canopy_nodes_by_branch[branch_id].append(node)
+
+for pts, branch_id in zip(branchlet_paths, branchlet_owners):
+    n_samples = 18
     for k in range(n_samples):
         frac = 0.30 + 0.70 * (k / max(1, n_samples - 1))
-        anchor_idx = int(frac * (len(pts) - 1))
-        bx, by = pts[anchor_idx]
-        scatter = random.uniform(6, 28)
-        angle = random.random() * math.tau
-        x = bx + math.cos(angle) * scatter
-        y = by + math.sin(angle) * scatter * 0.6
-        if 180 < x < 920 and 18 < y < 268:
-            canopy_nodes.append((x, y, random.uniform(1.6, 5.0), random.random()))
+        node = canopy_node_for_path(pts, branch_id, frac, 6, 24, 1.6, 4.6)
+        if node:
+            canopy_nodes_by_branch[branch_id].append(node)
+
+
+def branch_min_distance(x, y):
+    return 8.8 if 410 < x < 700 and 24 < y < 175 else 7.0
+
+
+def decluster_branch_nodes(nodes):
+    kept = []
+    # Keep tips first; branch endpoints need to look equally alive.
+    for node in sorted(nodes, key=lambda n: (n[0] - branch_paths[n[4]][0][0]) ** 2 + (n[1] - branch_paths[n[4]][0][1]) ** 2, reverse=True):
+        x, y, r, z, branch_id = node
+        min_dist = branch_min_distance(x, y)
+        if any((x - px) ** 2 + (y - py) ** 2 < min_dist ** 2 for px, py, *_ in kept):
+            continue
+        if 410 < x < 700 and 24 < y < 175:
+            r = min(r, 3.5)
+            z = 0.62 if z < 0.46 else z
+        kept.append((x, y, r, z, branch_id))
+    return kept
+
+
+TARGET_CANOPY_NODES_PER_BRANCH = 42
+canopy_nodes = []
+for branch_id, pts in enumerate(branch_paths):
+    nodes = decluster_branch_nodes(canopy_nodes_by_branch[branch_id])
+    attempts = 0
+    while len(nodes) < TARGET_CANOPY_NODES_PER_BRANCH and attempts < 500:
+        attempts += 1
+        frac = random.uniform(0.38, 0.98)
+        node = canopy_node_for_path(pts, branch_id, frac, 10, 30, 1.7, 4.8)
+        if not node:
+            continue
+        x, y, *_ = node
+        min_dist = branch_min_distance(x, y)
+        if any((x - px) ** 2 + (y - py) ** 2 < min_dist ** 2 for px, py, *_ in nodes):
+            continue
+        nodes.append(node)
+    canopy_nodes.extend(nodes[:TARGET_CANOPY_NODES_PER_BRANCH])
 
 
 def make_background() -> Image.Image:
@@ -341,20 +378,27 @@ def render_frame(i: int) -> Image.Image:
     if canopy_p > 0:
         leaf_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         ld = ImageDraw.Draw(leaf_layer)
-        for idx, (x, y, r, z) in enumerate(canopy_nodes):
+        for idx, (x, y, r, z, branch_id) in enumerate(canopy_nodes):
             birth = clamp(canopy_p - z * 0.18)
             if birth <= 0:
                 continue
             dx = math.sin(math.tau * (phase * 0.17 + z)) * 5
             dy = math.cos(math.tau * (phase * 0.13 + z)) * 4 - dissolve * (14 + z * 36)
+            in_muddy_center = 410 < x < 700 and 24 < y < 175
             leaf_r = r * (1.35 + 0.5 * canopy_p)
             col = MINT if idx % 5 else (GOLD if idx % 7 == 0 else AQUA)
-            ld.ellipse((x + dx - leaf_r, y + dy - leaf_r * 0.78, x + dx + leaf_r, y + dy + leaf_r * 0.78), fill=rgba(col, 0.23 * birth * (1 - 0.7 * dissolve)))  # +20% again
+            alpha = 0.23
+            if in_muddy_center:
+                # Keep center as discrete leaves/fruits, not a blended paint blob.
+                leaf_r *= 0.86
+                alpha = 0.19
+                col = MINT if idx % 2 else AQUA
+            ld.ellipse((x + dx - leaf_r, y + dy - leaf_r * 0.78, x + dx + leaf_r, y + dy + leaf_r * 0.78), fill=rgba(col, alpha * birth * (1 - 0.7 * dissolve)))
         leaf_layer = leaf_layer.filter(ImageFilter.GaussianBlur(1.4))
         img.alpha_composite(leaf_layer)
 
     # canopy luminous living particles
-    for x, y, r, z in canopy_nodes:
+    for x, y, r, z, branch_id in canopy_nodes:
         birth = clamp(canopy_p - z * 0.18)
         if birth <= 0:
             continue
@@ -362,9 +406,14 @@ def render_frame(i: int) -> Image.Image:
         dx = math.sin(math.tau * (phase * 0.23 + z)) * 4
         dy = math.cos(math.tau * (phase * 0.19 + z)) * 3 - dissolve * (16 + z * 45)
         a = birth * pulse * (1 - 0.85 * dissolve)
+        in_muddy_center = 410 < x < 700 and 24 < y < 175
         col = MINT if z > 0.46 else (GOLD if z > 0.12 else AQUA)
-        d.ellipse((x + dx - r, y + dy - r, x + dx + r, y + dy + r), fill=rgba(col, 0.49 * a))  # +20% again
-        if z > 0.50:
+        draw_r = r * (1.04 if in_muddy_center else 1.16)
+        draw_alpha = 0.50 if in_muddy_center else 0.60
+        if in_muddy_center:
+            col = MINT if z > 0.55 else AQUA
+        d.ellipse((x + dx - draw_r, y + dy - draw_r, x + dx + draw_r, y + dy + draw_r), fill=rgba(col, draw_alpha * a))
+        if z > 0.50 and not in_muddy_center:
             composite_glow(img, (x + dx, y + dy), col, r * 6.8, 0.094 * a)  # +20%
 
 
@@ -372,12 +421,14 @@ def render_frame(i: int) -> Image.Image:
     # dissolves back into a seed. They are deterministic, generated from the
     # canopy node list, and fade before the loop reset.
     if fruit_p > 0:
-        # Sample fruit nodes evenly across x-range so both sides get fruit.
-        fruit_nodes = sorted(canopy_nodes, key=lambda n: n[3])  # stable sort by z
-        fruit_step = max(1, len(fruit_nodes) // 42)
-        for idx, (x, y, r, z) in enumerate(fruit_nodes[::fruit_step]):
-            if idx >= 42:
-                break
+        fruit_nodes = []
+        for branch_id in range(len(branch_paths)):
+            branch_nodes = [node for node in canopy_nodes if node[4] == branch_id]
+            # Pick fruit from the outer/top side of each branch so warm nodes
+            # are distributed by branch, not by the global random z value.
+            branch_nodes = sorted(branch_nodes, key=lambda n: (n[0] - branch_paths[branch_id][0][0]) ** 2 + (n[1] - branch_paths[branch_id][0][1]) ** 2, reverse=True)
+            fruit_nodes.extend(branch_nodes[:3])
+        for idx, (x, y, r, z, branch_id) in enumerate(fruit_nodes):
             phase_offset = (idx * 0.137 + z) % 1
             pulse = 0.7 + 0.3 * math.sin(math.tau * (phase * 1.2 + phase_offset))
             fx = x + math.sin(math.tau * (phase * 0.18 + z)) * 3
