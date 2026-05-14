@@ -6,7 +6,11 @@ Fallback visual assets: [MP4](assets/digital-seed-growth.mp4), [WebM](assets/dig
 
 This is the smallest useful Digital Seed path. Do this before adding dashboards, databases, automations, or always-on agents.
 
-Prefer to watch first? Start with the [3-minute NotebookLM overview video](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk), then come back here for the actual setup path.
+Prefer to watch first? Start with the 3-minute NotebookLM overview, then come back here for the actual setup path.
+
+[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](assets/notebooklm-intro-poster.jpg)](assets/notebooklm-intro.mp4)
+
+[Open the MP4](assets/notebooklm-intro.mp4) or use the [Google Drive fallback](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk).
 
 ## Day one / Not day one
 

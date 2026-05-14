@@ -27,6 +27,12 @@
 
 Digital Seed is a small repo of editable context files plus a CLI that walks you through them. Point any AI agent (Claude Code, Cursor, Windsurf, OpenClaw, Hermes, …) at the folder, and it knows who you are, what you are working on, and what you do not want it to optimize for.
 
+## Watch the overview
+
+[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](docs/assets/notebooklm-intro-poster.jpg)](docs/assets/notebooklm-intro.mp4)
+
+[Open the 3-minute MP4](docs/assets/notebooklm-intro.mp4) or use the [Google Drive fallback](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk). The setup path below is still the source of truth.
+
 ## Start in 15 minutes
 
 **Prerequisites (one-time):**
@@ -74,7 +80,7 @@ If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agen
 
 ## Public data room
 
-The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) is an optional workshop/share pack for people who do not want to start in GitHub: start-here notes, visual story, guides, templates, recipes, audit notes, and the [NotebookLM intro video](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk). GitHub remains the source of truth. Refresh the data room with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).
+The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) is an optional workshop/share pack for people who do not want to start in GitHub: start-here notes, visual story, guides, templates, recipes, audit notes, and the NotebookLM intro video. GitHub remains the source of truth. Refresh the data room with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).
 
 (maintainer-published, optional)
 
@@ -136,7 +142,7 @@ Beginner path:
 - [First Useful Outcomes](docs/first-useful-outcomes.md) — concrete examples of the boring real win
 - [Examples Gallery](docs/examples/README.md) — fictional student, founder, researcher, and freelancer profiles
 - [External Tester Guide](docs/external-tester-guide.md) — simple instructions for non-technical testers and feedback
-- [NotebookLM Intro Video](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk) — 3-minute overview; see [production notes](docs/notebooklm-intro-video.md)
+- [NotebookLM Intro Video](docs/notebooklm-intro-video.md) — GitHub-hosted 3-minute overview and production notes
 - [Getting Started](docs/getting-started.md) — extended walkthrough with optional extras
 - [AI Agent Install](docs/ai-agent-install.md) — let a terminal-capable agent install it for you
 - [Troubleshooting](docs/troubleshooting.md) — when something does not work

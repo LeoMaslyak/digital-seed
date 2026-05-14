@@ -104,6 +104,7 @@ const MANIFEST: ManifestEntry[] = [
   { folder: "05 Audit and Safety", driveName: "Audit Response.md", source: "docs/audit-response-2026-05-10.md" },
 
   // 06 NotebookLM Intro Video
+  { folder: "06 NotebookLM Intro Video", driveName: "Digital Seed - Building a Local-First Personal AI.mp4", source: "docs/assets/notebooklm-intro.mp4" },
   { folder: "06 NotebookLM Intro Video", driveName: "NotebookLM Intro Source.md", source: "docs/data-room/notebooklm-intro-source.md" },
   { folder: "06 NotebookLM Intro Video", driveName: "NotebookLM Video Instructions.md", source: "docs/notebooklm-intro-video.md" },
 ];
