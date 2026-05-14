@@ -4,9 +4,9 @@ Digital Seed is production-stable for public use as an alpha: a new user can clo
 
 It is **not** 1.0 yet. The next objective is to turn the useful alpha into a production-grade, easy-to-use open-source project for strangers.
 
-## Current status: broader-alpha ready (~85% toward production-grade OSS usability)
+## Current status: broader-alpha ready (8/10 external-user usefulness; ~85% production-grade OSS readiness)
 
-*Scorecard updated 2026-05-12 after phases system, agent chooser expansion, feedback loop, and plan command were shipped. See `docs/public-usability-roadmap.md` for the full milestone list.*
+*Scorecard updated 2026-05-14 after the final hero visual pass and current external-user usefulness review. See `docs/public-usability-roadmap.md` for the full milestone list.*
 
 Digital Seed is no longer in "make it work" mode. It is now in **make it trustworthy, obvious, and boringly maintainable for strangers** mode.
 
@@ -23,7 +23,16 @@ Current usability scorecard:
 - **Product coherence:** ~82% — beginner / advanced / maintainer surfaces labeled in CLI, README, and docs.
 - **External validation:** ~0% — zero real outside-user walkthroughs yet. This is the main remaining gap and the hard gate for any 1.0 tag.
 
-Overall assessment: **~85% of 100% usable OSS project** without external users. External validation is the ceiling on the remaining 15%.
+Overall assessment: **8/10 as a public alpha for external users** and **~85% of 100% production-grade OSS readiness** without external users. External validation is the ceiling on the remaining 15%.
+
+Next score-raising work, in priority order:
+
+1. **Run 5 real first-time user walkthroughs.** Watch people clone the repo, choose an agent, run `bun run seed onboard`, and produce one useful output. Simulated audits do not count.
+2. **Ship `seed what-next`.** After onboarding, users need exactly one clear next action based on local state.
+3. **Verify Codex CLI, Gemini CLI, and Ollama end-to-end.** Keep any unverified path honestly labeled.
+4. **Tighten `seed first-prompt`.** The default first session should reliably produce one useful artifact.
+5. **Cut a fresh patch alpha release from current `main`.** The public release should match the improved README visual and docs.
+6. **Close remaining P2 trust polish.** Make the public data room qualifier explicit and point `SECURITY.md` at `privacy-scan`.
 
 Shipped and verified:
 

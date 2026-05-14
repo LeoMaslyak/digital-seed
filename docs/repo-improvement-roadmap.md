@@ -4,7 +4,7 @@ This is the current practical backlog for making Digital Seed feel more polished
 
 ## Current milestone sequence
 
-Current assessment: **~80% of 100% usable OSS project**. Digital Seed is broader-alpha ready, with a coherent beginner / advanced / maintainer surface, but not production-grade / 1.0 yet.
+Current assessment: **8/10 external-user usefulness as a public alpha** and **~85% production-grade OSS readiness without external validation**. Digital Seed is broader-alpha ready, with a coherent beginner / advanced / maintainer surface, but not production-grade / 1.0 yet.
 
 See `docs/production-readiness.md` for the full production-grade definition. The short version:
 
@@ -39,11 +39,33 @@ Milestone 4 has shipped at the repo level. External-user validation is still nee
    - Treat first external walkthroughs as validation, not as proof yet.
    - 2026-05-11: ran a simulated three-persona hostile audit (`docs/simulated-external-user-audit-2026-05-11.md`) and fixed the P0/P1 install-path contradictions it surfaced. This is a sanity check, not real external validation.
 
-## Immediate next sprint — Milestone 5 prep
+## Immediate next sprint — push from 8/10 toward 10/10
 
-Now that the surface is coherent, the next gate is the run to a 1.0
-candidate. Repo-side prep shipped 2026-05-11; the remaining work is
-real-user validation, not more docs.
+Now that the surface is coherent and the hero visual is credible, the next
+work should make Digital Seed more useful for strangers rather than broader.
+The score will not honestly move past 8/10 until real external walkthroughs
+prove the first-use path.
+
+Priority order:
+
+1. **Real external walkthroughs.** Invite 5 first-time users to run the
+   README → first-15-minutes → `bun run seed onboard` → `seed first-prompt`
+   path cold. Capture every confusion point as an issue or doc patch.
+2. **`seed what-next`.** Add a command that reads local state and prints exactly
+   one next action. Wire it into the onboarding footer.
+3. **Agent-path validation.** Walk through Codex CLI, Gemini CLI, and Ollama
+   with Digital Seed. Update docs/troubleshooting or label any path unverified.
+4. **First-prompt tightening.** Make the printed prompt reliably produce one
+   useful artifact before the session ends, then point to `seed feedback`.
+5. **Fresh patch alpha release.** Cut a new patch release from current `main`
+   so the release tag, README visual, roadmap, and docs tell the same story.
+6. **P2 trust polish.** Add the optional/maintainer-published data room
+   qualifier, add a direct `privacy-scan` pointer in `SECURITY.md`, and clear
+   old simulated-audit leftovers.
+
+Milestone 5 / 1.0 prep remains below; real-user validation is the actual gate.
+
+## Milestone 5 prep
 
 Shipped 2026-05-11 (Milestone 5 repo-side prep):
 
