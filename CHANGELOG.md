@@ -4,7 +4,23 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
-(No new changes since `0.4.2-alpha`.)
+### Added
+
+- `docs/external-tester-guide.md` — non-technical tester instructions,
+  privacy warnings, and a copy-paste feedback template for people who do not
+  want to use GitHub.
+- `docs/agent-path-validation-2026-05-14.md` — internal Codex CLI, Gemini CLI,
+  and Ollama validation notes.
+- `docs/audit-log.md` — index of simulated audits, hostile audits, and
+  validation notes.
+
+### Changed
+
+- `bun run seed feedback` now points first-time testers at the external tester
+  guide and makes GitHub optional for non-technical feedback.
+- CI uses Node 24-compatible GitHub actions (`actions/checkout@v5` and
+  `actions/setup-python@v6`).
+- The generated pre-commit hook avoids a macOS/BSD `grep` portability warning.
 
 ## [0.4.2-alpha] - 2026-05-12
 

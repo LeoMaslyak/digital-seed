@@ -135,6 +135,7 @@ Beginner path:
 - [Demo Transcript](docs/demo-transcript.md) — fictional first 15-minute walkthrough you can read before cloning
 - [First Useful Outcomes](docs/first-useful-outcomes.md) — concrete examples of the boring real win
 - [Examples Gallery](docs/examples/README.md) — fictional student, founder, researcher, and freelancer profiles
+- [External Tester Guide](docs/external-tester-guide.md) — simple instructions for non-technical testers and feedback
 - [Getting Started](docs/getting-started.md) — extended walkthrough with optional extras
 - [AI Agent Install](docs/ai-agent-install.md) — let a terminal-capable agent install it for you
 - [Troubleshooting](docs/troubleshooting.md) — when something does not work

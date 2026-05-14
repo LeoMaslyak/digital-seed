@@ -2,6 +2,10 @@
 
 Digital Seed is alpha. The most valuable feedback is not polished: it is the moment where you hesitated, got stuck, or thought "I do not know what this means."
 
+If you are helping as a first-time tester, start with the
+[External Tester Guide](external-tester-guide.md). It includes a short path to
+try and a copy-paste feedback template that does not require GitHub.
+
 ## Fastest path
 
 From the repo folder, run:

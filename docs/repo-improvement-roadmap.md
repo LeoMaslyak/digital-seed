@@ -51,6 +51,8 @@ Priority order:
 1. **Real external walkthroughs.** Invite 5 first-time users to run the
    README → first-15-minutes → `bun run seed onboard` → `seed first-prompt`
    path cold. Capture every confusion point as an issue or doc patch.
+   - Send non-technical testers `docs/external-tester-guide.md`; it includes
+     privacy warnings, the exact path to try, and a copy-paste feedback template.
 2. ~~**`seed what-next`.** Add a command that reads local state and prints exactly
    one next action. Wire it into the onboarding footer.~~ ✅
 3. **Agent-path validation.** Walk through Codex CLI, Gemini CLI, and Ollama

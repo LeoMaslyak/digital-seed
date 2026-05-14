@@ -59,6 +59,8 @@ Shipped and verified:
 - Codex CLI and Gemini CLI were internally validated on 2026-05-14 with
   headless read-only repo checks; Ollama was validated as a local model runner.
   See `docs/agent-path-validation-2026-05-14.md`.
+- `docs/external-tester-guide.md` gives non-technical testers one path to try,
+  clear privacy boundaries, and a copy-paste feedback template.
 - Health and privacy scans pass locally.
 - Health output now distinguishes clean pass from pass-with-warnings.
 - Markdown link checker exists locally and in CI.

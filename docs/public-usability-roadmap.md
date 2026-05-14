@@ -57,6 +57,11 @@ Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha
 - `bun run seed first-prompt` now asks the agent to produce one concrete useful artifact before ending.
 - `bun run seed first-prompt` now points users to `bun run seed feedback` after the first useful output.
 - Commit `3eb98e5` passed `bun run seed release-check --ci --skip-install`, `bun run check:links`, and GitHub CI on macOS + Ubuntu.
+- `docs/external-tester-guide.md` gives non-technical testers a simple path,
+  privacy warning, and copy-paste feedback template.
+- Internal Codex CLI, Gemini CLI, and Ollama validation is recorded in
+  `docs/agent-path-validation-2026-05-14.md`.
+- Old audit docs are indexed in `docs/audit-log.md`.
 
 ---
 

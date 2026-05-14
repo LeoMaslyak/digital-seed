@@ -719,6 +719,9 @@ function printFeedback(options: { writeDraft?: boolean } = {}): void {
   const bug = "https://github.com/LeoMaslyak/digital-seed/issues/new?template=bug_report.yml";
   console.log("Digital Seed feedback — fastest paths");
   console.log("");
+  console.log("First-time tester? Start here:");
+  console.log("  docs/external-tester-guide.md");
+  console.log("");
   console.log("If the first 15 minutes were confusing:");
   console.log(`  ${firstRun}`);
   console.log("");
@@ -731,6 +734,7 @@ function printFeedback(options: { writeDraft?: boolean } = {}): void {
   console.log("Not sure? Choose from all templates:");
   console.log(`  ${issueBase}`);
   console.log("");
+  console.log("GitHub unfamiliar? Copy the template in docs/external-tester-guide.md and send it to the person who invited you.");
   console.log("Want to suggest a wording fix without Git? Open the page on GitHub, click the pencil icon, edit the text, and GitHub will offer to create a PR for you.");
   console.log("Full guide: docs/feedback.md");
 
