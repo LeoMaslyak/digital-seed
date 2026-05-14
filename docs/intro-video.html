@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Digital Seed Intro Video</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #101418;
+        --fg: #f4f0e8;
+        --muted: #b8b0a4;
+        --line: #31363d;
+        --accent: #9fd17a;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      main {
+        width: min(960px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(2rem, 4vw, 3rem);
+        letter-spacing: 0;
+      }
+
+      p {
+        color: var(--muted);
+        max-width: 760px;
+      }
+
+      video {
+        display: block;
+        width: 100%;
+        margin: 28px 0 20px;
+        border: 1px solid var(--line);
+        background: #000;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Digital Seed Intro Video</h1>
+      <p>
+        A short NotebookLM overview of Digital Seed: a local-first starter kit
+        for building your own personal AI operating context.
+      </p>
+
+      <video controls poster="assets/notebooklm-intro-poster.jpg">
+        <source
+          src="https://github.com/LeoMaslyak/digital-seed/releases/download/v0.4.3-alpha/digital-seed-notebooklm-intro.mp4"
+          type="video/mp4">
+        Your browser cannot play this video. Use the direct release asset link below.
+      </video>
+
+      <div class="links">
+        <a href="https://github.com/LeoMaslyak/digital-seed">GitHub repo</a>
+        <a href="https://github.com/LeoMaslyak/digital-seed/releases/download/v0.4.3-alpha/digital-seed-notebooklm-intro.mp4">Download MP4</a>
+        <a href="https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk">Google Drive fallback</a>
+      </div>
+    </main>
+  </body>
+</html>

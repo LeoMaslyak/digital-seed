@@ -29,9 +29,9 @@ Digital Seed is a small repo of editable context files plus a CLI that walks you
 
 ## Watch the overview
 
-[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](docs/assets/notebooklm-intro-poster.jpg)](docs/assets/notebooklm-intro.mp4)
+[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](docs/assets/notebooklm-intro-poster.jpg)](https://leomaslyak.github.io/digital-seed/intro-video.html)
 
-[Open the 3-minute MP4](docs/assets/notebooklm-intro.mp4) or use the [Google Drive fallback](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk). The setup path below is still the source of truth.
+[Watch on GitHub Pages](https://leomaslyak.github.io/digital-seed/intro-video.html), [download the release MP4](https://github.com/LeoMaslyak/digital-seed/releases/download/v0.4.3-alpha/digital-seed-notebooklm-intro.mp4), or use the [Google Drive fallback](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk). The setup path below is still the source of truth.
 
 ## Start in 15 minutes
 

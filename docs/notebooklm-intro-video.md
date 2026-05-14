@@ -6,19 +6,20 @@ operating context.
 
 ## Published video
 
-[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](assets/notebooklm-intro-poster.jpg)](assets/notebooklm-intro.mp4)
+[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](assets/notebooklm-intro-poster.jpg)](https://leomaslyak.github.io/digital-seed/intro-video.html)
 
-- **Repo video:** [docs/assets/notebooklm-intro.mp4](assets/notebooklm-intro.mp4)
+- **Player page:** [GitHub Pages intro video](https://leomaslyak.github.io/digital-seed/intro-video.html)
+- **Release asset:** [digital-seed-notebooklm-intro.mp4](https://github.com/LeoMaslyak/digital-seed/releases/download/v0.4.3-alpha/digital-seed-notebooklm-intro.mp4)
 - **Drive fallback:** [Digital Seed - Building a Local-First Personal AI.mp4](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk)
 - **Data-room location:** `06 NotebookLM Intro Video/`
 - **Generated:** May 14, 2026, in NotebookLM Cinematic mode
 - **Runtime:** 3:26
 - **Downloaded file:** `~/Downloads/Digital_Seed__Building_a_Local-First_Personal_AI.mp4`
 
-The repo keeps the source text, prompt, production notes, poster image, and MP4.
-GitHub strips inline `<video>` tags from Markdown, so docs use a linked poster
-image that opens the MP4 in GitHub's file viewer/player. The data room keeps a
-public Drive copy for people who start outside GitHub.
+The repo keeps the source text, prompt, production notes, poster image, and
+GitHub Pages player page. The MP4 is hosted as a GitHub Release asset so it does
+not bloat the git history. GitHub strips inline `<video>` tags from Markdown, so
+README/docs use a linked poster image that opens the Pages player.
 
 ## Do we still need the data room?
 
@@ -162,8 +163,8 @@ building your own AI-assisted personal OS, one useful loop at a time.
    - Commit only a small poster image or transcript to the repo.
 
 The May 14, 2026 video followed this path: downloaded from NotebookLM, checked
-with `ffprobe`, added as `docs/assets/notebooklm-intro.mp4`, uploaded to the
-public data room, and embedded in README and the first-use docs.
+with `ffprobe`, uploaded as a GitHub Release asset, uploaded to the public data
+room, and linked from README and the first-use docs through a Pages player.
 
 ## GitHub insertion plan
 

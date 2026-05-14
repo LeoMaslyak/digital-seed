@@ -8,9 +8,9 @@ This is the smallest useful Digital Seed path. Do this before adding dashboards,
 
 Prefer to watch first? Start with the 3-minute NotebookLM overview, then come back here for the actual setup path.
 
-[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](assets/notebooklm-intro-poster.jpg)](assets/notebooklm-intro.mp4)
+[![NotebookLM overview video poster: a cardboard Digital Seed box of local context files](assets/notebooklm-intro-poster.jpg)](https://leomaslyak.github.io/digital-seed/intro-video.html)
 
-[Open the MP4](assets/notebooklm-intro.mp4) or use the [Google Drive fallback](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk).
+[Watch on GitHub Pages](https://leomaslyak.github.io/digital-seed/intro-video.html), [download the release MP4](https://github.com/LeoMaslyak/digital-seed/releases/download/v0.4.3-alpha/digital-seed-notebooklm-intro.mp4), or use the [Google Drive fallback](https://drive.google.com/file/d/1EepOk9V3YA1egd7PcW0LsePH0B7NZQo8/view?usp=drivesdk).
 
 ## Day one / Not day one
 

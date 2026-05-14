@@ -190,7 +190,7 @@ If you cannot use the publisher script, recreate the folder layout above and upl
   docs/audit-response-2026-05-10.md   → Audit Response.md
 
 06 NotebookLM Intro Video/
-  docs/assets/notebooklm-intro.mp4           → Digital Seed - Building a Local-First Personal AI.mp4
+  GitHub Release asset                       → Digital Seed - Building a Local-First Personal AI.mp4
   docs/data-room/notebooklm-intro-source.md → NotebookLM Intro Source.md
   docs/notebooklm-intro-video.md            → NotebookLM Video Instructions.md
 ```
