@@ -54,7 +54,7 @@ interface FolderPlan {
   driveId?: string;
 }
 
-const DEFAULT_ROOT_NAME = "Digital Seed — Public Starter Kit v0.3 (2026-05-11)";
+const DEFAULT_ROOT_NAME = "Digital Seed — Public Starter Kit";
 
 const MANIFEST: ManifestEntry[] = [
   // 00 Start Here
@@ -102,6 +102,10 @@ const MANIFEST: ManifestEntry[] = [
   // 05 Audit and Safety
   { folder: "05 Audit and Safety", driveName: "Governance.md", source: "docs/governance.md" },
   { folder: "05 Audit and Safety", driveName: "Audit Response.md", source: "docs/audit-response-2026-05-10.md" },
+
+  // 06 NotebookLM Intro Video
+  { folder: "06 NotebookLM Intro Video", driveName: "NotebookLM Intro Source.md", source: "docs/data-room/notebooklm-intro-source.md" },
+  { folder: "06 NotebookLM Intro Video", driveName: "NotebookLM Video Instructions.md", source: "docs/notebooklm-intro-video.md" },
 ];
 
 type ReplaceStrategy = "delete" | "skip-delete";

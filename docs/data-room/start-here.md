@@ -2,7 +2,9 @@
 
 Digital Seed is a local-first starter kit for building your own personal AI operating context.
 
-Use this folder if you want a guided, non-technical overview before opening the GitHub repo.
+GitHub is the source of truth. Use this folder if you want a guided,
+non-technical workshop pack before opening the repo, or if you want source
+materials for a short NotebookLM overview video.
 
 ## Recommended order
 
@@ -11,7 +13,8 @@ Use this folder if you want a guided, non-technical overview before opening the 
 3. Open `First 15 Minutes.md`.
 4. Use `Let an AI Agent Install It.md` if you want an AI agent to help with setup.
 5. Copy the templates in `03 Templates/` into your own local workspace.
-6. Read `Known Alpha Limits.md` before connecting external services.
+6. Optional: use `06 NotebookLM Intro Video/` to generate a short explainer.
+7. Read `Known Alpha Limits.md` before connecting external services.
 
 ## GitHub repo
 

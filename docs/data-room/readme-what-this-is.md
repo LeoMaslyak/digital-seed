@@ -7,6 +7,10 @@ Local-first · agent-neutral · free-first · privacy-aware.
 
 Digital Seed is a starter kit for people who want their AI tools to understand their life, work, goals, files, and preferences — without signing up for another platform.
 
+The GitHub repo is the source of truth. This data room is an optional workshop
+pack: easier to skim, easier to share, and useful as source material for a
+short NotebookLM intro video.
+
 It gives you:
 
 - editable context files for who you are and what matters
@@ -73,6 +77,8 @@ Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
 - `03 Templates/` — copy-paste personal context files
 - `04 Recipes/` — small, safe integration paths
 - `05 Audit and Safety/` — governance and audit notes
+- `06 NotebookLM Intro Video/` — source text and generation instructions for a
+  short intro explainer
 
 ## Privacy model
 

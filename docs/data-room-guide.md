@@ -2,6 +2,11 @@
 
 Use this as the structure for the public Google Drive / learning folder that accompanies the repo.
 
+GitHub is the source of truth. The data room is optional: a public
+workshop/share pack for non-GitHub audiences, public handouts, visual assets,
+and NotebookLM source material. If the Drive folder ever drifts from the repo,
+trust the repo and refresh or retire the stale Drive copy.
+
 **Current public folder:** [Digital Seed — Public Starter Kit](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG)
 
 ## Publishing
@@ -51,6 +56,7 @@ The data room should help a non-expert understand:
 - how to install Digital Seed
 - how to personalize it
 - how to grow it into their own work system
+- how to generate a short NotebookLM overview video from curated sources
 
 It should not contain private, school-specific, employer-specific, or copyrighted workshop materials.
 
@@ -95,9 +101,12 @@ Digital Seed — Public Starter Kit/
 │   ├── hermes-agent.md
 │   ├── claude-code-project.md
 │   └── github-repo-assistant.md
-└── 05 Audit and Safety/
-    ├── Governance.md
-    └── Audit Response.md
+├── 05 Audit and Safety/
+│   ├── Governance.md
+│   └── Audit Response.md
+└── 06 NotebookLM Intro Video/
+    ├── NotebookLM Intro Source.md
+    └── NotebookLM Video Instructions.md
 ```
 
 ## Must exclude
@@ -178,6 +187,10 @@ If you cannot use the publisher script, recreate the folder layout above and upl
 05 Audit and Safety/
   docs/governance.md                  → Governance.md
   docs/audit-response-2026-05-10.md   → Audit Response.md
+
+06 NotebookLM Intro Video/
+  docs/data-room/notebooklm-intro-source.md → NotebookLM Intro Source.md
+  docs/notebooklm-intro-video.md            → NotebookLM Video Instructions.md
 ```
 
 After uploading, set the root folder to "Anyone with the link → Viewer" and confirm the link still resolves.
