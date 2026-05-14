@@ -48,6 +48,14 @@ Shipped and verified:
 - Examples gallery and troubleshooting guide are linked from README.
 - `bun run seed onboard --write-first-win` creates an explicit first useful outcome file.
 - `seed first-prompt` points to `user/FIRST-WIN.md` when present.
+- `bun run seed what-next` prints one local-state-based next action; onboarding
+  now points users there after Phase 1.
+- `seed first-prompt` now asks the agent to produce one concrete useful
+  artifact before ending and points users to `seed feedback` after the first
+  useful output.
+- Commit `3eb98e5` (`feat: guide users to one next action`) passed
+  `bun run seed release-check --ci --skip-install`, `bun run check:links`, and
+  GitHub CI on macOS + Ubuntu.
 - Health and privacy scans pass locally.
 - Health output now distinguishes clean pass from pass-with-warnings.
 - Markdown link checker exists locally and in CI.

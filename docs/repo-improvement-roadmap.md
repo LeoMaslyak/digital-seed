@@ -57,6 +57,9 @@ Priority order:
    with Digital Seed. Update docs/troubleshooting or label any path unverified.
 4. ~~**First-prompt tightening.** Make the printed prompt reliably produce one
    useful artifact before the session ends, then point to `seed feedback`.~~ ✅
+   - Shipped 2026-05-14 in `3eb98e5` (`feat: guide users to one next action`).
+   - Verified with `bun run seed release-check --ci --skip-install`,
+     `bun run check:links`, and green GitHub CI on macOS + Ubuntu.
 5. **Fresh patch alpha release.** Cut a new patch release from current `main`
    so the release tag, README visual, roadmap, and docs tell the same story.
 6. **P2 trust polish.** Add the optional/maintainer-published data room

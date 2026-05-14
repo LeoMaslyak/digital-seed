@@ -50,6 +50,14 @@ Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha
 - `docs/install-claude-code.md` — now opens with "Claude Code is one option, not the only one."
 - `docs/public-usability-roadmap.md` (this file) — updated scorecard and milestone list.
 
+## What shipped today (2026-05-14)
+
+- `bun run seed what-next` now prints exactly one recommended next action based on local state.
+- `bun run seed onboard` now points users to `what-next` after Phase 1.
+- `bun run seed first-prompt` now asks the agent to produce one concrete useful artifact before ending.
+- `bun run seed first-prompt` now points users to `bun run seed feedback` after the first useful output.
+- Commit `3eb98e5` passed `bun run seed release-check --ci --skip-install`, `bun run check:links`, and GitHub CI on macOS + Ubuntu.
+
 ---
 
 ## Milestones to ~95% without external users
