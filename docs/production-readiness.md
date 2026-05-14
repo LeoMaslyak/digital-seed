@@ -17,7 +17,7 @@ Current usability scorecard:
 - **Agent onboarding:** ~85% — Claude Code, Codex CLI, Gemini CLI, and Ollama all documented, detected by doctor, and covered in agent-chooser; honest Ollama caveats in place.
 - **Feedback / friction reporting:** ~90% — `seed feedback`, first-run friction template, and GitHub-web PR path all live.
 - **Phases / feature selection:** ~85% — phases doc, `seed plan`, setup wizard phase chooser all shipped.
-- **Release engineering:** ~78% — unified release check, CI smoke, link/version checks, fresh-clone validation; needs repeated real release practice and a version bump for 2026-05-12 changes.
+- **Release engineering:** ~82% — unified release check, CI smoke, link/version checks, fresh-clone validation, and a green `v0.4.3-alpha` tag cycle; still needs more real release practice.
 - **Docs / trust / safety:** ~83% — examples, troubleshooting, known limits, privacy caveats, what-leaves-your-machine, agent prereq warnings.
 - **Open-source contributor readiness:** ~80% — issue templates, PR template, contributing guide, troubleshooting guide all in place; needs real contributor validation.
 - **Product coherence:** ~82% — beginner / advanced / maintainer surfaces labeled in CLI, README, and docs.
@@ -28,11 +28,10 @@ Overall assessment: **8/10 as a public alpha for external users** and **~85% of 
 Next score-raising work, in priority order:
 
 1. **Run 5 real first-time user walkthroughs.** Watch people clone the repo, choose an agent, run `bun run seed onboard`, and produce one useful output. Simulated audits do not count.
-2. **Validate `seed what-next`.** After onboarding, users now get exactly one clear next action based on local state; real users need to confirm it helps.
-3. **Verify Codex CLI, Gemini CLI, and Ollama end-to-end.** Keep any unverified path honestly labeled.
+2. **Validate `seed what-next`.** After onboarding, users now get exactly one clear next action based on local state; real users need to confirm it helps and does not distract from the first useful output.
+3. **Verify Codex CLI, Gemini CLI, and Ollama with fresh users.** Maintainer checks passed, but cold installs still need proof.
 4. **Validate `seed first-prompt`.** The default first session now asks for one useful artifact; real users need to confirm it lands.
-5. **Cut a fresh patch alpha release from current `main`.** The public release should match the improved README visual and docs.
-6. **Close remaining P2 trust polish.** Make the public data room qualifier explicit and point `SECURITY.md` at `privacy-scan`.
+5. **Keep release/docs status synchronized.** `v0.4.3-alpha` is published and tag CI is green; future public-facing changes should not leave roadmap/readiness claims behind.
 
 Shipped and verified:
 
@@ -70,7 +69,7 @@ Shipped and verified:
 - Markdown link checker exists locally and in CI.
 - Hostile production-alpha audit verdict: **ready for broader alpha announcement** (`docs/hostile-audit-production-alpha-2026-05-11.md`).
 - Simulated external-user audit: three hostile fresh-user personas walked through README → first-15-minutes → CLI help (`docs/simulated-external-user-audit-2026-05-11.md`). P0/P1 contradictions in the beginner install path were fixed in the same pass. This is *not* a substitute for real outside-tester walkthroughs.
-- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest - do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). Two P0s remain (real external testers; one green CI cycle on the tag commit) and one P1 contradiction in `docs/ai-agent-install.md` was fixed in the same pass. Repo subsequently shipped a public-alpha readiness pass and now sits at `0.4.1-alpha`; the 1.0 gates remain open.
+- Hostile 1.0 readiness audit: verdict **1.0 would be dishonest - do not tag yet** (`docs/hostile-1.0-readiness-audit-2026-05-11.md`). The tag-CI concern has since been closed for alpha by the green `v0.4.3-alpha` prerelease tag, but the real-external-tester gate remains open for any 1.0 or RC claim.
 
 Current public data room:
 
@@ -131,7 +130,7 @@ Shipped:
 
 Remaining:
 
-- Run the release check through at least one real tag/release cycle.
+- Run the release check through more real alpha tag/release cycles.
 - Decide whether to add a CI-safe fresh-clone/package smoke job beyond the current local harness.
 
 Exit criteria:
@@ -296,8 +295,8 @@ The release-check enforces this. Do not bump just one.
 
 ### Until then
 
-The current honest version is `0.4.1-alpha`. Do not change it without
-either (a) tagging another `0.4.x-alpha` follow-up patch with a clear
+The current honest published version is `0.4.3-alpha`. Do not change it
+without either (a) tagging another `0.4.x-alpha` follow-up patch with a clear
 justification in `CHANGELOG.md`, or (b) cutting `1.0.0-rc.1` with the
 discipline above. There is no in-between.
 
@@ -325,15 +324,16 @@ and focus on blockers, not polish.
 The most recent run of that audit
 ([`docs/hostile-1.0-readiness-audit-2026-05-11.md`](hostile-1.0-readiness-audit-2026-05-11.md))
 returned **"1.0 would be dishonest - do not tag yet"** with two open
-P0s: (1) no real external testers, and (2) no green CI cycle on a tag
-commit. Re-run the prompt only after both can be answered with
-evidence.
+P0s at the time: (1) no real external testers, and (2) no green CI cycle on a
+tag commit. The alpha tag-CI gap is now closed by `v0.4.3-alpha`; the real
+external tester gap remains the blocker. Re-run the prompt only after that can
+be answered with evidence.
 
 ## Release recommendation
 
-Current honest status: `0.4.1-alpha`, broader-alpha ready with Milestone 5
-repo-side prep shipped and a consolidated simulated public-alpha audit
-applied (see [`simulated-public-alpha-readiness-2026-05-11.md`](simulated-public-alpha-readiness-2026-05-11.md)).
+Current honest status: `0.4.3-alpha`, broader-alpha ready with Milestone 5
+repo-side prep shipped, a consolidated simulated public-alpha audit applied
+(see [`simulated-public-alpha-readiness-2026-05-11.md`](simulated-public-alpha-readiness-2026-05-11.md)), and CI green on the prerelease tag.
 
 Do **not** call this `1.0` (or even `1.0.0-rc.1`) until:
 

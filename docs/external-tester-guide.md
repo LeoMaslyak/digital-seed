@@ -40,6 +40,16 @@ Start from the README, not from this file:
 
 <https://github.com/LeoMaslyak/digital-seed>
 
+Before running commands, check the README prerequisites. You need:
+
+- an AI agent such as Claude Code, Codex CLI, Gemini CLI, Cursor, Windsurf, or
+  Ollama,
+- Bun,
+- Git.
+
+If one of those is missing and the README install step is unclear, stop and
+report that exact point. You do not need to debug the computer yourself.
+
 Then try this path:
 
 ```bash
@@ -49,9 +59,15 @@ bun install
 bun run seed onboard
 ```
 
-Follow what the terminal tells you. The goal is to reach one useful output from
-an AI agent, such as a weekly plan, a cleaner project list, a searchable notes
-folder, or a first draft.
+Follow what the terminal tells you. In particular, it will tell you to run:
+
+```bash
+bun run seed first-prompt
+```
+
+Copy the prompt it prints into your AI agent. The goal is to reach one useful
+output from the agent, such as a weekly plan, a cleaner project list, a
+searchable notes folder, or a first draft.
 
 If you get stuck, stop there. Do not struggle silently. The stuck point is the
 feedback.

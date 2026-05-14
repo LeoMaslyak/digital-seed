@@ -6,7 +6,7 @@ Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha
 
 ---
 
-## Current scorecard (updated 2026-05-12)
+## Current scorecard (updated 2026-05-14)
 
 | Area | Score | Status |
 |---|---|---|
@@ -16,23 +16,22 @@ Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha
 | Feedback / friction reporting | ~90% | `seed feedback`, first-run friction template, GitHub-web PR path all in place |
 | Phases / feature selection | ~85% | Phases doc + `seed plan` + setup wizard phase chooser all shipped |
 | Docs / trust / safety | ~83% | Privacy caveats, what-leaves-your-machine, security hooks, agent prereq warnings |
-| Release engineering | ~78% | Full release-check gate; CI on tags; fresh-clone harness; needs more real release cycles |
+| Release engineering | ~82% | Full release-check gate; CI on tags; fresh-clone harness; green `v0.4.3-alpha` tag cycle; needs more real release cycles |
 | Open-source contributor readiness | ~80% | Issue templates, PR template, contributing guide, troubleshooting; needs real contributors |
 | Product coherence | ~82% | Beginner / advanced / maintainer surfaces labeled in CLI, README, and docs |
 | External validation | ~0% | Zero real outside walkthroughs yet — hard gate for 1.0 |
 
-**Overall external-user usefulness score: 8/10 as a public alpha.** It is coherent, installable, documented, CI-gated, and visually credible enough for strangers to try. It is not yet a 9-10 because real outside-user walkthroughs, post-onboarding next-step guidance, and agent-specific end-to-end validation are still thin.
+**Overall external-user usefulness score: 8/10 as a public alpha.** It is coherent, installable, documented, CI-gated, and visually credible enough for strangers to try. It is not yet a 9-10 because real outside-user walkthroughs are still missing, and the newly tightened post-onboarding and non-Claude-agent paths still need fresh-user proof.
 
 **Overall production-grade OSS readiness: ~85% without external users. External validation is the main remaining gap.**
 
 ## Highest-leverage work to make it more useful for strangers
 
 1. **Run 5 real first-time user walkthroughs.** Watch people clone the repo, choose an agent, run `bun run seed onboard`, and produce one useful output. Capture every confusion point as an issue. This is the hard gate for raising the score above 8/10.
-2. **Validate `seed what-next` with real users.** The command now prints one concrete next action based on local state; confirm it removes the post-onboarding blank moment.
-3. **Verify Codex CLI, Gemini CLI, and Ollama paths end-to-end.** The docs are credible, but the non-Claude paths need real walkthrough proof or honest "unverified" labels.
+2. **Validate `seed what-next` with real users.** The command now prints one concrete next action based on local state; confirm it removes the post-onboarding blank moment and does not distract from the first useful output.
+3. **Verify Codex CLI, Gemini CLI, and Ollama with fresh users.** Internal checks passed, but the non-Claude paths still need cold walkthrough proof or honest "unverified" labels.
 4. **Validate the first-prompt loop.** The default first session now asks for one artifact and points users to `seed feedback`; confirm it reliably produces a useful output.
-5. **Cut a fresh patch alpha release from the current main.** The README visual and docs are ahead of the published release tag; a patch release would make the public story consistent.
-6. **Resolve remaining P2 trust polish.** Add the optional/maintainer-published qualifier around the public data room, add the privacy-scan pointer in `SECURITY.md`, and clear old simulated-audit leftovers.
+5. **Keep release/docs status synchronized after every public-facing change.** `v0.4.3-alpha` is published and CI is green on the tag; future alpha patches should avoid stale roadmap/readiness claims.
 
 ---
 
@@ -62,6 +61,8 @@ Last updated: 2026-05-14. Reflects the updated hero visual, current public-alpha
 - Internal Codex CLI, Gemini CLI, and Ollama validation is recorded in
   `docs/agent-path-validation-2026-05-14.md`.
 - Old audit docs are indexed in `docs/audit-log.md`.
+- `v0.4.3-alpha` was published as a GitHub prerelease from `5282ab5`, and CI
+  is green on both `main` and the tag.
 
 ---
 
@@ -108,8 +109,9 @@ See [Agent Path Validation — 2026-05-14](agent-path-validation-2026-05-14.md).
 **Why:** the most common non-technical user failure point after Phase 1 is "I ran onboard, now what?" There is no gentle push to the next action. `bun run seed plan` requires deliberate opt-in. A small "what should I do next?" output at the end of onboarding removes that moment of blankness.
 
 **What to build:**
-- `bun run seed what-next` — reads `user/MY-PLAN.md` (if present), checks which phases are ticked, checks doctor output, and prints exactly one next action.
-- If `MY-PLAN.md` is missing: suggest running `bun run seed plan --write-plan`.
+- `bun run seed what-next` — checks whether Phase 1 has enough local context, reads `user/MY-PLAN.md` if present, checks which phases are ticked, and prints exactly one next action.
+- If `MY-PLAN.md` is missing: suggest running `bun run seed first-prompt` so
+  the user gets one useful artifact before planning expansions.
 - If Phase 1 is done but Phase 2 is not: suggest `bun run seed index <folder>`.
 - If all chosen phases are done: suggest one recipe from `bun run seed recipe list` or confirm the local loop is complete.
 - Wire it into the onboard output footer: "Done with Phase 1? Run: `bun run seed what-next`".

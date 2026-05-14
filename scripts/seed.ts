@@ -441,15 +441,16 @@ function hasLocalIndex(): boolean {
 }
 
 function printWhatNext(): void {
-  const planPath = join(ROOT, "user", "MY-PLAN.md");
-  if (!existsSync(planPath)) {
-    console.log("Next: bun run seed plan --write-plan");
-    return;
-  }
-
   const phase1Done = ["user/USER.md", "user/COMPASS.md", "user/GOALS.md"].every(nonEmptyFile);
   if (!phase1Done) {
     console.log("Next: bun run seed onboard --plain");
+    return;
+  }
+
+  const planPath = join(ROOT, "user", "MY-PLAN.md");
+  const indexExists = hasLocalIndex();
+  if (!existsSync(planPath)) {
+    console.log("Next: bun run seed first-prompt");
     return;
   }
 
@@ -458,7 +459,6 @@ function printWhatNext(): void {
   const checkedPhaseLines = plan.split(/\r?\n/).filter((line) => /^\s*- \[x\]/i.test(line));
   const phaseTicked = (n: number) => checkedPhaseLines.some((line) => new RegExp(`phase\\s*${n}\\b`, "i").test(line));
   const phase3Ticked = phaseTicked(3);
-  const indexExists = hasLocalIndex();
 
   if (!indexExists) {
     console.log("Next: bun run seed index <your-notes-folder>");
