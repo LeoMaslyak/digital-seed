@@ -44,6 +44,9 @@ real external users.
 
 - [Production Alpha Hostile Audit Prompt](hostile-audit-production-alpha-prompt.md)
 - [Hostile 1.0 Readiness Audit Prompt](hostile-1.0-readiness-audit-prompt.md)
+- [Hostile Product and Ecosystem Audit Prompt](hostile-product-ecosystem-audit-prompt.md)
+  — reusable alpha audit prompt for product usefulness, beginner coherence, and
+  safe ecosystem/resource-map opportunities.
 
 ## What still counts most
 

@@ -195,4 +195,11 @@ If you cannot use the publisher script, recreate the folder layout above and upl
   docs/notebooklm-intro-video.md            → NotebookLM Video Instructions.md
 ```
 
+The MP4 itself is not committed to git. It is hosted as a GitHub Release asset
+and played through `docs/intro-video.html` on GitHub Pages:
+https://leomaslyak.github.io/digital-seed/intro-video.html
+
+Keep the Drive copy as a fallback for people who start in the data room, but
+keep the repo and release asset canonical.
+
 After uploading, set the root folder to "Anyone with the link → Viewer" and confirm the link still resolves.

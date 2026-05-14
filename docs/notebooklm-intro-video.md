@@ -21,6 +21,24 @@ GitHub Pages player page. The MP4 is hosted as a GitHub Release asset so it does
 not bloat the git history. GitHub strips inline `<video>` tags from Markdown, so
 README/docs use a linked poster image that opens the Pages player.
 
+## Publishing model
+
+Use this pattern for repo-hosted intro media:
+
+1. Keep the small poster image in `docs/assets/`.
+2. Upload the MP4 to the current GitHub release as a release asset.
+3. Serve playback from `docs/intro-video.html` through GitHub Pages.
+4. Link README and beginner docs to the Pages player, with the release asset and
+   Drive copy as fallbacks.
+5. Do not commit the MP4 to git. GitHub README/docs cannot reliably play large
+   MP4 files inline, and large binaries make clone size worse for beginners.
+
+Current player page:
+<https://leomaslyak.github.io/digital-seed/intro-video.html>
+
+Current release asset:
+<https://github.com/LeoMaslyak/digital-seed/releases/download/v0.4.3-alpha/digital-seed-notebooklm-intro.mp4>
+
 ## Do we still need the data room?
 
 Yes, but it should be treated as optional.

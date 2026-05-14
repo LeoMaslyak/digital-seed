@@ -19,6 +19,8 @@ Current status:
   - Audit log index.
   - `seed what-next` and tightened `seed first-prompt`.
   - Public-alpha release notes and release gate cleanup.
+  - NotebookLM intro video hosted through GitHub Pages, a GitHub Release asset,
+    and a Google Drive fallback.
 
 Strategic assessment:
 - Core concept / positioning: ~92%.
@@ -42,6 +44,8 @@ Start by reading:
 - docs/repo-improvement-roadmap.md
 - docs/troubleshooting.md
 - docs/known-alpha-limits.md
+- docs/notebooklm-intro-video.md
+- docs/hostile-product-ecosystem-audit-prompt.md
 - docs/release-checklist.md
 - package.json
 
@@ -52,8 +56,11 @@ Scope:
 2. Look for stale status claims, confusing non-technical tester steps, and gaps
    between `seed onboard`, `seed first-prompt`, `seed what-next`, `seed plan`,
    and `seed feedback`.
-3. Fix clear P0/P1 issues narrowly.
-4. Run `bun run seed release-check --ci --skip-install`, `bun run check:links`,
+3. Evaluate whether the repo should add a safe ecosystem/resource map pointing
+   to relevant open-source projects, frameworks, protocols, and information
+   sources without turning the beginner path into tool shopping.
+4. Fix clear P0/P1 issues narrowly.
+5. Run `bun run seed release-check --ci --skip-install`, `bun run check:links`,
    and `bash scripts/fresh-clone-check.sh` if release-path or first-run docs
    changed materially.
 
