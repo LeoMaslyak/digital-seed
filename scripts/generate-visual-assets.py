@@ -173,21 +173,28 @@ def canopy_node_for_path(pts, branch_id, frac, scatter_min, scatter_max, r_min, 
     if not (180 < x < 920 and 16 < y < 268):
         return None
     z_val = random.random()
-    return (x, y, random.uniform(r_min, r_max), z_val, branch_id)
+    return (x, y, random.uniform(r_min, r_max), z_val, branch_id, frac)
 
 
 for branch_id, pts in enumerate(branch_paths):
-    for k in range(52):
+    for k in range(64):
         # Bias samples toward the outer third so every visible tip has a
         # consistent living halo instead of a bare line endpoint.
-        t = k / 51
+        t = k / 63
         frac = 0.24 + 0.76 * (t ** 0.82)
         node = canopy_node_for_path(pts, branch_id, frac, 8, 34, 1.8, 5.2)
         if node:
             canopy_nodes_by_branch[branch_id].append(node)
+    for k in range(22):
+        # Add a dedicated inner/stem band. Without this, equal branch quotas
+        # still leave the first visible branch sections too airy.
+        frac = 0.18 + 0.34 * (k / 21)
+        node = canopy_node_for_path(pts, branch_id, frac, 7, 24, 1.7, 4.8)
+        if node:
+            canopy_nodes_by_branch[branch_id].append(node)
 
 for pts, branch_id in zip(branchlet_paths, branchlet_owners):
-    n_samples = 18
+    n_samples = 22
     for k in range(n_samples):
         frac = 0.30 + 0.70 * (k / max(1, n_samples - 1))
         node = canopy_node_for_path(pts, branch_id, frac, 6, 24, 1.6, 4.6)
@@ -201,27 +208,52 @@ def branch_min_distance(x, y):
 
 def decluster_branch_nodes(nodes):
     kept = []
-    # Keep tips first; branch endpoints need to look equally alive.
-    for node in sorted(nodes, key=lambda n: (n[0] - branch_paths[n[4]][0][0]) ** 2 + (n[1] - branch_paths[n[4]][0][1]) ** 2, reverse=True):
-        x, y, r, z, branch_id = node
+    for node in sorted(nodes, key=lambda n: (n[5], n[1], n[0])):
+        x, y, r, z, branch_id, frac = node
         min_dist = branch_min_distance(x, y)
         if any((x - px) ** 2 + (y - py) ** 2 < min_dist ** 2 for px, py, *_ in kept):
             continue
         if 410 < x < 700 and 24 < y < 175:
             r = min(r, 3.5)
             z = 0.62 if z < 0.46 else z
-        kept.append((x, y, r, z, branch_id))
+        kept.append((x, y, r, z, branch_id, frac))
     return kept
 
 
-TARGET_CANOPY_NODES_PER_BRANCH = 42
+TARGET_CANOPY_NODES_PER_BRANCH = 51
+STEM_CANOPY_NODES_PER_BRANCH = 15
+MID_CANOPY_NODES_PER_BRANCH = 14
+TIP_CANOPY_NODES_PER_BRANCH = TARGET_CANOPY_NODES_PER_BRANCH - STEM_CANOPY_NODES_PER_BRANCH - MID_CANOPY_NODES_PER_BRANCH
+
+
+def take_band(nodes, start, end, count):
+    band = [node for node in nodes if start <= node[5] < end]
+    band.sort(key=lambda n: (n[5], n[1], n[0]))
+    return band[:count]
+
+
+def select_branch_nodes(nodes):
+    selected = []
+    selected.extend(take_band(nodes, 0.00, 0.48, STEM_CANOPY_NODES_PER_BRANCH))
+    selected.extend(take_band(nodes, 0.48, 0.70, MID_CANOPY_NODES_PER_BRANCH))
+    selected.extend(take_band(nodes, 0.70, 1.01, TIP_CANOPY_NODES_PER_BRANCH))
+    seen = {id(node) for node in selected}
+    for node in sorted(nodes, key=lambda n: (n[5], n[1], n[0])):
+        if len(selected) >= TARGET_CANOPY_NODES_PER_BRANCH:
+            break
+        if id(node) not in seen:
+            selected.append(node)
+            seen.add(id(node))
+    return selected[:TARGET_CANOPY_NODES_PER_BRANCH]
+
+
 canopy_nodes = []
 for branch_id, pts in enumerate(branch_paths):
     nodes = decluster_branch_nodes(canopy_nodes_by_branch[branch_id])
     attempts = 0
     while len(nodes) < TARGET_CANOPY_NODES_PER_BRANCH and attempts < 500:
         attempts += 1
-        frac = random.uniform(0.38, 0.98)
+        frac = random.choice([random.uniform(0.20, 0.50), random.uniform(0.50, 0.98)])
         node = canopy_node_for_path(pts, branch_id, frac, 10, 30, 1.7, 4.8)
         if not node:
             continue
@@ -230,7 +262,7 @@ for branch_id, pts in enumerate(branch_paths):
         if any((x - px) ** 2 + (y - py) ** 2 < min_dist ** 2 for px, py, *_ in nodes):
             continue
         nodes.append(node)
-    canopy_nodes.extend(nodes[:TARGET_CANOPY_NODES_PER_BRANCH])
+    canopy_nodes.extend(select_branch_nodes(nodes))
 
 
 def make_background() -> Image.Image:
@@ -378,7 +410,7 @@ def render_frame(i: int) -> Image.Image:
     if canopy_p > 0:
         leaf_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
         ld = ImageDraw.Draw(leaf_layer)
-        for idx, (x, y, r, z, branch_id) in enumerate(canopy_nodes):
+        for idx, (x, y, r, z, branch_id, frac) in enumerate(canopy_nodes):
             birth = clamp(canopy_p - z * 0.18)
             if birth <= 0:
                 continue
@@ -398,7 +430,7 @@ def render_frame(i: int) -> Image.Image:
         img.alpha_composite(leaf_layer)
 
     # canopy luminous living particles
-    for x, y, r, z, branch_id in canopy_nodes:
+    for x, y, r, z, branch_id, frac in canopy_nodes:
         birth = clamp(canopy_p - z * 0.18)
         if birth <= 0:
             continue
@@ -428,7 +460,7 @@ def render_frame(i: int) -> Image.Image:
             # are distributed by branch, not by the global random z value.
             branch_nodes = sorted(branch_nodes, key=lambda n: (n[0] - branch_paths[branch_id][0][0]) ** 2 + (n[1] - branch_paths[branch_id][0][1]) ** 2, reverse=True)
             fruit_nodes.extend(branch_nodes[:3])
-        for idx, (x, y, r, z, branch_id) in enumerate(fruit_nodes):
+        for idx, (x, y, r, z, branch_id, frac) in enumerate(fruit_nodes):
             phase_offset = (idx * 0.137 + z) % 1
             pulse = 0.7 + 0.3 * math.sin(math.tau * (phase * 1.2 + phase_offset))
             fx = x + math.sin(math.tau * (phase * 0.18 + z)) * 3

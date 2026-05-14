@@ -28,8 +28,8 @@ The generator requires Pillow. If `ffmpeg` is available, it also exports MP4 and
 - Particle density is intentionally restrained so the middle of the loop feels like controlled growth, not a chaotic sci-fi explosion.
 - Warm gold is reserved for the seed/bloom/fruit moments; mint/aqua carry the data-growth language.
 - The mature phase uses a dense leaf-cluster canopy plus visible warm fruit nodes so the tree reads as alive before it dissolves back into the seed.
-- Mature canopy density is branch-owned, not globally random: every major branch should retain a similar visible count of leaves/particles and fruit after de-clustering. Avoid one-off center clouds or global fruit sampling that make some branches look neglected.
-- Branch tips should read healthy and intentional. Each branch needs enough small leaves near its outer third plus a small number of warm fruit nodes; no tip should look bare compared with the rest of the crown.
+- Mature canopy density is branch-owned, not globally random: every major branch should retain a similar visible count of leaves/particles and fruit after de-clustering. The current target is about 20% denser than the first branch-owned pass.
+- Branch stems and tips should both read healthy and intentional. Each branch reserves density near its inner/stem section, carries enough small leaves near its outer third, and gets a small number of warm fruit nodes; no branch segment should look bare compared with the rest of the crown.
 
 ## Terminal intro
 
