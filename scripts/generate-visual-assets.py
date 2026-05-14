@@ -206,6 +206,9 @@ def branch_min_distance(x, y):
     return 8.8 if 410 < x < 700 and 24 < y < 175 else 7.0
 
 
+CENTER_BRANCH_IDS = {4, 5, 6, 7, 8}
+
+
 def decluster_branch_nodes(nodes):
     kept = []
     for node in sorted(nodes, key=lambda n: (n[5], n[1], n[0])):
@@ -215,7 +218,11 @@ def decluster_branch_nodes(nodes):
             continue
         if 410 < x < 700 and 24 < y < 175:
             r = min(r, 3.5)
-            z = 0.62 if z < 0.46 else z
+            # Preserve a small warm band on the center branches. Earlier
+            # versions forced the whole middle crown to mint/aqua, which made
+            # the center look colder than the side branches.
+            if branch_id not in CENTER_BRANCH_IDS or z < 0.12:
+                z = 0.62 if z < 0.46 else z
         kept.append((x, y, r, z, branch_id, frac))
     return kept
 
@@ -420,17 +427,18 @@ def render_frame(i: int) -> Image.Image:
             leaf_r = r * (1.35 + 0.5 * canopy_p)
             col = MINT if idx % 5 else (GOLD if idx % 7 == 0 else AQUA)
             alpha = 0.23
+            warm_center_accent = branch_id in CENTER_BRANCH_IDS and 0.26 <= frac <= 0.94 and idx % 5 == 0
             if in_muddy_center:
                 # Keep center as discrete leaves/fruits, not a blended paint blob.
                 leaf_r *= 0.86
                 alpha = 0.19
-                col = MINT if idx % 2 else AQUA
+                col = GOLD if warm_center_accent else (MINT if idx % 2 else AQUA)
             ld.ellipse((x + dx - leaf_r, y + dy - leaf_r * 0.78, x + dx + leaf_r, y + dy + leaf_r * 0.78), fill=rgba(col, alpha * birth * (1 - 0.7 * dissolve)))
         leaf_layer = leaf_layer.filter(ImageFilter.GaussianBlur(1.4))
         img.alpha_composite(leaf_layer)
 
     # canopy luminous living particles
-    for x, y, r, z, branch_id, frac in canopy_nodes:
+    for idx, (x, y, r, z, branch_id, frac) in enumerate(canopy_nodes):
         birth = clamp(canopy_p - z * 0.18)
         if birth <= 0:
             continue
@@ -442,8 +450,10 @@ def render_frame(i: int) -> Image.Image:
         col = MINT if z > 0.46 else (GOLD if z > 0.12 else AQUA)
         draw_r = r * (1.04 if in_muddy_center else 1.16)
         draw_alpha = 0.50 if in_muddy_center else 0.60
+        warm_center_accent = branch_id in CENTER_BRANCH_IDS and 0.26 <= frac <= 0.94 and idx % 5 == 0
         if in_muddy_center:
-            col = MINT if z > 0.55 else AQUA
+            col = GOLD if warm_center_accent else (MINT if z > 0.55 else AQUA)
+            draw_alpha = 0.58 if warm_center_accent else draw_alpha
         d.ellipse((x + dx - draw_r, y + dy - draw_r, x + dx + draw_r, y + dy + draw_r), fill=rgba(col, draw_alpha * a))
         if z > 0.50 and not in_muddy_center:
             composite_glow(img, (x + dx, y + dy), col, r * 6.8, 0.094 * a)  # +20%
@@ -459,7 +469,8 @@ def render_frame(i: int) -> Image.Image:
             # Pick fruit from the outer/top side of each branch so warm nodes
             # are distributed by branch, not by the global random z value.
             branch_nodes = sorted(branch_nodes, key=lambda n: (n[0] - branch_paths[branch_id][0][0]) ** 2 + (n[1] - branch_paths[branch_id][0][1]) ** 2, reverse=True)
-            fruit_nodes.extend(branch_nodes[:3])
+            fruit_count = 5 if branch_id in CENTER_BRANCH_IDS else 3
+            fruit_nodes.extend(branch_nodes[:fruit_count])
         for idx, (x, y, r, z, branch_id, frac) in enumerate(fruit_nodes):
             phase_offset = (idx * 0.137 + z) % 1
             pulse = 0.7 + 0.3 * math.sin(math.tau * (phase * 1.2 + phase_offset))

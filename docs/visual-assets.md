@@ -27,6 +27,7 @@ The generator requires Pillow. If `ffmpeg` is available, it also exports MP4 and
 - The GIF avoids a duplicated terminal frame. Duplicating the opening frame at the end produced a perceptible end-loop hold; the current loop eases close to the opener and lets playback wrap naturally.
 - Particle density is intentionally restrained so the middle of the loop feels like controlled growth, not a chaotic sci-fi explosion.
 - Warm gold is reserved for the seed/bloom/fruit moments; mint/aqua carry the data-growth language.
+- The middle crown should keep visible warm gold accents between mint/aqua leaves, so the center branches do not read colder or flatter than the side branches.
 - The mature phase uses a dense leaf-cluster canopy plus visible warm fruit nodes so the tree reads as alive before it dissolves back into the seed.
 - Mature canopy density is branch-owned, not globally random: every major branch should retain a similar visible count of leaves/particles and fruit after de-clustering. The current target is about 20% denser than the first branch-owned pass.
 - Branch stems and tips should both read healthy and intentional. Each branch reserves density near its inner/stem section, carries enough small leaves near its outer third, and gets a small number of warm fruit nodes; no branch segment should look bare compared with the rest of the crown.
