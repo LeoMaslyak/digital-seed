@@ -65,10 +65,12 @@ Priority order:
    - Shipped 2026-05-14 in `3eb98e5` (`feat: guide users to one next action`).
    - Verified with `bun run seed release-check --ci --skip-install`,
      `bun run check:links`, and green GitHub CI on macOS + Ubuntu.
-5. **Fresh patch alpha release.** Cut a new patch release from current `main`
+5. ~~**Fresh patch alpha release.** Cut a new patch release from current `main`
    so the release tag, README visual, roadmap, and docs tell the same story.
    - Publishing as `v0.4.3-alpha` because `v0.4.2-alpha` already exists and
      points at the 2026-05-12 release.
+   - Published 2026-05-14:
+     <https://github.com/LeoMaslyak/digital-seed/releases/tag/v0.4.3-alpha>.~~ ✅
 6. ~~**P2 trust polish.** Add the optional/maintainer-published data room
    qualifier, add a direct `privacy-scan` pointer in `SECURITY.md`, and clear
    old simulated-audit leftovers.~~ ✅

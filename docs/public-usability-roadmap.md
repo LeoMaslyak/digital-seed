@@ -194,7 +194,7 @@ Before any public announcement (social post, HackerNews, Product Hunt):
 
 - [ ] M1–M7 above are complete.
 - [ ] `bun run seed release-check` (with fresh-clone harness) is green on the tag commit.
-- [ ] A GitHub Release has been published (with Leo's explicit approval) pointing to `docs/releases/v0.4.3-alpha.md`.
+- [x] A GitHub Release has been published (with Leo's explicit approval) pointing to `docs/releases/v0.4.3-alpha.md`.
 - [ ] The public data room is refreshed: `bun run seed drive publish-data-room --account lm@avantgaera.com`.
 - [ ] README status badge says "alpha" and links to `docs/known-alpha-limits.md`.
 - [ ] No maintainer-only assumptions have leaked into beginner docs.
