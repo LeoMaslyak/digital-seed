@@ -67,6 +67,8 @@ Priority order:
      `bun run check:links`, and green GitHub CI on macOS + Ubuntu.
 5. **Fresh patch alpha release.** Cut a new patch release from current `main`
    so the release tag, README visual, roadmap, and docs tell the same story.
+   - Publishing as `v0.4.3-alpha` because `v0.4.2-alpha` already exists and
+     points at the 2026-05-12 release.
 6. ~~**P2 trust polish.** Add the optional/maintainer-published data room
    qualifier, add a direct `privacy-scan` pointer in `SECURITY.md`, and clear
    old simulated-audit leftovers.~~ ✅

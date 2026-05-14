@@ -4,6 +4,10 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+(No new changes since `0.4.3-alpha`.)
+
+## [0.4.3-alpha] - 2026-05-14
+
 ### Added
 
 - `docs/external-tester-guide.md` — non-technical tester instructions,
@@ -21,6 +25,8 @@ All notable changes to Digital Seed will be documented in this file.
 - CI uses Node 24-compatible GitHub actions (`actions/checkout@v5` and
   `actions/setup-python@v6`).
 - The generated pre-commit hook avoids a macOS/BSD `grep` portability warning.
+- Release notes and public-usability docs now distinguish internal validation
+  from the real external walkthrough evidence still needed before 1.0.
 
 ## [0.4.2-alpha] - 2026-05-12
 

@@ -61,6 +61,9 @@ Shipped and verified:
   See `docs/agent-path-validation-2026-05-14.md`.
 - `docs/external-tester-guide.md` gives non-technical testers one path to try,
   clear privacy boundaries, and a copy-paste feedback template.
+- `v0.4.3-alpha` release notes are drafted from current `main` so the public
+  release can point at the tester guide, internal validation, CI cleanup, and
+  hook cleanup without rewriting the existing `v0.4.2-alpha` tag.
 - Health and privacy scans pass locally.
 - Health output now distinguishes clean pass from pass-with-warnings.
 - Markdown link checker exists locally and in CI.

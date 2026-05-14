@@ -150,13 +150,19 @@ See [Agent Path Validation — 2026-05-14](agent-path-validation-2026-05-14.md).
 
 ### M6 — Canonicalize the CHANGELOG and update the release draft
 
+**Status:** Shipped through `v0.4.2-alpha`; refreshed for `v0.4.3-alpha`
+release prep on 2026-05-14.
+
 **Why:** the `docs/releases/v0.4.1-alpha.md` draft was written before phases, plan, feedback loop, and agent chooser improvements shipped. The CHANGELOG has no entry for today's work. Both need updating before any public announcement.
 
 **What to do:**
-- Add a `[0.4.2-alpha]` CHANGELOG entry covering all 2026-05-12 additions (phases, plan, feedback, agent chooser expansion, prereq surfacing).
-- Update `docs/releases/v0.4.1-alpha.md` or draft a new `v0.4.2-alpha.md` reflecting the full current state.
-- Bump `package.json`, `CHANGELOG.md`, and `docs/release-checklist.md` together.
-- Run `bun run seed release-check --skip-fresh-clone` and confirm green.
+- ✅ Added `[0.4.2-alpha]` for the 2026-05-12 feature wave.
+- ✅ Added `[0.4.3-alpha]` for external tester guide, internal validation notes,
+  audit-log index, CI action bump, and hook cleanup.
+- ✅ Bumped `package.json`, `CHANGELOG.md`, and
+  `docs/release-checklist.md` together.
+- ✅ Drafted `docs/releases/v0.4.3-alpha.md`.
+- ✅ Run `bun run seed release-check` before tagging.
 
 **Exit criteria:** CHANGELOG, package.json, and release notes are consistent. A new version tag is ready to cut when Leo approves.
 
@@ -188,7 +194,7 @@ Before any public announcement (social post, HackerNews, Product Hunt):
 
 - [ ] M1–M7 above are complete.
 - [ ] `bun run seed release-check` (with fresh-clone harness) is green on the tag commit.
-- [ ] A GitHub Release has been published (with Leo's explicit approval) pointing to `docs/releases/v0.4.2-alpha.md`.
+- [ ] A GitHub Release has been published (with Leo's explicit approval) pointing to `docs/releases/v0.4.3-alpha.md`.
 - [ ] The public data room is refreshed: `bun run seed drive publish-data-room --account lm@avantgaera.com`.
 - [ ] README status badge says "alpha" and links to `docs/known-alpha-limits.md`.
 - [ ] No maintainer-only assumptions have leaked into beginner docs.
