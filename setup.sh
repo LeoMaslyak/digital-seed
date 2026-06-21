@@ -144,12 +144,27 @@ check_prerequisites() {
 
 set_env_var() {
   local key="$1" val="$2"
-  [ -f "$ENV_FILE" ] || touch "$ENV_FILE"
+  # Create .env with tight permissions so secrets are never world/group-readable.
+  if [ ! -f "$ENV_FILE" ]; then
+    (umask 077 && : > "$ENV_FILE")
+  fi
+  chmod 600 "$ENV_FILE" 2>/dev/null || true
+
+  # Remove any existing line for this key, then append the new value.
+  # awk passes key/val as data (not as a regex/replacement template), so values
+  # containing | & \ or other sed-special characters are written verbatim.
   if grep -q "^${key}=" "$ENV_FILE" 2>/dev/null; then
-    sed -i.bak "s|^${key}=.*|${key}=${val}|" "$ENV_FILE"
-    rm -f "$ENV_FILE.bak"
+    local tmp="${ENV_FILE}.tmp.$$"
+    (umask 077 && awk -v k="$key" '
+      index($0, k "=") == 1 { next }
+      { print }
+    ' "$ENV_FILE" > "$tmp") && {
+      printf '%s=%s\n' "$key" "$val" >> "$tmp"
+      mv -f "$tmp" "$ENV_FILE"
+      chmod 600 "$ENV_FILE" 2>/dev/null || true
+    } || rm -f "$tmp"
   else
-    echo "${key}=${val}" >> "$ENV_FILE"
+    printf '%s=%s\n' "$key" "$val" >> "$ENV_FILE"
   fi
 }
 
@@ -176,8 +191,11 @@ configure_providers() {
   read -r choice
   choice="${choice:-1}"
 
-  # Create .env if it doesn't exist
-  [ -f "$ENV_FILE" ] || touch "$ENV_FILE"
+  # Create .env if it doesn't exist (tight perms — it holds secrets)
+  if [ ! -f "$ENV_FILE" ]; then
+    (umask 077 && : > "$ENV_FILE")
+  fi
+  chmod 600 "$ENV_FILE" 2>/dev/null || true
 
   case "$choice" in
     1)
@@ -425,6 +443,18 @@ create_user_context() {
   echo "  (Press Enter to skip any field — you can edit the files later.)"
   echo ""
 
+  # Materialize the context files this wizard does not create interactively.
+  # The whole user/ tree is git-ignored, so on a fresh clone these are absent;
+  # copy each from its pristine template. USER.md and GOALS.md are written below.
+  for _tpl in MEMORY PREFERENCES COMPASS DOMAINS ANTI-GOALS; do
+    _dest="$SCRIPT_DIR/user/${_tpl}.md"
+    _src="$SCRIPT_DIR/docs/data-room/templates/${_tpl}.template.md"
+    if [ ! -f "$_dest" ] && [ -f "$_src" ]; then
+      cp "$_src" "$_dest"
+      echo -e "  ${GREEN}✓${NC} user/${_tpl}.md created from template"
+    fi
+  done
+
   # USER.md
   echo -ne "  Your name: "
   read -r user_name
@@ -575,28 +605,66 @@ setup_git_hooks() {
   # Patterns require an actual key-shaped suffix so documentation about
   # patterns does not trigger the block. Only added lines are scanned.
   local hooks_dir="$SCRIPT_DIR/.git/hooks"
+  local hook_file="$hooks_dir/pre-commit"
   mkdir -p "$hooks_dir"
-  cat > "$hooks_dir/pre-commit" << 'HOOKEOF'
+
+  # Respect an existing hook instead of blindly overwriting it. Pass --force
+  # (./setup.sh --force) to replace a hook that this installer didn't write.
+  if [ -e "$hook_file" ] && [ "$FORCE_HOOKS" != "1" ]; then
+    if grep -q "Digital Seed pre-commit secret-scan hook" "$hook_file" 2>/dev/null; then
+      echo -e "  ${GREEN}✓${NC} Updating Digital Seed pre-commit hook"
+    else
+      echo -e "  ${YELLOW}⚠${NC} A pre-commit hook already exists at .git/hooks/pre-commit"
+      echo -e "    Leaving it untouched. Re-run with ${CYAN}./setup.sh --force${NC} to replace it,"
+      echo -e "    or install the secret-scan hook manually: ${CYAN}bun run seed hooks install${NC}"
+      return 0
+    fi
+  fi
+
+  cat > "$hook_file" << 'HOOKEOF'
 #!/usr/bin/env bash
 # Digital Seed pre-commit secret-scan hook.
 # Installed by: ./setup.sh (or: bun run seed hooks install)
-# Best-effort scan of staged additions for likely API keys / private keys.
+# Best-effort scan of staged additions for likely secrets (API keys, DB/conn
+# strings, OAuth client secrets, Slack/AWS/Telegram tokens, private keys).
 
-ADDED=$(git diff --cached --diff-filter=ACM | grep -E '^\+' | grep -v '^\+\+\+')
+# Keep only added lines, dropping the diff '+++' file headers. Both greps use
+# -E (ERE) so '\+' is a literal '+'. (In BRE, '\+' is a one-or-more quantifier,
+# which would make '^\+\+\+' match every added line and silently empty ADDED —
+# i.e. fail open.)
+ADDED=$(git diff --cached --diff-filter=ACM | grep -E '^\+' | grep -Ev '^\+\+\+')
 if [ -z "$ADDED" ]; then exit 0; fi
 
+# POSIX ERE (grep -E) patterns. \s -> [[:space:]], \d -> [0-9].
 PATTERNS=(
-  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*.*sk-[A-Za-z0-9_-]{20,}'
-  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*.*sk-[A-Za-z0-9_-]{20,}'
-  'GOOGLE_API_KEY[[:space:]]*=[[:space:]]*.*AI[A-Za-z0-9_-]{20,}'
-  'sk-ant-[A-Za-z0-9_-]{24,}'
-  'sk-proj-[A-Za-z0-9_-]{24,}'
+  # Provider API keys (sk-, sk-ant-, sk-proj-, Google AIza)
+  'sk-[A-Za-z0-9_-]{20,}'
+  'sk-ant-[A-Za-z0-9-]{20,}'
+  'AIza[0-9A-Za-z_-]{30,}'
+  # GitHub tokens (classic PAT + OAuth)
   'ghp_[A-Za-z0-9]{30,}'
-  'BEGIN (RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY'
+  'gho_[A-Za-z0-9]{30,}'
+  # Database / connection strings with inline credentials
+  # (covers postgres/postgresql/mysql/mongodb(+srv)/redis/amqp and any other
+  # scheme://user:pass@ form). Written as a generic scheme charclass rather than
+  # a large alternation so it matches reliably across grep variants.
+  '[a-z][a-z0-9+.-]*://[^[:space:]:@/]+:[^[:space:]@/]+@'
+  # OAuth client secret in JSON
+  '"client_secret"[[:space:]]*:[[:space:]]*"[^"]+"'
+  # Slack tokens
+  'xox[baprs]-[A-Za-z0-9-]{10,}'
+  # AWS access key id
+  'AKIA[0-9A-Z]{16}'
+  # Telegram bot token
+  '[0-9]{6,}:[A-Za-z0-9_-]{30,}'
+  # PEM private key block
+  '-----BEGIN [A-Z ]*PRIVATE KEY-----'
 )
 
 for pattern in "${PATTERNS[@]}"; do
-  if echo "$ADDED" | grep -Eq "$pattern"; then
+  # -e guards patterns that begin with '-' (e.g. the PEM block) from being
+  # misread as grep options.
+  if echo "$ADDED" | grep -Eq -e "$pattern"; then
     echo ""
     echo "❌ BLOCKED by Digital Seed pre-commit hook:"
     echo "   A staged addition matches a likely-secret pattern: $pattern"
@@ -607,7 +675,7 @@ for pattern in "${PATTERNS[@]}"; do
   fi
 done
 HOOKEOF
-  chmod +x "$hooks_dir/pre-commit"
+  chmod +x "$hook_file"
 }
 
 # ─── Finish ───
@@ -651,14 +719,24 @@ print_finish() {
 main() {
   print_header
   check_prerequisites
+  # Install the secret-scan pre-commit hook BEFORE collecting any provider keys,
+  # so the guard is in place the moment secrets start landing on disk.
+  setup_git_hooks
   configure_providers
   select_setup_profile
   configure_integrations
   create_user_context
   install_dependencies
   configure_agent
-  setup_git_hooks
   print_finish
 }
+
+# Parse flags
+FORCE_HOOKS=0
+for arg in "$@"; do
+  case "$arg" in
+    --force) FORCE_HOOKS=1 ;;
+  esac
+done
 
 main "$@"

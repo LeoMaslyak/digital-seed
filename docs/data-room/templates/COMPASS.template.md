@@ -1,5 +1,6 @@
 # My Compass
 
+> Pristine starter template. Fill it in on your own machine — never publish a filled-in copy.
 > This is the most important file your AI reads. Fill it in honestly.
 > It shapes every answer, every plan, every suggestion.
 

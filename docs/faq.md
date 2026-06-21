@@ -122,10 +122,10 @@ No. The activity state detector identifies when you're sleeping (night hours + >
 ## Technical
 
 **Q: What's in `.claude/settings.json`?**
-MCP server configuration — tells Claude Code how to connect to the memory, tasks, RAG, and graph servers. Don't edit this manually unless you know what you're doing.
+MCP server configuration — tells Claude Code how to connect to the memory, tasks, RAG, and graph servers. This file is **gitignored**: copy it from the tracked `.claude/settings.example.json` (`cp .claude/settings.example.json .claude/settings.json`) and **never paste real secrets** (API keys, DB passwords, OAuth file contents) into it — keep secrets in `.env`. Don't edit it manually unless you know what you're doing.
 
 **Q: How does RAG search work?**
-The `rag-server` indexes your `user/`, `patterns/`, and `docs/` directories using embeddings (OpenAI `text-embedding-3-small` or Ollama `nomic-embed-text`). Indexed content is stored locally in `data/rag/`. Use `bun run embed` to re-index after adding content.
+The `rag-server` indexes your `user/`, `patterns/`, and `docs/` directories using embeddings. By **default it uses local embeddings (Ollama `nomic-embed-text`)** so your content stays on your machine. It only uses OpenAI (`text-embedding-3-small`) — i.e. uploads the indexed file text to OpenAI — if you **explicitly opt in** with `RAG_EMBED_CLOUD=1`. Indexed content is stored locally in `data/rag/`. Use `bun run embed` to re-index after adding content.
 
 **Q: Can I add my Obsidian vault to RAG?**
 Yes — add your vault path to `config/embeddings.yaml` under `paths:`. Then run `bun run embed`.

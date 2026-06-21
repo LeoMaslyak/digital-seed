@@ -1,5 +1,7 @@
 # Domains
 
+> Pristine starter template. Fill it in on your own machine — never publish a filled-in copy.
+
 Use this file to describe the areas of life and work your AI should understand.
 
 A domain can be a job, company, research area, domain, project, responsibility, hobby, family admin area, health goal, creative practice, or anything else that repeatedly matters.

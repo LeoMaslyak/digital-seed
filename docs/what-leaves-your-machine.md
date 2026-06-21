@@ -25,6 +25,8 @@ Digital Seed itself only initiates outbound network traffic in a handful of well
 | --- | --- | --- | --- |
 | `bun install` | The public npm registry (default: `https://registry.npmjs.org`) | Package names and versions from `package.json` / `bun.lock`. **Your personal files and `user/` content are not sent.** | Every time you install dependencies. |
 | `bun run seed web fetch <url>` / `bun run seed web search "query"` (ADVANCED) | `https://r.jina.ai/…` | The URL you ask to fetch and/or the search query you type. Jina renders the page server-side and returns text. Your `user/` files, prompts, or local notes are **not** sent unless you put them into the query/URL yourself. | Only when you explicitly run `bun run seed web ...`. The 15-minute beginner path does not run these commands. |
+| `bun run seed web fetch/research --summarize` (ADVANCED) | Your AI model provider (Anthropic/OpenAI/etc., via your configured agent) | The **fetched web page content** is included in the model prompt so the AI can summarize it. Treat that page text as data sent to your AI provider. | Only when you run a `web` command with summarization. |
+| Cloud RAG embeddings — `bun run seed index` / `bun run embed` **with `RAG_EMBED_CLOUD=1`** (OPT-IN) | OpenAI embeddings API (`https://api.openai.com/v1/embeddings`) | The **full text of the files you index** (`user/`, `patterns/`, `docs/`, and any folder you add). | **Only when you explicitly opt in** by setting `RAG_EMBED_CLOUD=1`. The default provider is **local** (Ollama) and nothing leaves your machine. |
 | `bun run seed drive ...` (MAINTAINER) | Google Drive (via the `gog` CLI) | Whatever public materials the publishing command names — not your `user/` folder. Requires an authenticated `gog` account you set up yourself. | Only when you explicitly run a Drive command. |
 | `bun run seed update` | The Digital Seed GitHub repo | `git pull` for repo updates. | Only when you run the update command. |
 
@@ -39,6 +41,8 @@ Content can leave your machine in these situations:
 1. **You paste context into an AI chat.** If you copy the first prompt or snippets from `user/` into Claude, ChatGPT, Gemini, Cursor, Windsurf, OpenClaw, or another agent, that provider receives what you paste.
 2. **An AI agent reads files for a task.** Terminal-capable agents may include selected file contents in model prompts. Which files are sent depends on the agent, model provider, settings, and task.
 3. **You enable optional integrations.** Recipes for Drive, email, calendars, chat, web search, or other services may connect to external APIs that can read or write the data you authorize.
+   - When you run a `web fetch/research --summarize` command, the **fetched page content** is put into your AI model's prompt — i.e. sent to your AI provider — so it can summarize it.
+   - RAG indexing (`seed index` / `bun run embed`) uses **local** embeddings (Ollama) by default and keeps file contents on your machine. It only uploads file text to **OpenAI** if you **explicitly opt in** by setting `RAG_EMBED_CLOUD=1`.
 4. **You run maintainer publishing commands.** Commands such as `bun run seed drive publish-data-room` intentionally upload selected public docs/assets to Google Drive.
 5. **You add third-party MCP servers or tools.** MCP servers run as **ordinary local processes** (not sandboxed). They can read the same filesystem your shell can read and make any network call your machine can make — Digital Seed does not restrict either. Treat each MCP server as you would any other binary on your machine.
 
@@ -58,7 +62,7 @@ The repo ignores common private paths, and `bun run seed privacy-scan` catches c
 ## Data boundary by area
 
 - **Context templates (`user/`)** — local by default; may be sent to your AI provider if your agent reads or pastes them.
-- **Local index/search (`bun run seed index`, `seed search`)** — local starter retrieval; do not index folders you are not comfortable exposing to your chosen agent.
+- **Local index/search (`bun run seed index`, `seed search`)** — local starter retrieval that stays on your machine **by default** (local Ollama embeddings). If you set `RAG_EMBED_CLOUD=1`, the text of everything you index is sent to OpenAI for embedding — only enable that if you accept it. Do not index folders you are not comfortable exposing to your chosen agent (or, with cloud embeddings, to OpenAI).
 - **Recipes and integrations** — opt-in; each recipe should say what it can read/write and what credentials it needs.
 - **Drive data room publishing** — maintainer-only; intentionally uploads curated public materials, never your private `user/` folder.
 - **Health, visual QA, link checks, release checks** — local checks; CI runs on the public repo contents, not your ignored private files.

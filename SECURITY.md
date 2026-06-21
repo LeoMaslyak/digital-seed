@@ -9,7 +9,7 @@ For a plain-language privacy boundary, start with [What Leaves Your Machine?](do
 | Threat | Mitigation in this repo |
 |--------|------------------------|
 | API key leakage | `.env` is git-ignored; an optional pre-commit hook scans staged diffs for common key patterns. The hook is **not** installed by `bun install` — see below. |
-| Data exfiltration by Digital Seed itself | All local commands read/write local files only. `bun install` fetches packages from the public npm registry; `bun run seed web search` (advanced) calls `r.jina.ai`. Both are documented in [What Leaves Your Machine?](docs/what-leaves-your-machine.md). |
+| Data exfiltration by Digital Seed itself | The 15-minute beginner path reads/writes local files only. A few **advanced, opt-in** commands reach the network and are documented in [What Leaves Your Machine?](docs/what-leaves-your-machine.md): `bun install` fetches packages from the public npm registry; `bun run seed web ...` (advanced) calls `r.jina.ai` and, with `--summarize`, puts the fetched page text into your AI provider's prompt; `bun run seed index` / `bun run embed` embed **locally (Ollama) by default** and only upload file text to OpenAI if you explicitly set `RAG_EMBED_CLOUD=1`. |
 | Cross-user data access | Every instance is an isolated local folder. There is no shared backend. |
 | Malicious or buggy MCP servers | MCP servers run as ordinary local processes with whatever permissions you start them with — Digital Seed does not sandbox them. Only install MCP servers from sources you trust and review their code. |
 | Secret in commit history | The optional pre-commit hook blocks staged diffs containing known key prefixes (`sk-ant-`, `sk-proj-`, etc.) and obvious `*_API_KEY=` lines. It is best-effort, not exhaustive. |
@@ -21,13 +21,14 @@ All data stays on your machine:
 
 | Path | What it holds | Git-tracked? |
 |------|---------------|-------------|
-| `.env` | API keys | **ignored** |
-| `config/config.yaml`, `config/autonomy.yaml`, `config/token-budget.json` | Local configuration | **ignored** |
-| `user/USER.md`, `user/GOALS.md`, `user/MEMORY.md`, `user/PREFERENCES.md` | Filled-in personal context (you edit these) | **ignored** by `.gitignore` |
-| `user/COMPASS.md`, `user/ANTI-GOALS.md`, `user/DOMAINS.md`, `user/README.md` | Starter **templates** that ship with the repo | **tracked** (they are templates, not your data) |
+| `.env`, `.env.*` | API keys | **ignored** |
+| `.claude/settings.json` | MCP config and any env values you add | **ignored** (copy from `.claude/settings.example.json`) |
+| `config/config.yaml`, `config/autonomy.yaml`, `config/token-budget.json`, `config/digest.yaml` | Local configuration (some embed webhook URLs/tokens) | **ignored** |
+| `user/**` (your filled-in `USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`, `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md`) | Personal context you fill in | **ignored** (the whole `user/` tree is git-ignored) |
+| `user/README.md`, `user/**/*.template.md` | Repo docs and pristine starter templates | **tracked** (explicitly allow-listed) |
 | `data/`, `logs/`, `exports/` | Runtime data and exports | **ignored** |
 
-**Honest trust-boundary nuance:** the four ignored `user/*.md` files (`USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`) cover the files you are most likely to fill in with personal information. The other three (`COMPASS.md`, `ANTI-GOALS.md`, `DOMAINS.md`) ship as **starter templates** and are tracked. If you fork Digital Seed and put real personal content into a tracked template, **`git status` will not warn you and a casual `git commit -a` will commit it.** Run `bun run seed privacy-scan` before pushing.
+**Honest trust-boundary nuance:** the entire `user/` tree is now git-ignored — only `user/README.md` and pristine `*.template.md` files are tracked. This means filling in any `user/*.md` (including `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md`) does **not** stage your personal content for commit by default. Likewise `.claude/settings.json` and `config/digest.yaml` are ignored so MCP env values and webhook URLs are not committed. **Still run `bun run seed privacy-scan` before pushing a fork**, and if you deliberately force-add an ignored file, `git` will not warn you — review `git diff --staged` first.
 
 A maintainer-side check inside `privacy-scan` looks for obvious personal content in tracked `user/*.md` files and warns when a template appears to have been filled in.
 
@@ -86,7 +87,8 @@ If or when Digital Seed adds real audit logging, this section will be replaced w
 Digital Seed's own commands stay local with a small number of explicit exceptions. The exceptions are documented in [What Leaves Your Machine?](docs/what-leaves-your-machine.md). Highlights:
 
 - `bun install` fetches packages from the public npm registry (no personal data).
-- `bun run seed web fetch <url>` / `bun run seed web search "query"` (advanced commands, not part of the 15-minute path) call `r.jina.ai` to render web pages.
+- `bun run seed web fetch <url>` / `bun run seed web search "query"` (advanced commands, not part of the 15-minute path) call `r.jina.ai` to render web pages. With `--summarize`, the fetched page text is also put into your AI provider's prompt.
+- `bun run seed index` / `bun run embed` build the local retrieval index using **local embeddings (Ollama) by default** — nothing leaves your machine. Setting `RAG_EMBED_CLOUD=1` is an explicit opt-in that uploads the text of indexed files to OpenAI's embeddings API.
 - `bun run seed drive ...` (maintainer-only) talks to Google Drive via the `gog` wrapper.
 - Anything you paste into your AI agent goes to that provider; that is independent of Digital Seed.
 

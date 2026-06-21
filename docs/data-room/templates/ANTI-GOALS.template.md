@@ -1,5 +1,6 @@
 # Anti-Goals
 
+> Pristine starter template. Fill it in on your own machine — never publish a filled-in copy.
 > What you're explicitly NOT optimizing for.
 > This file helps your AI avoid pushing you in directions you've already decided against.
 

@@ -12,6 +12,7 @@
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
 import * as cheerio from "cheerio";
+import { safeFetch } from "./net-guard.ts";
 
 export interface FetchOptions {
   timeout?: number;    // ms, default 15000
@@ -21,6 +22,13 @@ export interface FetchOptions {
 
 const DEFAULT_UA = "Digital-Seed/0.2 (user research tool)";
 const DEFAULT_TIMEOUT = 15_000;
+
+/**
+ * Hard byte cap on any fetched response body before it is parsed. A hostile or
+ * runaway server can otherwise stream gigabytes into JSDOM/cheerio/readability
+ * and exhaust memory. We read the stream incrementally and stop at the cap.
+ */
+const MAX_RESPONSE_BYTES = 8 * 1024 * 1024; // 8 MiB
 
 // ── Core fetch helper ────────────────────────────────────────────────
 
@@ -34,10 +42,52 @@ async function rawFetch(url: string, opts: FetchOptions = {}, accept?: string): 
     };
     if (accept) headers["Accept"] = accept;
 
-    return await fetch(url, { headers, signal: controller.signal });
+    // SSRF guard: validates scheme + resolves host (rejects loopback/link-local/
+    // RFC1918/ULA/metadata) and re-validates each redirect hop.
+    return await safeFetch(url, { headers, signal: controller.signal });
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * Read a response body as text, but stop after MAX_RESPONSE_BYTES so a hostile
+ * server can't exhaust memory. Falls back to `res.text()` if the body isn't a
+ * readable stream.
+ */
+async function readCappedText(res: Response): Promise<string> {
+  const body = res.body;
+  if (!body) return res.text();
+
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let received = 0;
+  let out = "";
+  let truncated = false;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.byteLength;
+      if (received > MAX_RESPONSE_BYTES) {
+        const allowed = value.byteLength - (received - MAX_RESPONSE_BYTES);
+        out += decoder.decode(value.subarray(0, Math.max(0, allowed)), { stream: true });
+        truncated = true;
+        break;
+      }
+      out += decoder.decode(value, { stream: true });
+    }
+  } finally {
+    // Stop downloading the rest of an oversized/streaming body.
+    await reader.cancel().catch(() => {});
+  }
+  out += decoder.decode();
+
+  if (truncated) {
+    out += `\n\n[...response truncated at ${MAX_RESPONSE_BYTES} bytes]`;
+  }
+  return out;
 }
 
 function truncate(text: string, maxChars?: number): string {
@@ -66,7 +116,7 @@ export async function fetchMarkdown(url: string, opts: FetchOptions = {}): Promi
     const res = await rawFetch(url, opts, "text/markdown");
     if (res.ok) {
       const ct = res.headers.get("content-type") ?? "";
-      const body = await res.text();
+      const body = await readCappedText(res);
       // If server actually returned markdown (not HTML)
       if (ct.includes("markdown") || (!ct.includes("html") && !body.trimStart().startsWith("<"))) {
         return truncate(body, opts.maxChars);
@@ -82,16 +132,24 @@ export async function fetchMarkdown(url: string, opts: FetchOptions = {}): Promi
   try {
     const res = await rawFetch(url, opts);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const html = await res.text();
+    const html = await readCappedText(res);
     return extractWithReadability(url, html, opts);
   } catch (e) {
     throw new Error(`Failed to fetch ${url}: ${(e as Error).message}`);
   }
 }
 
+/**
+ * JSDOM options that keep parsing of untrusted HTML inert:
+ *  - `runScripts` is left UNSET → no inline/`<script>` execution.
+ *  - a no-op `resources` loader (default) → no external sub-resource fetches.
+ * We construct DOMs ONLY with these options for attacker-controlled HTML.
+ */
+const SAFE_JSDOM_OPTS = { pretendToBeVisual: false } as const;
+
 function extractWithReadability(url: string, html: string, opts: FetchOptions): string {
   try {
-    const dom = new JSDOM(html, { url });
+    const dom = new JSDOM(html, { url, ...SAFE_JSDOM_OPTS });
     const reader = new Readability(dom.window.document);
     const article = reader.parse();
     if (article?.textContent) {
@@ -114,9 +172,9 @@ function extractWithReadability(url: string, html: string, opts: FetchOptions): 
 export async function fetchArticle(url: string): Promise<{ title: string; content: string }> {
   const res = await rawFetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const html = await res.text();
+  const html = await readCappedText(res);
 
-  const dom = new JSDOM(html, { url });
+  const dom = new JSDOM(html, { url, ...SAFE_JSDOM_OPTS });
   const reader = new Readability(dom.window.document);
   const article = reader.parse();
 
@@ -154,7 +212,7 @@ export async function fetchSelector(
 ): Promise<string[]> {
   const res = await rawFetch(url, opts);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const html = await res.text();
+  const html = await readCappedText(res);
 
   const $ = cheerio.load(html);
   const results: string[] = [];

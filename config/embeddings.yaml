@@ -3,13 +3,27 @@
 # Supports three layers: personal (L3), collab (L2), knowledge index (L1)
 
 # Embedding provider: "openai" or "ollama"
-# Auto-detected from environment if not set here
+#
+# DEFAULT: local (ollama / nomic-embed-text). With the local provider, your
+# content is embedded ON YOUR MACHINE and nothing leaves it.
+#
+# Cloud embeddings (OpenAI) send the FULL TEXT of every indexed file to
+# OpenAI's API. They are OFF by default — even when OPENAI_API_KEY is set —
+# and require an explicit opt-in: set the environment variable RAG_EMBED_CLOUD=1.
+# Setting "provider: openai" below WITHOUT RAG_EMBED_CLOUD=1 will be ignored and
+# fall back to local. Only enable cloud if you are comfortable sending these
+# files to OpenAI (it counts against your own OpenAI account/billing).
+#
+# To use cloud embeddings, set RAG_EMBED_CLOUD=1 AND optionally:
 # provider: openai
 # model: text-embedding-3-small
 # dimensions: 1536
 
 # ─── L3: Personal index ───────────────────────────────────────────
-# Your private notes, goals, preferences. Never shared.
+# Your private notes, goals, preferences.
+# With the default local provider these stay on your machine. If you opt into
+# cloud embeddings (RAG_EMBED_CLOUD=1), the contents of these paths ARE sent to
+# OpenAI — do not enable cloud unless you accept that.
 paths:
   - user/
   - patterns/

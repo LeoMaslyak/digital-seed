@@ -20,6 +20,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { join, dirname } from "path";
+import { randomUUID } from "node:crypto";
 
 // Import core graph module (relative path to core/src)
 const ROOT =
@@ -68,7 +69,67 @@ function saveGraph(graph: KnowledgeGraph): void {
 }
 
 function genId(): string {
-  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  // randomUUID() — unguessable, no predictable Math.random().
+  return randomUUID();
+}
+
+// ─── Input hardening ────────────────────────────────────────────────
+// Nodes/edges are durable and re-read every session, and labels flow into a
+// Mermaid diagram rendered in the user's chat viewer. Sanitize at WRITE time so
+// poisoned content can neither inject diagram directives (%%{init}%%), break out
+// of a label, nor balloon the graph file.
+
+const MAX_LABEL_LEN = 200;
+const MAX_PROP_KEY_LEN = 80;
+const MAX_PROP_VAL_LEN = 500;
+const MAX_PROPS = 50;
+
+// Provenance: nodes/edges added through this MCP tool are agent-authored, not
+// user-stated facts. The tag lets agent/user distinguish trusted entries from
+// content the agent persisted from (possibly untrusted) ingested material.
+const PROVENANCE_KEY = "_source";
+const PROVENANCE_VALUE = "agent";
+
+// Strip Mermaid control sequences and structural characters from a label.
+// Removes %%...%% directive blocks, newlines, quotes, semicolons, and the
+// shape-delimiter characters Mermaid uses, then caps the length.
+function sanitizeLabel(raw: string): string {
+  return String(raw)
+    .replace(/%%\{[\s\S]*?\}%%/g, " ") // mermaid init/config directives
+    .replace(/%%/g, " ") // mermaid comments
+    .replace(/[\r\n]+/g, " ") // newlines break out of a node line
+    .replace(/[;]/g, " ") // statement separator
+    .replace(/["'`{}\[\]()<>|]/g, " ") // quotes + shape/edge delimiters
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, MAX_LABEL_LEN);
+}
+
+// Cap and lightly sanitize a free-text value (collapse newlines).
+function sanitizeValue(value: string | number | boolean):
+  | string
+  | number
+  | boolean {
+  if (typeof value !== "string") return value;
+  return value.replace(/[\r\n]+/g, " ").trim().slice(0, MAX_PROP_VAL_LEN);
+}
+
+// Sanitize a properties bag: cap count, key length, value length; collapse
+// newlines in string values. Never let a caller overwrite the provenance key.
+function sanitizeProperties(
+  props: Record<string, string | number | boolean>
+): Record<string, string | number | boolean> {
+  const out: Record<string, string | number | boolean> = {};
+  let count = 0;
+  for (const [k, v] of Object.entries(props)) {
+    if (count >= MAX_PROPS) break;
+    if (k === PROVENANCE_KEY) continue; // reserved, set by the server
+    const key = String(k).replace(/[\r\n]+/g, " ").trim().slice(0, MAX_PROP_KEY_LEN);
+    if (!key) continue;
+    out[key] = sanitizeValue(v);
+    count++;
+  }
+  return out;
 }
 
 // ─── MCP Server ─────────────────────────────────────────────────────
@@ -238,8 +299,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     // ─── graph_add ───
     case "graph_add": {
       const nodeType = a.type as NodeType;
-      const label = a.label as string;
-      const props = (a.properties || {}) as Record<string, string | number | boolean>;
+      const label = sanitizeLabel((a.label as string) ?? "");
+      if (!label) {
+        return { content: [{ type: "text", text: "graph_add: label is empty after sanitization." }] };
+      }
+      const props = sanitizeProperties(
+        (a.properties || {}) as Record<string, string | number | boolean>
+      );
 
       // Deduplicate
       const existing = graph.nodes.find(
@@ -247,7 +313,12 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       );
 
       if (existing) {
-        existing.properties = { ...existing.properties, ...props };
+        // Preserve original provenance; don't let a merge drop the tag.
+        existing.properties = {
+          ...existing.properties,
+          ...props,
+          [PROVENANCE_KEY]: existing.properties[PROVENANCE_KEY] ?? PROVENANCE_VALUE,
+        };
         existing.updatedAt = new Date().toISOString();
         saveGraph(graph);
         return {
@@ -264,7 +335,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         id: genId(),
         type: nodeType,
         label,
-        properties: props,
+        properties: { ...props, [PROVENANCE_KEY]: PROVENANCE_VALUE },
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -287,7 +358,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const targetId = a.target as string;
       const edgeType = a.type as EdgeType;
       const weight = (a.weight as number) || 1.0;
-      const props = (a.properties || {}) as Record<string, string | number | boolean>;
+      const props = sanitizeProperties(
+        (a.properties || {}) as Record<string, string | number | boolean>
+      );
 
       if (!graph.nodes.find((n) => n.id === sourceId)) {
         return { content: [{ type: "text", text: `Source node ${sourceId} not found.` }] };
@@ -320,7 +393,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         target: targetId,
         type: edgeType,
         weight,
-        properties: props,
+        properties: { ...props, [PROVENANCE_KEY]: PROVENANCE_VALUE },
         createdAt: new Date().toISOString(),
       };
       graph.edges.push(edge);
@@ -487,10 +560,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const lines: string[] = ["graph LR"];
       for (const node of nodes) {
         const [open, close] = typeShapes[node.type] || ["[", "]"];
-        lines.push(`  ${node.id}${open}"${node.label.replace(/"/g, "'")}"${close}`);
+        // Defense-in-depth: re-sanitize at render time so labels stored before
+        // this hardening (or via any other writer) cannot inject Mermaid
+        // directives / break out of the node line.
+        const safeLabel = sanitizeLabel(node.label);
+        lines.push(`  ${node.id}${open}"${safeLabel}"${close}`);
       }
       for (const edge of edges) {
-        lines.push(`  ${edge.source} -->|${edge.type.replace(/-/g, " ")}| ${edge.target}`);
+        // edge.type is a closed enum, but sanitize defensively.
+        const safeEdgeLabel = sanitizeLabel(edge.type.replace(/-/g, " "));
+        lines.push(`  ${edge.source} -->|${safeEdgeLabel}| ${edge.target}`);
       }
 
       return {

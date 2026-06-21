@@ -17,6 +17,8 @@ curl -fsSL https://bun.sh/install | bash
 bun install -g @anthropic-ai/claude-code
 ```
 
+> Trust note: `curl … | bash` runs a remote script with your permissions. This one is from the official `bun.sh` domain — only pipe a script to a shell from a source you trust, and download-and-read it first if you are unsure.
+
 ## 2. Clone and install
 
 The canonical path is:

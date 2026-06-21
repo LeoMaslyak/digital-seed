@@ -46,6 +46,7 @@ Digital Seed is a small repo of editable context files plus a CLI that walks you
   - **Ollama** (local, no cloud, no account) — https://ollama.ai, then `ollama pull llama3.1:8b`. See caveat in [docs/agent-chooser.md](docs/agent-chooser.md) about local model reliability.
   - Not sure? [docs/agent-chooser.md](docs/agent-chooser.md) has a quick pick table.
 - **Bun** — the JS runtime Digital Seed uses (`curl -fsSL https://bun.sh/install | bash`, then `exec $SHELL -l`). Plain `node` is not supported. See [Troubleshooting → Bun is missing](docs/troubleshooting.md#bun-is-missing-or-the-wrong-version) if `bun --version` does not work.
+  > Trust note: `curl … | bash` runs a remote script with your permissions. These commands come from the official vendor domains (`bun.sh`, `ollama.ai`); only ever pipe a script to a shell from a source you trust, and if unsure, download it first and read it before running.
 - **Git** — to clone the repo (most systems have it; install via `xcode-select --install` on macOS or your distro's package manager on Linux).
 
 Then:
@@ -57,7 +58,17 @@ bun install
 bun run seed onboard
 ```
 
-The five-step `seed onboard` path: check setup → open three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
+The five-step `seed onboard` path: check setup → open your three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
+
+> Note: your personal context files (`user/USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`, `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md`) are **not** present in a fresh clone — they hold your personal data and the whole `user/` tree is git-ignored. **`bun run seed onboard` (or `./setup.sh`) creates any that are missing** from the pristine starters in [`docs/data-room/templates/`](docs/data-room/templates/). To create them by hand instead:
+>
+> ```bash
+> cp docs/data-room/templates/USER.template.md  user/USER.md
+> cp docs/data-room/templates/GOALS.template.md user/GOALS.md
+> # …and the same for MEMORY / PREFERENCES / COMPASS / DOMAINS / ANTI-GOALS
+> ```
+>
+> Because everything under `user/` is git-ignored, your edits to these files are never committed.
 
 **Canonical path:** `bun install` + `bun run seed onboard`. That is the supported 15-minute experience.
 
@@ -74,7 +85,7 @@ If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agen
 
 ### Day one vs not day one
 
-**Day one:** edit `USER.md`, `COMPASS.md`, `GOALS.md`; run `seed onboard` and `seed first-prompt`; optionally index one notes folder; optionally write `user/FIRST-WIN.md`.
+**Day one:** run `bun run seed onboard` (it creates your `user/*.md` files from the templates if they are missing), then edit `USER.md`, `COMPASS.md`, `GOALS.md`; run `seed first-prompt`; optionally index one notes folder; optionally write `user/FIRST-WIN.md`.
 
 **Not day one:** wiring email/Slack/calendar, hosted vector DBs, always-on agents, dashboards, multi-agent setups. Add those only after the local loop is already useful. ([full breakdown](docs/first-15-minutes.md#day-one--not-day-one))
 
@@ -112,7 +123,7 @@ These live in `user/`. They are meant to be edited by you and read by your assis
 - `ANTI-GOALS.md` — what you explicitly do not want to optimize for
 - `MEMORY.md` — durable facts and lessons the assistant should preserve
 
-Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. Improve the rest gradually.
+Start with `USER.md`, `COMPASS.md`, and `GOALS.md`. All seven files live under the git-ignored `user/` tree; `bun run seed onboard` (or `./setup.sh`) creates any that are missing from the pristine templates in [`docs/data-room/templates/`](docs/data-room/templates/), or you can copy them yourself (see the note under "Start in 15 minutes"). Improve the rest gradually.
 
 ## Useful commands
 

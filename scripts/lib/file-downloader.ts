@@ -7,8 +7,9 @@
 
 import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { join, basename } from "path";
-import { execSync } from "child_process";
 import { Writable } from "stream";
+import { safeExec, commandExists, sanitizeFilename } from "./safe-exec.ts";
+import { assertSafeUrl } from "./net-guard.ts";
 
 export interface DownloadOptions {
   timeout?: number;       // ms, default 60000
@@ -25,12 +26,7 @@ const DEFAULT_TIMEOUT = 60_000;
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function gogAvailable(): boolean {
-  try {
-    execSync("which gog", { stdio: ["pipe", "pipe", "pipe"] });
-    return true;
-  } catch {
-    return false;
-  }
+  return commandExists("gog");
 }
 
 function filenameFromUrl(url: string): string {
@@ -80,12 +76,18 @@ export async function downloadFile(
   const timer = setTimeout(() => controller.abort(), opts.timeout ?? DEFAULT_TIMEOUT);
 
   try {
+    // SSRF guard: reject non-http(s) and loopback/RFC1918/link-local/metadata
+    // targets before fetching (same guard the web fetch/scrape paths use).
+    await assertSafeUrl(url);
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
 
-    // Determine filename
+    // Determine filename. Remote-derived names (Content-Disposition / URL)
+    // are sanitized to a safe basename so they can never contain path
+    // separators (traversal) or shell metacharacters before touching disk
+    // or any subprocess. A user-supplied --filename is also normalised.
     const cdName = filenameFromContentDisposition(res.headers.get("content-disposition"));
-    const name = opts.filename ?? cdName ?? filenameFromUrl(url);
+    const name = sanitizeFilename(opts.filename ?? cdName ?? filenameFromUrl(url));
     const outPath = opts.overwrite ? join(destDir, name) : uniquePath(destDir, name);
 
     // Stream response body to file
@@ -178,11 +180,14 @@ export function uploadToDrive(filePath: string): string | null {
 
   try {
     console.log(`  📤 Uploading to Google Drive: ${basename(filePath)}...`);
-    const output = execSync(`gog drive upload "${filePath}"`, {
-      encoding: "utf-8",
-      timeout: 120_000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
+    // argv form (no shell): filePath is passed as a literal argument and
+    // can never be reinterpreted by /bin/sh, even if it contains $(), `,
+    // ;, quotes, etc. (C1).
+    const res = safeExec("gog", ["drive", "upload", filePath], { timeout: 120_000 });
+    if (res.exitCode !== 0) {
+      throw new Error(res.stderr.trim() || `gog exited with code ${res.exitCode}`);
+    }
+    const output = res.stdout.trim();
 
     // Parse file ID from gog output
     const idMatch = output.match(/(?:id[:\s]+|\/d\/|fileId[:\s]+)([a-zA-Z0-9_-]{20,})/i)

@@ -432,12 +432,17 @@ else if (cmd === "share") {
 
   if (flagBool("--copy")) {
     try {
-      const { execSync } = await import("child_process");
-      // macOS pbcopy / Linux xclip / Windows clip
-      const copyCmd = process.platform === "darwin" ? "pbcopy"
-        : process.platform === "win32" ? "clip"
-        : "xclip -selection clipboard";
-      execSync(`echo ${JSON.stringify(snapshot)} | ${copyCmd}`);
+      const { safeExec } = await import("./lib/safe-exec.ts");
+      // macOS pbcopy / Linux xclip / Windows clip — argv form, content fed
+      // over STDIN (never interpolated into a shell), so collaborator-
+      // supplied $()/backticks can't execute (H3).
+      const [copyCmd, ...copyArgs] = process.platform === "darwin" ? ["pbcopy"]
+        : process.platform === "win32" ? ["clip"]
+        : ["xclip", "-selection", "clipboard"];
+      const res = safeExec(copyCmd, copyArgs, { input: snapshot });
+      if (res.exitCode !== 0) {
+        throw new Error(res.stderr.trim() || `${copyCmd} exited with code ${res.exitCode}`);
+      }
       console.log(`✅ Copied to clipboard — paste into Teams, email, or WhatsApp.`);
     } catch {
       console.log(snapshot);

@@ -152,16 +152,19 @@ export function checkPermission(
     }
   }
 
-  // Gate "notify" actions when user is sleeping — queue silently instead
+  // When the user is asleep, defer the notification instead of suppressing it.
+  // KEEP level "notify" so the action stays visible and is surfaced when they
+  // return — never downgrade to "auto" (digest-only), which silently hid the
+  // only notification the user would ever get for the action.
   if (level === "notify" && root) {
     try {
       const actState = detectActivityState(root);
       if (actState.state === "sleeping") {
         return {
-          decision: "run",       // still execute, just don't wake them
-          level: "auto",
+          decision: "run",       // still execute, just don't wake them now
+          level: "notify",       // visibility floor: notification is queued, not dropped
           category,
-          reason: `Downgraded notify→auto (user sleeping, ${Math.round(actState.lastSignalMinutesAgo)}m since last signal)`,
+          reason: `Notification queued — user sleeping (${Math.round(actState.lastSignalMinutesAgo)}m since last signal); will surface on return`,
         };
       }
     } catch { /* activity state unavailable — proceed with static rules */ }
