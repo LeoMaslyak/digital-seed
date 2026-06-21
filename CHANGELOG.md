@@ -4,7 +4,56 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
-(No new changes since `0.4.3-alpha`.)
+### Security
+
+- **Removed non-existent npm package names from integration recipes (audit C2).**
+  The email, calendar, obsidian, and database setup recipes plus `mcp/README.md`
+  and `mcp/servers.json` previously told users to `npx -y` packages that **do not
+  exist** in unclaimed/vendor-impersonating npm scopes
+  (`@anthropic/mcp-gmail`, `@anthropic/mcp-install`, `@smithery/mcp-obsidian`,
+  `@modelcontextprotocol/server-sqlite`, `example-gmail-mcp-server`) — an
+  attacker-registrable slot handed OAuth credentials. Each fictional name is now
+  replaced with a clearly-marked **manual "choose and verify a package yourself"**
+  step (with a bold security warning, `npm view`/publisher-check guidance, exact
+  version pinning, and `--ignore-scripts`). The only packages still referenced by
+  name are the official, version-pinned `@modelcontextprotocol/server-postgres`
+  and `@modelcontextprotocol/server-github` (both annotated as deprecated). The
+  fictional `@anthropic/mcp-install` auto-installer instruction was deleted.
+- **New CI workflow `.github/workflows/package-existence.yml`** runs `npm view`
+  on every concrete package name referenced in `integrations/*/setup.md` and
+  `mcp/servers.json` and **fails the build on a 404** (placeholders are skipped).
+- **Database recipe hardened (audit M6/H1).** Leads with a least-privilege
+  `GRANT SELECT` read-only role, warns the AI executes arbitrary generated SQL,
+  scopes the "read-only by default" claim (it does not cover the writable SQLite
+  path or SELECT-based exfiltration), and never inlines a live connection string
+  into a tracked file (real secrets stay in gitignored `.env`).
+- **Calendar recipe hardened (audit M5).** Recommends least-privilege OAuth scope
+  (`calendar.readonly` / `calendar.events`), stores credentials `0600` inside a
+  `0700` directory, and uses `$HOME` instead of a literal `~` in JSON env paths
+  (which some loaders do not expand). The same `$HOME`/`0600` guidance was added
+  to the email recipe.
+- **`settings.json` secret-handling contract updated across all recipes.** Every
+  "add to `.claude/settings.json`" instruction now says to copy
+  `.claude/settings.example.json` to `.claude/settings.json` (gitignored) and
+  never paste real secrets into a tracked file.
+- **Docs reconciled with behavior.** `docs/what-leaves-your-machine.md` and
+  `SECURITY.md` now state that web page content fetched with `--summarize` is
+  sent to your AI provider, and that RAG embeddings go to OpenAI **only when
+  cloud embedding is explicitly opted in** (`RAG_EMBED_CLOUD=1`); the default is
+  now local (Ollama). The `SECURITY.md` data-storage table reflects the new
+  gitignore model (`.claude/settings.json`, `config/digest.yaml`, and the whole
+  `user/` tree are now ignored). Trust/verify notes were added where docs teach
+  `curl … | bash`.
+
+### Changed
+
+- README onboarding wording corrected: `user/USER.md` and `user/GOALS.md` do not
+  exist in a fresh clone (the `user/` tree is git-ignored); the README now tells
+  users to create them from the pristine templates in `docs/data-room/templates/`
+  rather than implying they already exist.
+- CHANGELOG `0.4.2-alpha` agent-chooser note corrected: OpenClaw/Hermes (and
+  Cursor/Windsurf) are listed as Phase 4 options **without** bundled install
+  commands — only a context-file scaffold is provided.
 
 ## [0.4.3-alpha] - 2026-05-14
 
@@ -47,7 +96,7 @@ All notable changes to Digital Seed will be documented in this file.
 ### Changed
 
 - **Agent prerequisite now surfaced first** — README prereqs block reordered (agent first, not last) with a plain warning: without a terminal-capable agent, the guided setup will not work.
-- **`docs/agent-chooser.md` fully rewritten** — Claude Code, Codex CLI, Gemini CLI, Ollama, Cursor/Windsurf, OpenClaw/Hermes all documented with install commands, honest caveats, and a quick-pick table. Ollama section includes an honest caveat that <30B models are unreliable for guided setup.
+- **`docs/agent-chooser.md` fully rewritten** — Claude Code, Codex CLI, Gemini CLI, and Ollama documented with install commands, honest caveats, and a quick-pick table. Cursor/Windsurf and the OpenClaw/Hermes always-on agents are listed as **Phase 4 options without bundled install commands** — Digital Seed only provides a `bun run seed recipe openclaw init` / `... hermes init` context-file scaffold for them, not an installer; you bring and install those agents yourself. Ollama section includes an honest caveat that <30B models are unreliable for guided setup.
 - **`docs/install-claude-code.md`** — now opens with a note that Claude Code is one of several options, with links to Codex and Gemini alternatives.
 - **`setup.sh` phase chooser** — replaces the flat profile picker with a phase-aware step: explains all four phases, asks which to enable now, prompts for notes folder (Phase 2) and recipe choice (Phase 3) inline.
 - **`bun run seed doctor`** — now detects `claude`, `codex`, `gemini`, `cursor`, `windsurf`, and `ollama`. Missing-agent warning lists all four install paths.

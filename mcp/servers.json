@@ -1,6 +1,6 @@
 {
   "$schema": "./servers.schema.json",
-  "description": "MCP server registry for Digital Seed",
+  "description": "MCP server registry for Digital Seed. The 'community' block is informational, NOT an install manifest: no auto-installer reads it. Verify every package yourself (`npm view <name>`), pin the exact version, and read the code before installing. See mcp/README.md.",
   "servers": {
     "seed-memory": {
       "command": "bun",
@@ -29,28 +29,38 @@
   },
   "community": {
     "obsidian": {
-      "package": "@smithery/mcp-obsidian",
+      "package": "",
+      "verified": false,
+      "note": "No vetted package bundled. Choose and verify an Obsidian MCP server yourself (`npm view <name>`, read the code, pin the version). Do NOT npx -y an unverified name.",
       "description": "Read, search, and create Obsidian notes",
       "setup": "integrations/obsidian/setup.md"
     },
     "gmail": {
-      "package": "example-gmail-mcp-server",
+      "package": "",
+      "verified": false,
+      "note": "No vetted package bundled. This server receives your Gmail OAuth credentials — verify the package name and publisher (`npm view <name>`) and read the code before installing. Anthropic publishes under @anthropic-ai, not @anthropic.",
       "description": "Gmail read, search, draft, send",
       "setup": "integrations/email/setup.md"
     },
     "google-calendar": {
-      "package": "mcp-google-calendar",
+      "package": "",
+      "verified": false,
+      "note": "No vetted package bundled. Community calendar servers exist but are individually published and early-stage — verify yourself and request least-privilege OAuth scope (calendar.readonly / calendar.events).",
       "description": "Google Calendar events",
       "setup": "integrations/calendar/setup.md"
     },
     "github": {
-      "package": "@modelcontextprotocol/server-github",
+      "package": "@modelcontextprotocol/server-github@2025.4.8",
+      "verified": true,
+      "note": "Official @modelcontextprotocol scope, but the npm package is marked DEPRECATED. Confirm with `npm view @modelcontextprotocol/server-github` and prefer GitHub's currently-maintained remote MCP server if available.",
       "description": "GitHub issues, PRs, repos",
       "setup": "https://github.com/modelcontextprotocol/servers"
     },
     "postgres": {
-      "package": "@modelcontextprotocol/server-postgres",
-      "description": "Query any PostgreSQL database",
+      "package": "@modelcontextprotocol/server-postgres@0.6.2",
+      "verified": true,
+      "note": "Official @modelcontextprotocol scope, but the npm package is marked DEPRECATED. Confirm with `npm view @modelcontextprotocol/server-postgres`. Connect with a least-privilege read-only role.",
+      "description": "Query any PostgreSQL database (read-only transactions)",
       "setup": "integrations/databases/setup.md"
     }
   }

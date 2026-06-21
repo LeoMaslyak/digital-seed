@@ -1,0 +1,124 @@
+name: Package existence check
+
+# Verifies that every npm package name referenced in the integration recipes and
+# the MCP registry actually exists on the public npm registry. A 404 (e.g. a
+# fictional or typo-squatted name handed OAuth credentials in a recipe) FAILS the
+# build. See the C2 finding in the security audit.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "integrations/**/setup.md"
+      - "mcp/servers.json"
+      - ".github/workflows/package-existence.yml"
+  workflow_dispatch:
+
+jobs:
+  npm-view:
+    name: npm view referenced packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node (for npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Extract and verify referenced package names
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          # Collect candidate package names from the recipes and the registry.
+          # We only check REAL package references, not the deliberate placeholders
+          # we ship to tell users "no vetted package — choose one yourself".
+          #
+          # Sources:
+          #   - integrations/*/setup.md  : "args": ["-y", "<name>@<version>"], and
+          #                                 npx -y <name> forms
+          #   - mcp/servers.json         : "package": "<name>@<version>"
+          #
+          # Placeholders / illustrative names we intentionally DO NOT check
+          # (they are not real packages — recipes use them to mean "fill this in").
+          # Kept DELIBERATELY NARROW: only angle-bracket templates and explicit
+          # placeholder scopes. We must NOT skip broad suffixes like `mcp-server$`
+          # or prefixes like `example-`/`your-`, because real packages use them
+          # (e.g. `obsidian-mcp-server`) AND the original fictional attack name
+          # `example-gmail-mcp-server` would have slipped through — defeating the
+          # whole point of this check.
+          PLACEHOLDER_RE='<[^>]*>|/path/to/|@some-package|@example|@your-org|@your-|@scope/|^my-server$|^example-package$|^-y$'
+
+          tmp_names="$(mktemp)"
+
+          # From servers.json: the "package": "<name>" values.
+          if [ -f mcp/servers.json ]; then
+            grep -oE '"package"[[:space:]]*:[[:space:]]*"[^"]+"' mcp/servers.json \
+              | sed -E 's/.*:[[:space:]]*"([^"]+)"/\1/' >> "$tmp_names" || true
+          fi
+
+          # From recipe markdown: any args array element after "-y" that looks like
+          # a concrete package (starts with @scope/ or a bare lowercase name), and
+          # any `npx -y <name>` / `npx <name>` in fenced commands.
+          for f in integrations/*/setup.md; do
+            [ -f "$f" ] || continue
+            # "-y", "<name>..." inside JSON args arrays
+            grep -oE '"-y"[[:space:]]*,[[:space:]]*"[^"]+"' "$f" \
+              | sed -E 's/.*,[[:space:]]*"([^"]+)"/\1/' >> "$tmp_names" || true
+            # npx -y <name> / npx <name> on a command line
+            grep -oE 'npx (-y )?(@[a-z0-9._-]+/[a-z0-9._-]+|[a-z0-9._-]+)(@[^[:space:]"]+)?' "$f" \
+              | sed -E 's/^npx (-y )?//' >> "$tmp_names" || true
+          done
+
+          # Normalize: trim, drop empties, drop placeholders, dedupe.
+          mapfile -t NAMES < <(sort -u "$tmp_names" \
+            | sed -E 's/^[[:space:]]+|[[:space:]]+$//g' \
+            | grep -vE "$PLACEHOLDER_RE" \
+            | grep -vE '^$')
+
+          if [ "${#NAMES[@]}" -eq 0 ]; then
+            echo "No concrete package references found to verify (all placeholders) — OK."
+            exit 0
+          fi
+
+          echo "Verifying ${#NAMES[@]} referenced package(s):"
+          printf '  - %s\n' "${NAMES[@]}"
+          echo
+
+          fail=0
+          for spec in "${NAMES[@]}"; do
+            # Strip a trailing @version (keep @scope/name intact).
+            if [[ "$spec" == @*/* ]]; then
+              name="${spec%@*}"                 # @scope/name@ver -> @scope/name
+              [[ "$spec" == "$name" ]] && name="$spec"
+              # Re-handle: @scope/name has one '@' at pos 0; a version adds a 2nd '@'.
+              if [[ "$(grep -o '@' <<<"$spec" | wc -l)" -ge 2 ]]; then
+                name="${spec%@*}"
+              else
+                name="$spec"
+              fi
+            else
+              name="${spec%@*}"                 # name@ver -> name ; name -> name
+            fi
+
+            if npm view "$name" version >/dev/null 2>&1; then
+              echo "OK     $name"
+            else
+              echo "MISSING $name  (npm view returned 404 / error)"
+              fail=1
+            fi
+          done
+
+          if [ "$fail" -ne 0 ]; then
+            echo
+            echo "FAIL: one or more referenced npm packages do not exist."
+            echo "A recipe must never tell users to 'npx -y' a non-existent name."
+            echo "Remove the fictional name or replace it with a verified, pinned package."
+            exit 1
+          fi
+
+          echo
+          echo "All referenced packages exist on the npm registry."

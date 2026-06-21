@@ -193,7 +193,7 @@ Member adds analysis
 | rag-server | stdio | rag_search, rag_index, rag_status | data/rag/ (local JSON mirror, optional LanceDB) |
 | graph-server | stdio | graph_search, graph_add, graph_connect, graph_path | data/graph.json |
 
-All servers use stdio transport (no ports) — Claude Code connects via `.claude/settings.json`.
+All servers use stdio transport (no ports) — Claude Code connects via `.claude/settings.json`. That file is **gitignored**; copy it from the tracked `.claude/settings.example.json` and never paste real secrets into it.
 
 ---
 
@@ -261,6 +261,7 @@ digital-seed/
 ├── logs/                  ← Audit logs (gitignored)
 ├── config/                ← Config files (mostly gitignored)
 └── .claude/
-    ├── CLAUDE.md          ← Agent instructions
-    └── settings.json      ← MCP server config
+    ├── CLAUDE.md            ← Agent instructions
+    ├── settings.example.json ← Tracked template (copy to settings.json)
+    └── settings.json        ← MCP server config (gitignored; no real secrets)
 ```
