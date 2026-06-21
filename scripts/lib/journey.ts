@@ -146,12 +146,24 @@ export function saveJourney(root: string, j: Journey): void {
   renameSync(tmp, p);
 }
 
+/**
+ * Fill in any missing optional fields on a loaded journey so consumers never
+ * dereference undefined on a hand-edited or partially-written file (e.g. a
+ * valid schemaVersion-1 object that lacks `parkingLot`).
+ */
+function normalizeJourney(j: Journey): Journey {
+  if (typeof j.currentPhase !== "number") j.currentPhase = 1;
+  if (!Array.isArray(j.parkingLot)) j.parkingLot = [];
+  if (typeof j.focus !== "string") j.focus = focusForPhase(j.currentPhase, j.phases);
+  return j;
+}
+
 export function loadJourney(root: string, now: string): Journey {
   const p = join(root, JOURNEY_PATH);
   if (existsSync(p)) {
     try {
       const j = JSON.parse(readFileSync(p, "utf-8")) as Journey;
-      if (j && j.schemaVersion === 1 && j.phases) return j;
+      if (j && j.schemaVersion === 1 && j.phases) return normalizeJourney(j);
     } catch {
       /* corrupt — fall through and re-bootstrap */
     }
@@ -189,6 +201,7 @@ export function completeStep(root: string, phase: number, step: string, now: str
 
 export function park(root: string, idea: string, phase: number, now: string): Journey {
   const j = loadJourney(root, now);
+  if (!idea.trim()) return j;
   const norm = (s: string) => s.trim().toLowerCase();
   if (!j.parkingLot.some((p) => norm(p.idea) === norm(idea))) {
     j.parkingLot.push({ idea: idea.trim(), phase, noted: now });
@@ -235,7 +248,7 @@ export function syncMyPlanText(planText: string, j: Journey): string {
   return planText
     .split(/\r?\n/)
     .map((line) => {
-      const m = line.match(/^(\s*- \[)[ xX](\](.*\bphase\s*(\d)\b.*))$/i);
+      const m = line.match(/^(\s*- \[)[ xX](\](.*\bphase\s*(\d+)\b.*))$/i);
       if (!m) return line;
       const phase = Number(m[4]);
       const done = j.phases[String(phase)]?.status === "done";

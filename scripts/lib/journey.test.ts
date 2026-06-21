@@ -139,3 +139,23 @@ test("syncMyPlanText ticks phases that are done, leaves others", () => {
   expect(after).toContain("- [x] Phase 1 — Local context (required)");
   expect(after).toContain("- [ ] Phase 2 — Local search");
 });
+
+test("park does not crash when an existing file lacks parkingLot", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/journey.json"),
+    JSON.stringify({ schemaVersion: 1, currentPhase: 1, phases: emptyPhases() }),
+    "utf-8",
+  );
+  const j = park(root, "telegram bot", 3, NOW);
+  expect(j.parkingLot.length).toBe(1);
+  expect(j.parkingLot[0].idea).toBe("telegram bot");
+});
+
+test("park ignores whitespace-only ideas", () => {
+  const root = tmpRoot();
+  loadJourney(root, NOW);
+  const j = park(root, "   ", 3, NOW);
+  expect(j.parkingLot.length).toBe(0);
+});

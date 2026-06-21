@@ -446,33 +446,6 @@ function privacyScan(): void {
 
 
 
-function nonEmptyFile(rel: string): boolean {
-  const full = join(ROOT, rel);
-  if (!existsSync(full)) return false;
-  try { return readFileSync(full, "utf-8").trim().length > 0; } catch { return false; }
-}
-
-function hasLocalIndex(): boolean {
-  const vectorsPath = join(ROOT, "data", "rag", "vectors.json");
-  if (existsSync(vectorsPath)) {
-    try {
-      const store = JSON.parse(readFileSync(vectorsPath, "utf-8"));
-      if (Array.isArray(store.documents) && store.documents.length > 0) return true;
-    } catch {
-      return false;
-    }
-  }
-
-  const statusPath = join(ROOT, "data", "rag", "status.json");
-  if (!existsSync(statusPath)) return false;
-  try {
-    const status = JSON.parse(readFileSync(statusPath, "utf-8"));
-    return Number(status.totalDocuments ?? 0) > 0 || Number(status.totalChunks ?? 0) > 0;
-  } catch {
-    return false;
-  }
-}
-
 function printWhatNext(): void {
   const j = loadJourney(ROOT, new Date().toISOString());
   const ns = nextStep(j, loadGuidanceMap(ROOT));
