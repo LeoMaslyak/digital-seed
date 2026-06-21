@@ -1,0 +1,21 @@
+# Phase → just-in-time guidance map. Each phase points the agent at the existing
+# doc(s) to surface (in ≤3 lines) when the user reaches that step. Editing this
+# file retunes guidance without touching code.
+phases:
+  1:
+    title: Local context
+    guidance:
+      - docs/first-15-minutes.md
+  2:
+    title: Local search
+    guidance:
+      - docs/phases.md
+      - docs/agent-chooser.md
+  3:
+    title: Integrations
+    guidance:
+      - docs/phases.md
+  4:
+    title: Always-on agent
+    guidance:
+      - docs/phases.md
