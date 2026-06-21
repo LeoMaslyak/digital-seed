@@ -229,3 +229,17 @@ export function nextStep(
     guidanceDocs: guidance[String(j.currentPhase)] ?? [],
   };
 }
+
+/** Update only the "- [ ]/[x] Phase N" lines of a MY-PLAN body from journey state. */
+export function syncMyPlanText(planText: string, j: Journey): string {
+  return planText
+    .split(/\r?\n/)
+    .map((line) => {
+      const m = line.match(/^(\s*- \[)[ xX](\](.*\bphase\s*(\d)\b.*))$/i);
+      if (!m) return line;
+      const phase = Number(m[4]);
+      const done = j.phases[String(phase)]?.status === "done";
+      return `${m[1]}${done ? "x" : " "}${m[2]}`;
+    })
+    .join("\n");
+}

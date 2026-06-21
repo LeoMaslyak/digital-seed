@@ -31,7 +31,7 @@ import { join, dirname } from "path";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "fs";
 import { detectActivityState, describeState } from "../core/src/activity-state.ts";
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
-import { loadJourney, loadGuidanceMap, nextStep, PHASES } from "./lib/journey.ts";
+import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText } from "./lib/journey.ts";
 
 const ROOT   = join(dirname(new URL(import.meta.url).pathname), "..");
 const args   = process.argv.slice(2);
@@ -997,6 +997,13 @@ else if (cmd === "guide") {
   if (ns.guidanceDocs.length) console.log(dimIf(`     Guide: ${ns.guidanceDocs.join(" · ")}`));
   if (j.parkingLot.length) {
     console.log(dimIf(`\n  Parked for later (${j.parkingLot.length}): ${j.parkingLot.map((p) => p.idea).join(", ")}`));
+  }
+  if (rest.includes("--sync")) {
+    const planPath = join(ROOT, "user", "MY-PLAN.md");
+    if (existsSync(planPath)) {
+      writeFileSync(planPath, syncMyPlanText(readFileSync(planPath, "utf-8"), j), "utf-8");
+      console.log(dimIf("\n  (MY-PLAN.md updated to match your journey.)"));
+    }
   }
 }
 else if (cmd === "feedback") { printFeedback({ writeDraft: rest.includes("--write-draft") }); }

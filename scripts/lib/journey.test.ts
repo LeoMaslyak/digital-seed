@@ -125,3 +125,17 @@ test("nextStep returns current phase focus + guidance docs", () => {
   expect(ns.focus).toContain("index");
   expect(ns.guidanceDocs).toContain("docs/agent-chooser.md");
 });
+
+import { syncMyPlanText } from "./journey.ts";
+
+test("syncMyPlanText ticks phases that are done, leaves others", () => {
+  const j = dj({ contextFilled: true, hasIndex: false, phase3Ticked: false }, NOW); // phase 1 done
+  const before = [
+    "- [ ] Phase 1 — Local context (required)",
+    "- [ ] Phase 2 — Local search",
+    "- [ ] Phase 3 — Integrations",
+  ].join("\n");
+  const after = syncMyPlanText(before, j);
+  expect(after).toContain("- [x] Phase 1 — Local context (required)");
+  expect(after).toContain("- [ ] Phase 2 — Local search");
+});
