@@ -39,3 +39,19 @@ test("seed what-next prints a one-line Next:", async () => {
   const out = await seed(root, ["what-next"]);
   expect(out).toContain("Next:");
 });
+
+import { readFileSync as rf } from "fs";
+
+test("CLAUDE.md defines the Proactive Guide contract", () => {
+  const md = rf(join(process.cwd(), ".claude/CLAUDE.md"), "utf-8");
+  expect(md).toContain("## Proactive Guide");
+  expect(md).toContain("data/journey.json");
+  expect(md.toLowerCase()).toContain("parking lot");
+  expect(md.toLowerCase()).toContain("single next step");
+  // The guide section sits above Session Startup.
+  expect(md.indexOf("## Proactive Guide")).toBeLessThan(md.indexOf("## Session Startup"));
+  // If the security PR's Trust Boundary is present, it must still come first.
+  if (md.includes("Trust Boundary")) {
+    expect(md.indexOf("Trust Boundary")).toBeLessThan(md.indexOf("## Proactive Guide"));
+  }
+});
