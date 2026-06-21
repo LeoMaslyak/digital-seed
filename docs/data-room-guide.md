@@ -9,20 +9,42 @@ trust the repo and refresh or retire the stale Drive copy.
 
 **Current public folder:** [Digital Seed — Public Starter Kit](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG)
 
+> **Your personal files are NEVER published.** The data room only contains the
+> repo's public docs, visual assets, recipes, and **pristine blank templates**
+> (sourced from `docs/data-room/templates/*.template.md`). The publisher will
+> **refuse** to upload anything under `user/` or any `USER/GOALS/MEMORY/`
+> `PREFERENCES/COMPASS/DOMAINS/ANTI-GOALS.md` file, and it runs the privacy scan
+> as a hard gate before any live upload. Your filled-in `user/*.md` context —
+> your identity, goals, and AI memory — stays on your machine. This matches
+> `SECURITY.md`: back up `user/` locally, not to a public service.
+
 ## Publishing
 
 The folder is owned by `leomaslyak@gmail.com` and shared as "anyone with the link, viewer."
+Because that folder is world-readable, the publisher is deliberately conservative
+about what it will upload (see the safety guarantees above).
 
 To refresh from the local repo, run:
 
 ```bash
-bun run seed drive publish-data-room --dry-run   # show the plan
+bun run seed drive publish-data-room --dry-run   # show the plan (filenames only)
 bun run seed drive publish-data-room             # upload for real
 ```
 
 The script reads the manifest in `scripts/publish-data-room.ts`, finds existing files by name inside each subfolder, moves them to Drive trash, and uploads the current local version. It only touches files inside the matched root folder.
 
-If you fork the repo, pass `--folder <yourFolderId>` to publish into your own Drive folder, or `--root "Your Folder Name"` to look up by name.
+**What the dry-run shows:** the dry-run prints the *plan* — for each file it lists
+the source path, the destination filename, the file size, the destination folder
+URL, and a `PERSONAL-DATA` flag. It does **not** print the file contents, so it is
+not a substitute for opening a file to confirm what is inside it. The
+`PERSONAL-DATA` flag will read `NO` for every file the publisher is willing to
+upload; anything that would carry personal data is refused outright (and never
+appears as an upload at all).
+
+A live publish additionally runs `bun run seed privacy-scan` first and aborts if
+that scan finds anything to review.
+
+If you fork the repo, pass `--folder <yourFolderId>` to publish into your own Drive folder, or `--root "Your Folder Name"` to look up by name. The personal-file refusal and the privacy gate apply to forks too.
 
 If the `gog` CLI is unavailable or you cannot get edit access, fall back to the manual upload mapping below.
 
@@ -84,7 +106,7 @@ Digital Seed — Public Starter Kit/
 │   ├── Integration Recipes.md
 │   ├── Dashboard Options.md
 │   └── Known Alpha Limits.md
-├── 03 Templates/
+├── 03 Templates/          # pristine blank scaffolds — NOT your filled-in user/*.md
 │   ├── USER.template.md
 │   ├── COMPASS.template.md
 │   ├── GOALS.template.md
@@ -112,6 +134,10 @@ Digital Seed — Public Starter Kit/
 
 ## Must exclude
 
+- **your filled-in `user/*.md` files** (`USER`, `GOALS`, `MEMORY`, `PREFERENCES`,
+  `COMPASS`, `DOMAINS`, `ANTI-GOALS`) — these are your personal context and the
+  publisher refuses them; the data room ships only the pristine
+  `docs/data-room/templates/*.template.md` scaffolds
 - institution-specific workshop files
 - classroom, learning, mentor, or user material
 - private personal examples
@@ -166,14 +192,14 @@ If you cannot use the publisher script, recreate the folder layout above and upl
   docs/dashboard-options.md               → Dashboard Options.md
   docs/known-alpha-limits.md              → Known Alpha Limits.md
 
-03 Templates/
-  user/USER.md         → USER.template.md
-  user/COMPASS.md      → COMPASS.template.md
-  user/GOALS.md        → GOALS.template.md
-  user/DOMAINS.md      → DOMAINS.template.md
-  user/PREFERENCES.md  → PREFERENCES.template.md
-  user/ANTI-GOALS.md   → ANTI-GOALS.template.md
-  user/MEMORY.md       → MEMORY.template.md
+03 Templates/   # pristine blank scaffolds ONLY — never upload your filled-in user/*.md
+  docs/data-room/templates/USER.template.md        → USER.template.md
+  docs/data-room/templates/COMPASS.template.md     → COMPASS.template.md
+  docs/data-room/templates/GOALS.template.md       → GOALS.template.md
+  docs/data-room/templates/DOMAINS.template.md     → DOMAINS.template.md
+  docs/data-room/templates/PREFERENCES.template.md → PREFERENCES.template.md
+  docs/data-room/templates/ANTI-GOALS.template.md  → ANTI-GOALS.template.md
+  docs/data-room/templates/MEMORY.template.md      → MEMORY.template.md
 
 04 Recipes/
   recipes/README.md                            → Recipes Overview.md

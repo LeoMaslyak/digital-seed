@@ -81,13 +81,18 @@ const MANIFEST: ManifestEntry[] = [
   { folder: "02 Guides", driveName: "Known Alpha Limits.md", source: "docs/known-alpha-limits.md" },
 
   // 03 Templates
-  { folder: "03 Templates", driveName: "USER.template.md", source: "user/USER.md" },
-  { folder: "03 Templates", driveName: "COMPASS.template.md", source: "user/COMPASS.md" },
-  { folder: "03 Templates", driveName: "GOALS.template.md", source: "user/GOALS.md" },
-  { folder: "03 Templates", driveName: "DOMAINS.template.md", source: "user/DOMAINS.md" },
-  { folder: "03 Templates", driveName: "PREFERENCES.template.md", source: "user/PREFERENCES.md" },
-  { folder: "03 Templates", driveName: "ANTI-GOALS.template.md", source: "user/ANTI-GOALS.md" },
-  { folder: "03 Templates", driveName: "MEMORY.template.md", source: "user/MEMORY.md" },
+  // IMPORTANT: these MUST point at the pristine scaffolds in docs/data-room/templates/,
+  // NEVER at the live user/*.md files. The user/ files hold real personal context (and
+  // some are gitignored). Sourcing public "templates" from user/ would publish a person's
+  // identity, goals, and AI memory to the "anyone with the link" data room. See the
+  // hard refusal in publishEntry() and the privacy gate in main().
+  { folder: "03 Templates", driveName: "USER.template.md", source: "docs/data-room/templates/USER.template.md" },
+  { folder: "03 Templates", driveName: "COMPASS.template.md", source: "docs/data-room/templates/COMPASS.template.md" },
+  { folder: "03 Templates", driveName: "GOALS.template.md", source: "docs/data-room/templates/GOALS.template.md" },
+  { folder: "03 Templates", driveName: "DOMAINS.template.md", source: "docs/data-room/templates/DOMAINS.template.md" },
+  { folder: "03 Templates", driveName: "PREFERENCES.template.md", source: "docs/data-room/templates/PREFERENCES.template.md" },
+  { folder: "03 Templates", driveName: "ANTI-GOALS.template.md", source: "docs/data-room/templates/ANTI-GOALS.template.md" },
+  { folder: "03 Templates", driveName: "MEMORY.template.md", source: "docs/data-room/templates/MEMORY.template.md" },
 
   // 04 Recipes
   { folder: "04 Recipes", driveName: "Recipes Overview.md", source: "recipes/README.md" },
@@ -135,6 +140,51 @@ function argValue(name: string): string | undefined {
   const idx = args.indexOf(name);
   if (idx < 0 || idx === args.length - 1) return undefined;
   return args[idx + 1];
+}
+
+/**
+ * Personal-data guard.
+ *
+ * The public data room is shared "anyone with the link, viewer." Never source a
+ * published file from the user's live personal context. This matches both the
+ * `user/` directory and the specific gitignored personal files the project labels
+ * "personal, never committed" (see `.gitignore`: USER/GOALS/MEMORY/PREFERENCES),
+ * regardless of where they live. Returns a human-readable reason if the source is
+ * personal, or null if it is safe to publish.
+ */
+const PERSONAL_SOURCE_PATTERNS: RegExp[] = [
+  // Anything under the user/ context directory.
+  /(^|\/)user\//i,
+  // The gitignored personal files by name, wherever they appear.
+  /(^|\/)(USER|GOALS|MEMORY|PREFERENCES|COMPASS|DOMAINS|ANTI-GOALS)\.md$/i,
+];
+
+function personalDataReason(source: string): string | null {
+  const normalized = source.replace(/\\/g, "/");
+  for (const rx of PERSONAL_SOURCE_PATTERNS) {
+    if (rx.test(normalized)) {
+      return `source "${source}" looks like live personal context (matched ${rx})`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Run the project's privacy scan as a hard gate before any live publish.
+ * `bun run seed privacy-scan` exits non-zero when it finds private leftovers
+ * (the same gate release-check.ts uses). We refuse to upload anything if it fails.
+ */
+function privacyScanPasses(): boolean {
+  try {
+    execFileSync("bun", ["run", "seed", "privacy-scan"], {
+      cwd: ROOT,
+      encoding: "utf-8",
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function gog(subcmd: string[]): string {
@@ -197,8 +247,8 @@ function ensureFolder(parent: string, name: string): string {
 
 function uploadFile(parent: string, localPath: string, driveName: string): string {
   if (flags.dryRun) {
-    const size = statSync(localPath).size;
-    console.log(`  [dry-run] would upload ${localPath} -> ${driveName} (${size} bytes)`);
+    // The per-entry dry-run line (name, PERSONAL-DATA flag, source, size, destination
+    // URL) is printed in publishEntry(); avoid a duplicate line here.
     return "<dry-run-file>";
   }
   const out = gog(["drive", "upload", localPath, "--parent", parent, "--name", driveName]);
@@ -237,10 +287,33 @@ function publishEntry(
   entry: ManifestEntry,
   existing: Array<{ id: string; name: string; type: string }>,
 ): "uploaded" | "skipped" | "failed" {
+  // Hard refusal: never publish live personal context to a public folder, even
+  // if a future manifest edit (or a forker) repoints a driveName back at user/*.md.
+  // This guard is the last line of defense and applies in dry-run too.
+  const personalReason = personalDataReason(entry.source);
+  if (personalReason) {
+    console.error(
+      `  ⛔ REFUSED ${entry.folder} / ${entry.driveName}: ${personalReason}.\n` +
+        `     Public data-room sources must NEVER be live personal files. Point this\n` +
+        `     entry at a pristine scaffold under docs/data-room/templates/ instead.`,
+    );
+    return "failed";
+  }
+
   const localPath = join(ROOT, entry.source);
   if (!existsSync(localPath)) {
     console.log(`  ⚠️  Missing local source: ${entry.source}`);
     return "skipped";
+  }
+
+  if (flags.dryRun) {
+    const size = statSync(localPath).size;
+    const destUrl =
+      folderId && folderId !== "<dry-run-folder>"
+        ? `https://drive.google.com/drive/folders/${folderId}`
+        : "(folder will be created on first live publish)";
+    console.log(`  → ${entry.driveName}  [PERSONAL-DATA: NO]  ← ${entry.source} (${size} bytes)`);
+    console.log(`      destination folder: ${destUrl}`);
   }
 
   const prior = existing.filter((c) => c.type === "file" && c.name === entry.driveName);
@@ -268,6 +341,36 @@ function main(): void {
   console.log(`Mode: ${flags.dryRun ? "DRY RUN" : "LIVE"}`);
   console.log(`Replace strategy: ${flags.replaceStrategy}${flags.strict ? " (strict)" : ""}`);
   if (flags.account) console.log(`Account: ${flags.account}`);
+
+  // Manifest self-check: never start with a manifest that would publish live
+  // personal context, even in dry-run. Fails closed.
+  const personalEntries = MANIFEST.filter((e) => personalDataReason(e.source) !== null);
+  if (personalEntries.length > 0) {
+    console.error(`\n⛔ Refusing to run: the manifest sources live personal data.`);
+    for (const e of personalEntries) {
+      console.error(`   - ${e.folder} / ${e.driveName}  ← ${e.source}`);
+    }
+    console.error(
+      `\n   Public data-room entries must point at pristine scaffolds under\n` +
+        `   docs/data-room/templates/, never at user/*.md. Fix the manifest and re-run.`,
+    );
+    process.exit(2);
+  }
+
+  // Privacy gate: before any LIVE upload, require the project privacy scan to pass.
+  // Dry-run is exempt (it uploads nothing) but still benefits from the manifest
+  // self-check above.
+  if (!flags.dryRun) {
+    console.log(`\nRunning privacy scan before publishing…`);
+    if (!privacyScanPasses()) {
+      console.error(
+        `\n⛔ Refusing to publish: privacy scan did not pass. Fix the reported items\n` +
+          `   (or run "bun run seed privacy-scan" to inspect) and re-run.`,
+      );
+      process.exit(2);
+    }
+    console.log(`Privacy scan passed; continuing with publish.\n`);
+  }
 
   const rootId = findRootFolder();
   console.log(`Root folder: ${flags.rootName}\n  https://drive.google.com/drive/folders/${rootId}\n`);
