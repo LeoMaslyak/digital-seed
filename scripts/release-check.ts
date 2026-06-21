@@ -188,6 +188,8 @@ runStep("Visual QA",             "bun", ["run", "seed", "visual-qa"]);
 runStep("Onboard (--plain)",     "bun", ["run", "seed", "onboard", "--plain"]);
 runStep("First prompt",          "bun", ["run", "seed", "first-prompt"]);
 runStep("What next",             "bun", ["run", "seed", "what-next"]);
+runStep("Unit tests",            "bun", ["test"]);
+runStep("Journey state",         "bun", ["run", "scripts/seed.ts", "guide", "--plain"]);
 runStep("Markdown link check",   "bun", ["run", "check:links"]);
 
 checkVersionConsistency();
