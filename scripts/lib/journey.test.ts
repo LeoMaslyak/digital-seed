@@ -86,3 +86,26 @@ test("readSignals reflects filled context", () => {
   const { readSignals } = require("./journey.ts");
   expect(readSignals(root).contextFilled).toBe(true);
 });
+
+import { completeStep, park } from "./journey.ts";
+
+test("completeStep advances phase only when all its steps are done", () => {
+  const root = tmpRoot();
+  loadJourney(root, NOW); // bootstrap fresh (phase 1)
+  let j = completeStep(root, 1, "context", NOW);
+  expect(j.phases["1"].status).toBe("in_progress"); // first-prompt still pending
+  expect(j.phases["1"].useful).toBe(true);
+  j = completeStep(root, 1, "first-prompt", NOW);
+  expect(j.phases["1"].status).toBe("done");
+  expect(j.currentPhase).toBe(2);
+  expect(j.phases["2"].status).toBe("in_progress");
+});
+
+test("park appends, dedupes case-insensitively, and persists", () => {
+  const root = tmpRoot();
+  loadJourney(root, NOW);
+  park(root, "Telegram bot", 3, NOW);
+  const j = park(root, "telegram BOT", 3, NOW); // duplicate
+  expect(j.parkingLot.length).toBe(1);
+  expect(j.parkingLot[0].idea).toBe("Telegram bot");
+});

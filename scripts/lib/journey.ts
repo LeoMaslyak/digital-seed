@@ -160,3 +160,40 @@ export function loadJourney(root: string, now: string): Journey {
   saveJourney(root, j);
   return j;
 }
+
+export function completeStep(root: string, phase: number, step: string, now: string): Journey {
+  const j = loadJourney(root, now);
+  const key = String(phase);
+  const ps: PhaseState =
+    j.phases[key] ?? (j.phases[key] = { status: "in_progress", useful: false, completedSteps: [] });
+  ps.completedSteps = Array.from(new Set([...(ps.completedSteps ?? []), step]));
+
+  const def = PHASES.find((x) => x.n === phase);
+  const allDone = def ? def.steps.every((s) => ps.completedSteps!.includes(s)) : false;
+  if (allDone) {
+    ps.status = "done";
+    ps.useful = true;
+    const next = j.phases[String(phase + 1)];
+    if (next && next.status === "locked") next.status = "in_progress";
+    if (j.currentPhase === phase && phase < 4) j.currentPhase = phase + 1;
+  } else {
+    ps.status = "in_progress";
+    ps.useful = ps.completedSteps!.length > 0;
+  }
+
+  j.focus = focusForPhase(j.currentPhase, j.phases);
+  j.updatedAt = now;
+  saveJourney(root, j);
+  return j;
+}
+
+export function park(root: string, idea: string, phase: number, now: string): Journey {
+  const j = loadJourney(root, now);
+  const norm = (s: string) => s.trim().toLowerCase();
+  if (!j.parkingLot.some((p) => norm(p.idea) === norm(idea))) {
+    j.parkingLot.push({ idea: idea.trim(), phase, noted: now });
+  }
+  j.updatedAt = now;
+  saveJourney(root, j);
+  return j;
+}
