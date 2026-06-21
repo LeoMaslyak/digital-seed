@@ -31,6 +31,7 @@ import { join, dirname } from "path";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "fs";
 import { detectActivityState, describeState } from "../core/src/activity-state.ts";
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
+import { loadJourney, loadGuidanceMap, nextStep, PHASES } from "./lib/journey.ts";
 
 const ROOT   = join(dirname(new URL(import.meta.url).pathname), "..");
 const args   = process.argv.slice(2);
@@ -473,36 +474,9 @@ function hasLocalIndex(): boolean {
 }
 
 function printWhatNext(): void {
-  const phase1Done = ["user/USER.md", "user/COMPASS.md", "user/GOALS.md"].every(nonEmptyFile);
-  if (!phase1Done) {
-    console.log("Next: bun run seed onboard --plain");
-    return;
-  }
-
-  const planPath = join(ROOT, "user", "MY-PLAN.md");
-  const indexExists = hasLocalIndex();
-  if (!existsSync(planPath)) {
-    console.log("Next: bun run seed first-prompt");
-    return;
-  }
-
-  let plan = "";
-  try { plan = readFileSync(planPath, "utf-8"); } catch { plan = ""; }
-  const checkedPhaseLines = plan.split(/\r?\n/).filter((line) => /^\s*- \[x\]/i.test(line));
-  const phaseTicked = (n: number) => checkedPhaseLines.some((line) => new RegExp(`phase\\s*${n}\\b`, "i").test(line));
-  const phase3Ticked = phaseTicked(3);
-
-  if (!indexExists) {
-    console.log("Next: bun run seed index <your-notes-folder>");
-    return;
-  }
-
-  if (phase3Ticked) {
-    console.log("Next: bun run seed recipe list");
-    return;
-  }
-
-  console.log("Next: use your agent to produce one weekly plan or next-action list from your Digital Seed context.");
+  const j = loadJourney(ROOT, new Date().toISOString());
+  const ns = nextStep(j, loadGuidanceMap(ROOT));
+  console.log(`Next: ${ns.focus}`);
 }
 
 function localSearch(query: string): void {
@@ -1006,6 +980,25 @@ else if (cmd === "intro") {
 else if (cmd === "first-prompt") { printFirstPrompt(); }
 else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") }); }
 else if (cmd === "what-next") { printWhatNext(); }
+else if (cmd === "guide") {
+  const plain = rest.includes("--plain");
+  const dimIf = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.dim}${t}${ANSI.reset}`);
+  const boldIf = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}`);
+  const j = loadJourney(ROOT, new Date().toISOString());
+  const ns = nextStep(j, loadGuidanceMap(ROOT));
+  const def = PHASES.find((p) => p.n === j.currentPhase);
+
+  console.log(boldIf(`You're in Phase ${j.currentPhase} of 4 — ${def?.title ?? ""}`));
+  const done = Object.entries(j.phases)
+    .filter(([, p]) => p.status === "done")
+    .map(([n]) => `Phase ${n}`);
+  if (done.length) console.log(dimIf(`  Done: ${done.join(", ")}`));
+  console.log(`\n  → Next: ${ns.focus}`);
+  if (ns.guidanceDocs.length) console.log(dimIf(`     Guide: ${ns.guidanceDocs.join(" · ")}`));
+  if (j.parkingLot.length) {
+    console.log(dimIf(`\n  Parked for later (${j.parkingLot.length}): ${j.parkingLot.map((p) => p.idea).join(", ")}`));
+  }
+}
 else if (cmd === "feedback") { printFeedback({ writeDraft: rest.includes("--write-draft") }); }
 else if (cmd === "privacy-scan") { privacyScan(); }
 else if (cmd === "visual-qa") {
