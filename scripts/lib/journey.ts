@@ -60,3 +60,41 @@ export function focusForPhase(phase: number, phases: Record<string, PhaseState>)
   }
   return FOCUS[phase] ?? FOCUS[1];
 }
+
+export interface Signals {
+  contextFilled: boolean; // user/USER.md, COMPASS.md, GOALS.md all non-empty
+  hasIndex: boolean;      // a local RAG index exists
+  phase3Ticked: boolean;  // MY-PLAN.md has a checked "Phase 3" line
+}
+
+export function deriveJourney(signals: Signals, now: string): Journey {
+  const phases = emptyPhases();
+  let currentPhase = 1;
+
+  if (signals.contextFilled) {
+    phases["1"] = { status: "done", useful: true, completedSteps: ["context"] };
+    phases["2"].status = "in_progress";
+    currentPhase = 2;
+  } else {
+    phases["1"].status = "in_progress";
+  }
+  if (signals.contextFilled && signals.hasIndex) {
+    phases["2"] = { status: "done", useful: true, completedSteps: ["index"] };
+    phases["3"].status = "in_progress";
+    currentPhase = 3;
+  }
+  if (signals.phase3Ticked) {
+    phases["3"] = { status: "done", useful: true, completedSteps: ["pick-recipe"] };
+    phases["4"].status = "in_progress";
+    currentPhase = 4;
+  }
+
+  return {
+    schemaVersion: 1,
+    currentPhase,
+    phases,
+    focus: focusForPhase(currentPhase, phases),
+    parkingLot: [],
+    updatedAt: now,
+  };
+}
