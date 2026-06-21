@@ -82,9 +82,37 @@ function stripAnchor(target: string): { path: string; anchor: string | null } {
   return { path: target.slice(0, hash), anchor: target.slice(hash + 1) };
 }
 
+/**
+ * Blank out fenced code blocks (``` / ~~~) and inline code spans, preserving
+ * newlines so reported line numbers stay accurate. Prevents link-like syntax
+ * inside code (e.g. a regex containing `](`) from being parsed as a real link.
+ */
+export function maskCode(text: string): string {
+  let inFence = false;
+  let fence = "";
+  return text
+    .split("\n")
+    .map((line) => {
+      const m = line.match(/^\s*(```|~~~)/);
+      if (m) {
+        if (!inFence) {
+          inFence = true;
+          fence = m[1];
+        } else if (line.trimStart().startsWith(fence)) {
+          inFence = false;
+          fence = "";
+        }
+        return " ".repeat(line.length);
+      }
+      if (inFence) return " ".repeat(line.length);
+      return line.replace(/`+[^`]*`+/g, (s) => " ".repeat(s.length));
+    })
+    .join("\n");
+}
+
 function checkFile(file: string): BrokenLink[] {
   const text = readFileSync(file, "utf-8");
-  const lines = text.split("\n");
+  const masked = maskCode(text);
   const fileDir = dirname(file);
   const broken: BrokenLink[] = [];
   const seen = new Set<string>();
@@ -97,9 +125,9 @@ function checkFile(file: string): BrokenLink[] {
   // Inline links
   const inlineRe = new RegExp(INLINE_LINK_RE.source, "g");
   let m: RegExpExecArray | null;
-  while ((m = inlineRe.exec(text)) !== null) {
+  while ((m = inlineRe.exec(masked)) !== null) {
     const target = m[1];
-    const upto = text.slice(0, m.index);
+    const upto = masked.slice(0, m.index);
     const line = upto.split("\n").length;
     hits.push({ line, target });
   }
@@ -107,9 +135,9 @@ function checkFile(file: string): BrokenLink[] {
   // Reference-style link definitions
   const refRe = new RegExp(REFERENCE_DEF_RE.source, "gm");
   let r: RegExpExecArray | null;
-  while ((r = refRe.exec(text)) !== null) {
+  while ((r = refRe.exec(masked)) !== null) {
     const target = r[1];
-    const upto = text.slice(0, r.index);
+    const upto = masked.slice(0, r.index);
     const line = upto.split("\n").length;
     hits.push({ line, target });
   }
