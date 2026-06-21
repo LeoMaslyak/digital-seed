@@ -50,7 +50,7 @@ function isPrivateIPv4(ip: string): boolean {
   if (a === 192 && b === 168) return true;        // RFC1918 192.168.0.0/16
   if (a === 169 && b === 254) return true;        // link-local + metadata 169.254.0.0/16
   if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT 100.64.0.0/10
-  if (a === 192 && b === 0) return true;          // 192.0.0.0/24 (incl. TEST-NET-1 192.0.2.0/24)
+  if (a === 192 && b === 0 && (parts[2] === 0 || parts[2] === 2)) return true; // 192.0.0.0/24 (IETF) + TEST-NET-1 192.0.2.0/24
   if (a === 198 && (b === 18 || b === 19)) return true;    // benchmark 198.18.0.0/15
   if (a === 198 && b === 51 && parts[2] === 100) return true; // TEST-NET-2 198.51.100.0/24
   if (a === 203 && b === 0 && parts[2] === 113) return true;  // TEST-NET-3 203.0.113.0/24
@@ -59,14 +59,33 @@ function isPrivateIPv4(ip: string): boolean {
   return false;
 }
 
+/**
+ * Extract the embedded IPv4 from a v4-mapped / v4-compatible IPv6 literal in any
+ * notation (dotted `::ffff:169.254.169.254`, hex `::ffff:a9fe:a9fe`, or expanded
+ * `0:0:0:0:0:ffff:a9fe:a9fe`), else null. Anchored to `^` so an ordinary IPv6
+ * such as `2001:db8::2:1` is NOT misread as embedding a v4.
+ */
+function embeddedV4(ipLower: string): string | null {
+  const m = ipLower.match(
+    /^(?:::ffff:|::|(?:0:){5}ffff:)((?:\d{1,3}\.){3}\d{1,3}|[0-9a-f]{1,4}:[0-9a-f]{1,4})$/,
+  );
+  if (!m) return null;
+  const tail = m[1];
+  if (tail.includes(".")) return tail;
+  const [hi, lo] = tail.split(":").map((h) => parseInt(h, 16));
+  return `${(hi >> 8) & 255}.${hi & 255}.${(lo >> 8) & 255}.${lo & 255}`;
+}
+
 function isPrivateIPv6(ip: string): boolean {
   const lower = ip.toLowerCase().split("%")[0]; // strip zone id (fe80::1%eth0)
 
   if (lower === "::" || lower === "::1") return true; // unspecified + loopback
 
-  // IPv4-mapped / -compatible (::ffff:169.254.169.254, ::127.0.0.1) — recurse on the v4 tail.
-  const v4Tail = lower.match(/(?:::ffff:|::)((?:\d{1,3}\.){3}\d{1,3})$/);
-  if (v4Tail) return isPrivateIPv4(v4Tail[1]);
+  // IPv4-mapped / -compatible: the v4 lives in the last 32 bits, written dotted
+  // (::ffff:169.254.169.254) OR hex (::ffff:a9fe:a9fe / expanded 0:0:..:ffff:..).
+  // Extract and check as v4 so no notation can smuggle a private/metadata IP past.
+  const embedded = embeddedV4(lower);
+  if (embedded) return isPrivateIPv4(embedded);
 
   // Expand to compare leading bits without a full parser.
   if (lower.startsWith("fe8") || lower.startsWith("fe9") ||

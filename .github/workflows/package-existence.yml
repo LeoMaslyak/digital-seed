@@ -12,6 +12,7 @@ on:
     paths:
       - "integrations/**/setup.md"
       - "mcp/servers.json"
+      - "mcp/README.md"
       - ".github/workflows/package-existence.yml"
   workflow_dispatch:
 
@@ -63,7 +64,7 @@ jobs:
           # From recipe markdown: any args array element after "-y" that looks like
           # a concrete package (starts with @scope/ or a bare lowercase name), and
           # any `npx -y <name>` / `npx <name>` in fenced commands.
-          for f in integrations/*/setup.md; do
+          for f in integrations/*/setup.md mcp/README.md; do
             [ -f "$f" ] || continue
             # "-y", "<name>..." inside JSON args arrays
             grep -oE '"-y"[[:space:]]*,[[:space:]]*"[^"]+"' "$f" \

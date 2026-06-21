@@ -229,9 +229,15 @@ function generateCronEntries(tasks: ScheduledTask[], root: string): string {
 
 /** Read the current crontab; returns "" if none (or crontab unavailable). */
 function readCurrentCrontab(): string {
-  const res = safeExec("crontab", ["-l"]);
-  // `crontab -l` exits non-zero when there is no crontab yet — treat as empty.
-  return res.exitCode === 0 ? res.stdout : "";
+  try {
+    const res = safeExec("crontab", ["-l"]);
+    // `crontab -l` exits non-zero when there is no crontab yet — treat as empty.
+    return res.exitCode === 0 ? res.stdout : "";
+  } catch {
+    // `crontab` binary not installed (Docker/minimal distros) — treat as empty
+    // so the caller can fall back to printing the block instead of crashing.
+    return "";
+  }
 }
 
 /** Remove any previously-installed digital-seed block from a crontab body. */
@@ -267,7 +273,13 @@ function installLinux(tasks: ScheduledTask[]): void {
   const preserved = stripOurBlock(existing).replace(/\n+$/, "");
   const merged = (preserved ? preserved + "\n\n" : "") + block + "\n";
 
-  const res = safeExec("crontab", ["-"], { input: merged });
+  let res;
+  try {
+    res = safeExec("crontab", ["-"], { input: merged });
+  } catch (e) {
+    // `crontab` binary missing — route to the append-safe printed fallback below.
+    res = { exitCode: 1, stdout: "", stderr: (e as Error)?.message ?? "crontab not available" };
+  }
   if (res.exitCode === 0) {
     console.log("\n✅ Installed digital-seed cron jobs (existing jobs preserved).\n");
     console.log("   Inspect:   crontab -l");

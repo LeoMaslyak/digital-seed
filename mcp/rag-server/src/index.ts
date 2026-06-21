@@ -462,6 +462,14 @@ function discoverFiles(
   }
   if (!existsSync(fullPath)) return [];
 
+  // Don't follow a symlink given as the direct target either — the walk-level
+  // guard only covers nested entries, but a symlinked target could point outside
+  // ROOT (resolveUnderRoot validated only the link's own lexical path).
+  if (lstatSync(fullPath).isSymbolicLink()) {
+    console.error(`rag_index: refusing to follow symlink target: ${targetPath}`);
+    return [];
+  }
+
   const stat = statSync(fullPath);
   if (stat.isFile()) {
     if (config.fileTypes.includes(extname(fullPath))) return [fullPath];

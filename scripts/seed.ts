@@ -554,10 +554,9 @@ function localSearch(query: string): void {
 }
 
 function preCommitHookBody(): string {
-  // Patterns require an actual key-shaped suffix so that documentation
-  // mentioning the prefix (e.g., in SECURITY.md or this hook source) does not
-  // trigger the block. Only +-added lines are scanned, so a deletion does not
-  // re-flag a removed reference.
+  // Canonical secret-shape set — kept identical to setup.sh's installed hook and
+  // the privacy scan so the kit has ONE secret-pattern source of truth. Only
+  // +-added lines are scanned, so a deletion never re-flags a removed reference.
   return `#!/usr/bin/env bash
 # Digital Seed pre-commit secret-scan hook.
 # Installed by: bun run seed hooks install
@@ -566,14 +565,21 @@ function preCommitHookBody(): string {
 ADDED=$(git diff --cached --diff-filter=ACM | grep '^+' | grep -v '^+++')
 if [ -z "$ADDED" ]; then exit 0; fi
 
+# POSIX ERE (grep -E). Covers provider keys, GitHub PAT/OAuth, DB/connection
+# strings with inline credentials, OAuth client secrets, Slack, AWS, Telegram,
+# and PEM private keys.
 PATTERNS=(
-  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*.*sk-[A-Za-z0-9_-]{20,}'
-  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*.*sk-[A-Za-z0-9_-]{20,}'
-  'GOOGLE_API_KEY[[:space:]]*=[[:space:]]*.*AI[A-Za-z0-9_-]{20,}'
-  'sk-ant-[A-Za-z0-9_-]{24,}'
-  'sk-proj-[A-Za-z0-9_-]{24,}'
+  'sk-[A-Za-z0-9_-]{20,}'
+  'sk-ant-[A-Za-z0-9-]{20,}'
+  'AIza[0-9A-Za-z_-]{30,}'
   'ghp_[A-Za-z0-9]{30,}'
-  'BEGIN (RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY'
+  'gho_[A-Za-z0-9]{30,}'
+  '[a-z][a-z0-9+.-]*://[^[:space:]:@/]+:[^[:space:]@/]+@'
+  '"client_secret"[[:space:]]*:[[:space:]]*"[^"]+"'
+  'xox[baprs]-[A-Za-z0-9-]{10,}'
+  'AKIA[0-9A-Z]{16}'
+  '[0-9]{6,}:[A-Za-z0-9_-]{30,}'
+  '-----BEGIN [A-Z ]*PRIVATE KEY-----'
 )
 
 for pattern in "\${PATTERNS[@]}"; do

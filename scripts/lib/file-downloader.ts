@@ -9,6 +9,7 @@ import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { join, basename } from "path";
 import { Writable } from "stream";
 import { safeExec, commandExists, sanitizeFilename } from "./safe-exec.ts";
+import { assertSafeUrl } from "./net-guard.ts";
 
 export interface DownloadOptions {
   timeout?: number;       // ms, default 60000
@@ -75,6 +76,9 @@ export async function downloadFile(
   const timer = setTimeout(() => controller.abort(), opts.timeout ?? DEFAULT_TIMEOUT);
 
   try {
+    // SSRF guard: reject non-http(s) and loopback/RFC1918/link-local/metadata
+    // targets before fetching (same guard the web fetch/scrape paths use).
+    await assertSafeUrl(url);
     const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
 
