@@ -20,11 +20,28 @@ import { join } from "path";
 // Types
 // ---------------------------------------------------------------------------
 
+/**
+ * Outcomes:
+ *   approved  — a HUMAN explicitly approved the action (the ONLY outcome that
+ *               builds confidence / can lead to promotion).
+ *   rejected  — a human rejected it.
+ *   modified  — a human changed it before accepting.
+ *   auto-ran  — the action ran autonomously and completed; this is NOT a human
+ *               approval and does NOT count toward the approval rate or
+ *               promotion. Recording success as "approved" would be a
+ *               self-approving loop (the system grading its own homework).
+ */
+export type PrecedentOutcome = "approved" | "rejected" | "modified" | "auto-ran";
+
+/** Where the outcome came from. Only "human" approvals build promotion confidence. */
+export type PrecedentSource = "human" | "auto";
+
 export interface PrecedentRecord {
   id: string;
   action: string;
   category: string;
-  outcome: "approved" | "rejected" | "modified";
+  outcome: PrecedentOutcome;
+  source: PrecedentSource;  // Provenance — only "human" outcomes are trusted for promotion
   timestamp: string;
   context?: string;
   confidence: number;  // Computed confidence at time of recording
@@ -55,8 +72,20 @@ export interface PrecedentSummary {
   promotedCategories: string[];
 }
 
-// Categories that should never be auto-promoted regardless of approval rate
+// Categories that should never be auto-promoted regardless of approval rate.
+//
+// These must match the autonomy config category names (see config/autonomy.yaml
+// and core/src/autonomy.ts getDefaultConfig) or the guard is a no-op. The
+// generic action names below (email-send, payment, …) are kept as belt-and-
+// braces in case callers pass action-level categories, but the LIVE config
+// categories are the ones that actually gate promotion.
 const HIGH_RISK_CATEGORIES = new Set([
+  // Live autonomy config categories that can touch the outside world / mutate state:
+  "email-triage",        // reads inbox; any send/label path is externally visible
+  "memory-maintenance",  // rewrites durable MEMORY.md — re-read every session
+  "research-updates",    // fetches untrusted web content
+  "daily-digest",        // can POST to a user-set webhook
+  // Generic action-level names (defensive — match if a caller uses them):
   "email-send",
   "file-delete",
   "external-api",
@@ -77,23 +106,43 @@ const PROMOTE_MIN_SAMPLES = 8;
 // ---------------------------------------------------------------------------
 
 /**
- * Record the outcome of an autonomous action.
+ * Record the outcome of an action.
+ *
+ * Provenance is enforced here: only outcomes that come from a REAL human
+ * (`source: "human"`) are trusted. An `"approved"` outcome with a non-human
+ * source is NOT a human approval — it is just an autonomous run that
+ * completed — so it is downgraded to `"auto-ran"`, which does not count toward
+ * the approval rate or promotion. This closes the self-approving loop where a
+ * task that was merely *permitted and queued* recorded itself as "approved" and
+ * thereby escalated its own autonomy.
+ *
+ * `source` DEFAULTS to `"auto"` so any caller that does not explicitly assert a
+ * human approval cannot accidentally manufacture one.
  */
 export function recordOutcome(
   root: string,
   action: string,
   category: string,
-  outcome: "approved" | "rejected" | "modified",
-  context?: string
+  outcome: PrecedentOutcome,
+  context?: string,
+  source: PrecedentSource = "auto"
 ): PrecedentRecord {
   const records = loadPrecedents(root);
   const confidence = computeConfidence(records, category);
+
+  // Provenance gate: an "approved" outcome only counts if a human actually
+  // approved it. Anything else recorded as "approved" is reclassified.
+  let effectiveOutcome = outcome;
+  if (outcome === "approved" && source !== "human") {
+    effectiveOutcome = "auto-ran";
+  }
 
   const record: PrecedentRecord = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     action,
     category,
-    outcome,
+    outcome: effectiveOutcome,
+    source,
     timestamp: new Date().toISOString(),
     context,
     confidence,
@@ -102,6 +151,21 @@ export function recordOutcome(
   records.push(record);
   savePrecedents(root, records);
   return record;
+}
+
+/**
+ * Convenience: record a genuine human approval/rejection/modification.
+ * This is the ONLY path that produces promotion-eligible "approved" records.
+ * Use this from interactive flows where the live user actually confirmed.
+ */
+export function recordHumanDecision(
+  root: string,
+  action: string,
+  category: string,
+  outcome: "approved" | "rejected" | "modified",
+  context?: string
+): PrecedentRecord {
+  return recordOutcome(root, action, category, outcome, context, "human");
 }
 
 /**
@@ -114,7 +178,9 @@ export function checkPrecedent(
   category: string
 ): PrecedentCheck {
   const records = loadPrecedents(root);
-  const categoryRecords = records.filter((r) => r.category === category);
+  // Only real human decisions count toward trust — autonomous "auto-ran"
+  // outcomes are excluded so the system cannot vouch for itself.
+  const categoryRecords = humanDecisions(records, category);
 
   if (categoryRecords.length === 0) {
     return {
@@ -122,7 +188,7 @@ export function checkPrecedent(
       recommendation: "ask",
       sampleCount: 0,
       approvalRate: 0,
-      reason: "No precedent history for this category",
+      reason: "No human-approval history for this category",
     };
   }
 
@@ -162,11 +228,17 @@ export function checkPrecedent(
 }
 
 /**
- * Check if a category qualifies for autonomy promotion.
- * Promotes off→notify or notify→auto.
- * Never auto-promotes high-risk categories.
+ * Check whether a category has earned an autonomy-promotion SUGGESTION
+ * (off→notify or notify→auto), based on real human approvals only.
  *
- * Returns the new level if promoted, null otherwise.
+ * IMPORTANT: this function is ADVISORY. It never writes config and never
+ * changes what the agent is allowed to do — it returns a recommendation a human
+ * must explicitly accept before any autonomy level actually changes. Promotion
+ * must remain a human decision; the system must not silently widen its own
+ * permissions. High-risk categories are never even suggested.
+ *
+ * Returns `{ promoted: true, from, to }` only when a human-approval track record
+ * justifies SUGGESTING the next level.
  */
 export function autoPromote(
   root: string,
@@ -177,12 +249,14 @@ export function autoPromote(
   }
 
   const records = loadPrecedents(root);
-  const categoryRecords = records.filter((r) => r.category === category);
+  // Only genuine human approvals justify a promotion suggestion. Autonomous
+  // "auto-ran" outcomes are excluded so the system can't promote itself.
+  const categoryRecords = humanDecisions(records, category);
 
   if (categoryRecords.length < PROMOTE_MIN_SAMPLES) {
     return {
       promoted: false,
-      reason: `Insufficient samples: ${categoryRecords.length}/${PROMOTE_MIN_SAMPLES}`,
+      reason: `Insufficient human approvals: ${categoryRecords.length}/${PROMOTE_MIN_SAMPLES}`,
     };
   }
 
@@ -237,16 +311,20 @@ export function getPrecedentStats(root: string): PrecedentSummary {
   }
 
   const categories: CategoryStats[] = Object.entries(byCategory).map(([category, recs]) => {
-    const approved = recs.filter((r) => r.outcome === "approved").length;
-    const rejected = recs.filter((r) => r.outcome === "rejected").length;
-    const modified = recs.filter((r) => r.outcome === "modified").length;
-    const approvalRate = recs.length > 0 ? approved / recs.length : 0;
+    // Approval rate and promotion eligibility are computed from HUMAN decisions
+    // only — autonomous "auto-ran" records are not approvals and must not count.
+    const decisions = humanDecisions(records, category);
+    const approved = decisions.filter((r) => r.outcome === "approved").length;
+    const rejected = decisions.filter((r) => r.outcome === "rejected").length;
+    const modified = decisions.filter((r) => r.outcome === "modified").length;
+    const approvalRate = decisions.length > 0 ? approved / decisions.length : 0;
     const confidence = computeConfidence(records, category);
     const canPromote =
       !HIGH_RISK_CATEGORIES.has(category) &&
       approvalRate >= PROMOTE_APPROVAL_RATE &&
-      recs.length >= PROMOTE_MIN_SAMPLES;
+      decisions.length >= PROMOTE_MIN_SAMPLES;
 
+    // `total` reports all recorded activity (including auto-ran) for visibility.
     return { category, total: recs.length, approved, rejected, modified, approvalRate, confidence, canPromote };
   });
 
@@ -299,21 +377,35 @@ function savePrecedents(root: string, records: PrecedentRecord[]): void {
 // ---------------------------------------------------------------------------
 
 /**
+ * Records for a category that represent a real HUMAN decision.
+ *
+ * Only human-sourced approve/reject/modify outcomes are evidence of trust.
+ * Autonomous successes ("auto-ran") are excluded entirely — they are neither
+ * approvals nor rejections, just things the system did on its own, and must
+ * never inflate (or deflate) the approval rate that gates promotion.
+ */
+function humanDecisions(records: PrecedentRecord[], category: string): PrecedentRecord[] {
+  return records.filter(
+    (r) => r.category === category && r.source === "human" && r.outcome !== "auto-ran"
+  );
+}
+
+/**
  * Compute confidence for a category based on sample size and consistency.
  *
  * Uses a simple Bayesian-inspired formula:
  *   confidence = approvalRate × (1 - 1/(sampleCount + 1))
  *
- * This rewards both high approval rates AND sufficient sample sizes.
- * With 0 samples → 0, with 8 samples at 100% → ~0.89, with 20 at 95% → ~0.90.
+ * Only genuine human decisions count. This rewards both high approval rates AND
+ * sufficient sample sizes. With 0 human decisions → 0.
  */
 function computeConfidence(records: PrecedentRecord[], category: string): number {
-  const categoryRecords = records.filter((r) => r.category === category);
-  if (categoryRecords.length === 0) return 0;
+  const decisions = humanDecisions(records, category);
+  if (decisions.length === 0) return 0;
 
-  const approved = categoryRecords.filter((r) => r.outcome === "approved").length;
-  const approvalRate = approved / categoryRecords.length;
-  const sampleFactor = 1 - 1 / (categoryRecords.length + 1);
+  const approved = decisions.filter((r) => r.outcome === "approved").length;
+  const approvalRate = approved / decisions.length;
+  const sampleFactor = 1 - 1 / (decisions.length + 1);
 
   return approvalRate * sampleFactor;
 }

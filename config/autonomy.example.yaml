@@ -8,6 +8,17 @@
 #
 # Start conservative (everything off), then enable what you trust.
 # Change notify → auto once you've seen it work a few times.
+#
+# VISIBILITY GUARANTEE: the level you set here is the FLOOR for how visible an
+# action is. The system must never silently downgrade `notify` to `auto` (e.g.
+# while you are "sleeping") — a notify action you don't see in real time should
+# be QUEUED and surfaced when you return, never dropped. If you want an action
+# to run without a notification, set it to `auto` yourself.
+#
+# Autonomy is never widened automatically. Precedent learning may SUGGEST raising
+# a level after repeated REAL human approvals, but the change only takes effect
+# when you explicitly accept it. Approvals are counted only from your own
+# confirmations — the system cannot approve its own actions into a higher tier.
 
 # ── Email ────────────────────────────────────────────────────────────────────
 # Classify and prioritise your inbox (does NOT send emails)

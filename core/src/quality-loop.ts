@@ -161,7 +161,7 @@ Respond in JSON only:
         passed: score >= threshold,
       };
     } catch {
-      return passByDefault("llm-judge");
+      return failClosed("llm-judge");
     }
   };
 }
@@ -207,7 +207,7 @@ Respond in JSON only:
         passed: score >= threshold,
       };
     } catch {
-      return passByDefault("fact-check");
+      return failClosed("fact-check");
     }
   };
 }
@@ -297,11 +297,20 @@ function clamp(n: number): number {
   return Math.min(1, Math.max(0, n));
 }
 
-function passByDefault(evaluator: string): QualityScore {
+/**
+ * Fail CLOSED when an evaluator's output can't be parsed.
+ *
+ * An unparseable evaluation is an evaluation FAILURE, not a pass — we have no
+ * evidence the output is good. Returning passed:true here would let any garbled
+ * or injected evaluator response wave low-quality (or attacker-influenced)
+ * content through. Instead we score 0 and flag for human review so the quality
+ * loop retries (or the caller surfaces it) rather than silently delivering.
+ */
+function failClosed(evaluator: string): QualityScore {
   return {
-    score: 0.75,
-    feedback: "Evaluation could not be parsed — passing by default.",
+    score: 0,
+    feedback: "Evaluation could not be parsed — failing closed; flag for review.",
     evaluator,
-    passed: true,
+    passed: false,
   };
 }
