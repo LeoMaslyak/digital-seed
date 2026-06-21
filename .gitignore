@@ -2,16 +2,16 @@
 .env
 .env.*
 config/config.yaml
+.claude/settings.json
+config/digest.yaml
 
 # User data (personal, never committed)
-user/USER.md
-user/GOALS.md
-user/MEMORY.md
-user/PREFERENCES.md
-# Starter templates that SHOULD be committed
-!user/COMPASS.md
-!user/ANTI-GOALS.md
-!user/DOMAINS.md
+# Ignore the entire user/ tree, then allow-list ONLY the pristine templates
+# and this directory's README. Live personal files the kit fills in place
+# (USER/GOALS/MEMORY/PREFERENCES/COMPASS/DOMAINS/ANTI-GOALS) stay ignored.
+user/**
+!user/README.md
+!user/**/*.template.md
 
 # Runtime data
 data/

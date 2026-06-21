@@ -1,0 +1,20 @@
+# Digital Seed Daily Digest Configuration
+#
+# Copy this file to config/digest.yaml (which is gitignored) and fill in your
+# own values. NEVER commit a real webhook URL: webhook URLs commonly embed a
+# secret token in the path, so a committed digest.yaml leaks that token.
+# Keep config/digest.yaml out of git and out of any export/share bundle.
+enabled: true
+schedule: "21:00"   # 24h local time
+
+delivery:
+  file:
+    enabled: true
+    path: logs/digests
+  telegram:
+    enabled: false
+    webhookUrl: ""  # set your webhook URL in config/digest.yaml (gitignored) — never here
+  email:
+    enabled: false
+    address: ""
+    webhookUrl: ""

@@ -19,7 +19,7 @@
  *   status               Activity state + offline mode
  *
  *   learn    <owner/repo> Index a GitHub repo       (→ repo-bot learn)
- *   search   <query>     Search all indexed repos  (→ repo-bot search-all)
+ *   search   <query>     Search your local indexed notes/docs (→ localSearch)
  *
  *   task     <name>      Run an autonomous task    (→ run-task)
  *   tokens               Token usage report        (→ token-report)
@@ -328,27 +328,67 @@ function printFirstPrompt(): void {
   console.log(footer);
 }
 
+const USER_CONTEXT_FILES = [
+  "USER", "GOALS", "MEMORY", "PREFERENCES", "COMPASS", "DOMAINS", "ANTI-GOALS",
+];
+
+/**
+ * Materialize the personal context files a fresh clone needs. The whole user/
+ * tree is git-ignored, so on a new checkout user/*.md do not exist; copy each
+ * from its pristine template in docs/data-room/templates/ when missing. Never
+ * overwrites an existing (possibly edited) file.
+ */
+function materializeUserContext(): string[] {
+  const created: string[] = [];
+  for (const name of USER_CONTEXT_FILES) {
+    const dest = join(ROOT, "user", `${name}.md`);
+    if (existsSync(dest)) continue;
+    const tpl = join(ROOT, "docs", "data-room", "templates", `${name}.template.md`);
+    if (!existsSync(tpl)) continue;
+    try {
+      mkdirSync(dirname(dest), { recursive: true });
+      writeFileSync(dest, readFileSync(tpl, "utf-8"), "utf-8");
+      created.push(`user/${name}.md`);
+    } catch { /* best-effort; `seed doctor` will surface anything still missing */ }
+  }
+  return created;
+}
+
 function privacyScan(): void {
-  const denyTerms = [
-    "IE" + "SE",
-    "D&" + "AI",
-    "Leo" + " M",
-    "Co" + "hort",
-    "PE" + " career",
-    "bu" + "lge" + "-bracket",
-    "Ex" + "change",
-  ];
-  const escapeRegExp = (term: string) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Canonical secret regex set (shared shape with the pre-commit hook and the
+  // collab boundary scanner). These match secret SHAPES, not the repo author's
+  // personal identity — a user's name/employer/school can never be hardcoded
+  // here, so the previous author deny-list was removed entirely.
   const risky = [
-    ...denyTerms.map((term) => new RegExp(`\\b${escapeRegExp(term)}\\b`, "i")),
     /passport\s*[:=]/i,
     /(?:email|mail)\s*[:=]\s*[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i,
     /(?:phone|mobile|tel)\s*[:=]\s*\+?\d[\d\s().-]{8,}\d/i,
+    // provider keys
+    /sk-ant-[A-Za-z0-9-]{20,}/,
+    /sk-[A-Za-z0-9_-]{20,}/,
+    /AIza[0-9A-Za-z_-]{30,}/,
     /ghp_[A-Za-z0-9_]+/,
-    /sk-[A-Za-z0-9]{20,}/,
-    /BEGIN (RSA|OPENSSH) PRIVATE KEY/,
+    /gho_[A-Za-z0-9_]+/,
+    // DB / connection strings with inline credentials
+    /(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis|amqp):\/\/[^\s:@/]+:[^\s@/]+@/i,
+    // OAuth client secret JSON
+    /"client_secret"\s*:\s*"[^"]+"/,
+    // Slack tokens
+    /xox[baprs]-[A-Za-z0-9-]{10,}/,
+    // AWS access key id
+    /AKIA[0-9A-Z]{16}/,
+    // Telegram bot token
+    /[0-9]{6,}:[A-Za-z0-9_-]{30,}/,
+    // PEM private keys
+    /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
     /(api[_-]?key|secret|token)\s*[:=]\s*[\'"][^\'"]{8,}/i,
   ];
+  // Skip a match when the captured value is an obvious example/placeholder — the
+  // kit's own docs and *.example files legitimately show forms like
+  // `postgresql://user:pass@host` or `<password>`; those are not leaks. We only
+  // flag a file when a pattern has at least one NON-placeholder match.
+  const PLACEHOLDER =
+    /<[^>]*>|\{\{|\byour[-_ ]?(?:user|name|pass|password|secret|token|key|api)\b|user:pass|username:password|\bUSERNAME\b|\bPASSWORD\b|change[-_ ]?me|replace[-_ ]?me|example\.com|\bxxx+\b|\.\.\./i;
   const allow = ["docs/hostile-audit-2026-05-10.md"];
   const hits: string[] = [];
   for (const file of walkFiles(ROOT)) {
@@ -357,39 +397,32 @@ function privacyScan(): void {
     let text = "";
     try { text = readFileSync(file, "utf-8"); } catch { continue; }
     for (const rx of risky) {
-      if (rx.test(text)) { hits.push(`${rel}: ${rx}`); break; }
-    }
-  }
-
-  // Extra check: tracked user/*.md templates that look filled-in.
-  // Heuristic only — flags lines like "Name: Real Name" or "Email: ..." in any
-  // user/*.md template still in the working tree. False positives are fine;
-  // the check is meant as a "did you mean to commit this?" nudge before pushing.
-  const trackedTemplates = ["user/COMPASS.md", "user/ANTI-GOALS.md", "user/DOMAINS.md"];
-  const fillIndicators = [
-    /^\s*-\s*\*\*Name:\*\*\s+\S/i,
-    /^\s*-\s*Name:\s+\S/i,
-    /^\s*-\s*Email:\s+\S/i,
-    /^\s*-\s*Phone:\s+\S/i,
-    /^\s*-\s*\*\*Email:\*\*\s+\S/i,
-    /^\s*-\s*\*\*Phone:\*\*\s+\S/i,
-  ];
-  const templateWarnings: string[] = [];
-  for (const rel of trackedTemplates) {
-    const full = join(ROOT, rel);
-    if (!existsSync(full)) continue;
-    let text = "";
-    try { text = readFileSync(full, "utf-8"); } catch { continue; }
-    const lines = text.split(/\r?\n/);
-    for (const line of lines) {
-      if (fillIndicators.some((rx) => rx.test(line))) {
-        templateWarnings.push(`${rel}: looks filled in (e.g., '${line.trim().slice(0, 80)}')`);
-        break;
+      const g = new RegExp(rx.source, rx.flags.includes("g") ? rx.flags : rx.flags + "g");
+      let real = false;
+      for (const m of text.matchAll(g)) {
+        if (!PLACEHOLDER.test(m[0])) { real = true; break; }
       }
+      if (real) { hits.push(`${rel}: ${rx}`); break; }
     }
   }
 
-  if (hits.length === 0 && templateWarnings.length === 0) {
+  // Personal context files (USER/GOALS/MEMORY/PREFERENCES/COMPASS/DOMAINS/
+  // ANTI-GOALS) are git-ignored and must NEVER be committed — they are
+  // materialized from templates into the ignored user/ tree. If one was
+  // force-added to the index (`git add -f`), .gitignore no longer protects it
+  // and it would be published on push. Detect that directly instead of trusting
+  // .gitignore alone. (This replaces the old shape-based heuristic that only
+  // matched "Name:/Email:/Phone:" lines and so missed strategy/goals/project
+  // content entirely.)
+  const personalFiles = USER_CONTEXT_FILES.map((n) => `user/${n}.md`);
+  const templateChanges: string[] = [];
+  const ls = spawnSync("git", ["ls-files", "--", "user/"], { cwd: ROOT, encoding: "utf-8" });
+  if (ls.status === 0 && typeof ls.stdout === "string") {
+    const tracked = new Set(ls.stdout.split("\n").map((s) => s.trim()).filter(Boolean));
+    for (const rel of personalFiles) if (tracked.has(rel)) templateChanges.push(rel);
+  }
+
+  if (hits.length === 0 && templateChanges.length === 0) {
     console.log("✅ Privacy scan clean: no common private leftovers found.");
     return;
   }
@@ -398,17 +431,16 @@ function privacyScan(): void {
     for (const h of hits.slice(0, 50)) console.log(`  - ${h}`);
     if (hits.length > 50) console.log(`  …and ${hits.length - 50} more`);
   }
-  if (templateWarnings.length > 0) {
+  if (templateChanges.length > 0) {
     console.log("");
-    console.log("ℹ️  Tracked user/* templates that look filled in (warning, not blocking):");
-    for (const w of templateWarnings) console.log(`  - ${w}`);
+    console.log("❌ Personal context files are tracked by git (they must stay ignored):");
+    for (const c of templateChanges) console.log(`  - ${c}`);
     console.log("");
-    console.log("   These files are git-tracked starter templates. If you put real personal");
-    console.log("   content into one, decide whether to keep it private (move the content to");
-    console.log("   user/USER.md / GOALS.md / MEMORY.md / PREFERENCES.md, which are ignored)");
-    console.log("   or to reset the template to its starter form before pushing.");
+    console.log("   These hold your private data and would be published on push.");
+    console.log("   Remove them from the index (the file stays on disk):");
+    console.log("     git rm --cached <file>");
   }
-  if (hits.length > 0) process.exit(1);
+  if (hits.length > 0 || templateChanges.length > 0) process.exit(1);
 }
 
 
@@ -944,6 +976,11 @@ else if (cmd === "onboard" || cmd === "init") {
   if (rest.includes("--write-first-win")) {
     writeFirstWin({ force: rest.includes("--force") });
   } else {
+    const created = materializeUserContext();
+    if (created.length > 0) {
+      console.log(`📝 Created your personal context files from templates: ${created.join(", ")}`);
+      console.log("   They live under the git-ignored user/ tree — edit freely; they are never committed.\n");
+    }
     printOnboard({ plain: rest.includes("--plain") });
     if (!preCommitHookInstalled()) {
       console.log("");
