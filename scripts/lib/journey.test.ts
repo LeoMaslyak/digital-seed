@@ -109,3 +109,19 @@ test("park appends, dedupes case-insensitively, and persists", () => {
   expect(j.parkingLot.length).toBe(1);
   expect(j.parkingLot[0].idea).toBe("Telegram bot");
 });
+
+import { loadGuidanceMap, nextStep, deriveJourney as dj } from "./journey.ts";
+
+test("loadGuidanceMap falls back to defaults when no yaml present", () => {
+  const root = tmpRoot();
+  const map = loadGuidanceMap(root);
+  expect(map["2"]).toContain("docs/agent-chooser.md");
+});
+
+test("nextStep returns current phase focus + guidance docs", () => {
+  const j = dj({ contextFilled: true, hasIndex: false, phase3Ticked: false }, NOW); // phase 2
+  const ns = nextStep(j, loadGuidanceMap(tmpRoot()));
+  expect(ns.phase).toBe(2);
+  expect(ns.focus).toContain("index");
+  expect(ns.guidanceDocs).toContain("docs/agent-chooser.md");
+});

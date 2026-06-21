@@ -197,3 +197,35 @@ export function park(root: string, idea: string, phase: number, now: string): Jo
   saveJourney(root, j);
   return j;
 }
+
+export function loadGuidanceMap(root: string): Record<string, string[]> {
+  const defaults: Record<string, string[]> = {
+    "1": ["docs/first-15-minutes.md"],
+    "2": ["docs/phases.md", "docs/agent-chooser.md"],
+    "3": ["docs/phases.md"],
+    "4": ["docs/phases.md"],
+  };
+  try {
+    const data = loadYaml(readFileSync(join(root, "config/journey.yaml"), "utf-8")) as
+      | { phases?: Record<string, { guidance?: unknown }> }
+      | undefined;
+    const out: Record<string, string[]> = { ...defaults };
+    for (const [k, v] of Object.entries(data?.phases ?? {})) {
+      if (Array.isArray(v?.guidance)) out[String(k)] = v.guidance.map(String);
+    }
+    return out;
+  } catch {
+    return defaults;
+  }
+}
+
+export function nextStep(
+  j: Journey,
+  guidance: Record<string, string[]>,
+): { phase: number; focus: string; guidanceDocs: string[] } {
+  return {
+    phase: j.currentPhase,
+    focus: j.focus,
+    guidanceDocs: guidance[String(j.currentPhase)] ?? [],
+  };
+}
