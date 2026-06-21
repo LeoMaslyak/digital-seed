@@ -26,7 +26,7 @@ import {
   mkdirSync,
   writeFileSync,
 } from "fs";
-import { join, dirname, extname, relative } from "path";
+import { join, dirname, extname, relative, resolve, sep } from "path";
 import { createHash } from "crypto";
 
 const ROOT =
@@ -53,13 +53,21 @@ interface EmbeddingsConfig {
   chunkOverlap: number;
 }
 
-function loadEmbeddingsConfig(): EmbeddingsConfig {
+// Cloud embeddings (OpenAI) send your content off the machine. They are
+// OFF by default — even when OPENAI_API_KEY is set — and require an explicit
+// opt-in (RAG_EMBED_CLOUD=1) so private notes never leave the machine silently.
+function cloudOptIn(): boolean {
+  const v = (process.env.RAG_EMBED_CLOUD || "").toLowerCase();
+  return v === "1" || v === "true" || v === "yes";
+}
+
+async function loadEmbeddingsConfig(): Promise<EmbeddingsConfig> {
+  // Default to LOCAL (Ollama) regardless of key presence. Cloud requires opt-in.
+  const useCloud = cloudOptIn() && !!process.env.OPENAI_API_KEY;
   const defaults: EmbeddingsConfig = {
-    provider: process.env.OPENAI_API_KEY ? "openai" : "ollama",
-    model: process.env.OPENAI_API_KEY
-      ? "text-embedding-3-small"
-      : "nomic-embed-text",
-    dimensions: process.env.OPENAI_API_KEY ? 1536 : 768,
+    provider: useCloud ? "openai" : "ollama",
+    model: useCloud ? "text-embedding-3-small" : "nomic-embed-text",
+    dimensions: useCloud ? 1536 : 768,
     paths: ["user/", "patterns/", "data/"],
     fileTypes: [".md", ".txt", ".json", ".yaml", ".yml"],
     exclude: [
@@ -96,6 +104,18 @@ function loadEmbeddingsConfig(): EmbeddingsConfig {
 
   // Environment overrides
   if (process.env.OLLAMA_ENABLED === "true") {
+    defaults.provider = "ollama";
+    defaults.model = "nomic-embed-text";
+    defaults.dimensions = 768;
+  }
+
+  // Hard privacy gate: cloud (OpenAI) is only ever used with an explicit opt-in,
+  // even if config/embeddings.yaml requests provider: openai. A committed/poisoned
+  // config can never silently ship private content off the machine.
+  if (defaults.provider === "openai" && !cloudOptIn()) {
+    console.error(
+      "Cloud embedding (OpenAI) requested but RAG_EMBED_CLOUD is not set — falling back to local Ollama (nomic-embed-text). Set RAG_EMBED_CLOUD=1 to enable cloud."
+    );
     defaults.provider = "ollama";
     defaults.model = "nomic-embed-text";
     defaults.dimensions = 768;
@@ -402,6 +422,19 @@ async function getIndexedHashes(): Promise<Map<string, string>> {
 
 // ─── File Discovery ─────────────────────────────────────────────────
 
+// Confine a (possibly absolute or relative) target to the project ROOT.
+// Absolute paths previously bypassed ROOT entirely (and shouldExclude, which is
+// relative-to-ROOT), enabling out-of-root file read + cloud upload. Resolve the
+// path and reject anything that is not ROOT itself or a descendant of ROOT.
+function resolveUnderRoot(targetPath: string): string | null {
+  const rootResolved = resolve(ROOT);
+  const full = resolve(rootResolved, targetPath);
+  if (full === rootResolved || full.startsWith(rootResolved + sep)) {
+    return full;
+  }
+  return null;
+}
+
 function shouldExclude(filePath: string, config: EmbeddingsConfig): boolean {
   const rel = relative(ROOT, filePath);
   for (const pattern of config.exclude) {
@@ -418,9 +451,14 @@ function discoverFiles(
   targetPath: string,
   config: EmbeddingsConfig
 ): string[] {
-  const fullPath = targetPath.startsWith("/")
-    ? targetPath
-    : join(ROOT, targetPath);
+  // Reject paths that resolve outside ROOT (absolute escapes, ../ traversal).
+  const fullPath = resolveUnderRoot(targetPath);
+  if (!fullPath) {
+    console.error(
+      `rag_index: refusing path outside project root: ${targetPath}`
+    );
+    return [];
+  }
   if (!existsSync(fullPath)) return [];
 
   const stat = statSync(fullPath);
@@ -551,9 +589,10 @@ async function startWatcher(config: EmbeddingsConfig): Promise<string> {
 
   try {
     const chokidar = await import("chokidar");
-    const watchPaths = config.paths.map((p) =>
-      p.startsWith("/") ? p : join(ROOT, p)
-    );
+    // Confine watched paths to ROOT — drop any configured path that escapes it.
+    const watchPaths = config.paths
+      .map((p) => resolveUnderRoot(p))
+      .filter((p): p is string => p !== null);
     const globs = config.fileTypes.map((ext) => `**/*${ext}`);
 
     const watcher = chokidar.watch(watchPaths, {

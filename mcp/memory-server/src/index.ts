@@ -27,6 +27,37 @@ const USER_DIR = join(ROOT, "user");
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 if (!existsSync(USER_DIR)) mkdirSync(USER_DIR, { recursive: true });
 
+// Length caps so a single poisoned write can't balloon MEMORY.md.
+const MAX_ENTRY_LEN = 2000;
+const MAX_SECTION_LEN = 80;
+
+// Provenance tag: entries written through this MCP tool are agent-authored,
+// not statements the user typed directly. Tagging them lets the agent (and the
+// user) distinguish trusted, user-stated facts from content the agent persisted
+// — the basis for not treating poisoned memory as operator instructions.
+const PROVENANCE_TAG = "[agent]";
+
+// Collapse newlines and cap a free-text value so it stays a single safe line.
+function sanitizeOneLine(value: string, maxLen: number): string {
+  return value
+    .replace(/[\r\n]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLen);
+}
+
+// A section name must not be able to forge Markdown headers or inject structure.
+// Strip leading '#' and any markdown/control chars, collapse to one line, cap.
+function sanitizeSection(section: string): string {
+  return section
+    .replace(/[\r\n]+/g, " ")
+    .replace(/^[#\s]+/, "")
+    .replace(/[#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, MAX_SECTION_LEN);
+}
+
 function readMemory(): string {
   if (!existsSync(MEMORY_FILE)) return "# Memory\n\n*No entries yet.*\n";
   return readFileSync(MEMORY_FILE, "utf-8");
@@ -35,14 +66,19 @@ function readMemory(): string {
 function appendMemory(entry: string, section?: string): string {
   const timestamp = new Date().toISOString().slice(0, 16).replace("T", " ");
   const content = readMemory();
-  const newEntry = `\n- [${timestamp}] ${entry}`;
+  const safeEntry = sanitizeOneLine(entry ?? "", MAX_ENTRY_LEN);
+  if (!safeEntry) return "Memory not updated: empty entry.";
+  const newEntry = `\n- [${timestamp}] ${PROVENANCE_TAG} ${safeEntry}`;
 
-  if (section) {
-    const sectionHeader = `## ${section}`;
+  const safeSection = section ? sanitizeSection(section) : "";
+  if (safeSection) {
+    const sectionHeader = `## ${safeSection}`;
     if (content.includes(sectionHeader)) {
+      // Use a FUNCTION replacer so the inserted text is treated literally:
+      // a string replacement would interpret $&, $`, $', $1 in `newEntry`.
       const updated = content.replace(
         sectionHeader,
-        `${sectionHeader}${newEntry}`
+        () => `${sectionHeader}${newEntry}`
       );
       writeFileSync(MEMORY_FILE, updated, "utf-8");
     } else {
@@ -52,7 +88,7 @@ function appendMemory(entry: string, section?: string): string {
     writeFileSync(MEMORY_FILE, `${content}${newEntry}\n`, "utf-8");
   }
 
-  return `Memory updated: ${entry}`;
+  return `Memory updated: ${safeEntry}`;
 }
 
 function searchMemory(query: string): string {
