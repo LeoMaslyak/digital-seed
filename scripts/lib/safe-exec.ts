@@ -85,9 +85,10 @@ export function sanitizeFilename(name: string): string {
   // Replace every character outside the safe class with "_".
   let safe = base.replace(/[^A-Za-z0-9._-]/g, "_");
 
-  // Never allow a name that is empty, all dots, or starts with a dot
-  // (avoids "", ".", "..", and accidental dotfiles / traversal).
-  safe = safe.replace(/^\.+/, "");
+  // Never allow a name that is empty, all dots, or starts with a dot or dash
+  // (avoids "", ".", "..", accidental dotfiles/traversal, and a leading "-"
+  // that a subprocess could mis-parse as an option flag — argv-injection-lite).
+  safe = safe.replace(/^[-.]+/, "");
 
   if (safe.length === 0) {
     safe = "download-" + Date.now();

@@ -23,6 +23,7 @@ import {
   existsSync,
   readdirSync,
   statSync,
+  lstatSync,
   mkdirSync,
   writeFileSync,
 } from "fs";
@@ -112,9 +113,9 @@ async function loadEmbeddingsConfig(): Promise<EmbeddingsConfig> {
   // Hard privacy gate: cloud (OpenAI) is only ever used with an explicit opt-in,
   // even if config/embeddings.yaml requests provider: openai. A committed/poisoned
   // config can never silently ship private content off the machine.
-  if (defaults.provider === "openai" && !cloudOptIn()) {
+  if (defaults.provider === "openai" && !(cloudOptIn() && process.env.OPENAI_API_KEY)) {
     console.error(
-      "Cloud embedding (OpenAI) requested but RAG_EMBED_CLOUD is not set — falling back to local Ollama (nomic-embed-text). Set RAG_EMBED_CLOUD=1 to enable cloud."
+      "Cloud embedding (OpenAI) requested but RAG_EMBED_CLOUD and/or OPENAI_API_KEY are not set — falling back to local Ollama (nomic-embed-text). Set RAG_EMBED_CLOUD=1 and OPENAI_API_KEY to enable cloud."
     );
     defaults.provider = "ollama";
     defaults.model = "nomic-embed-text";
@@ -472,6 +473,9 @@ function discoverFiles(
     for (const entry of readdirSync(dir)) {
       const fp = join(dir, entry);
       if (shouldExclude(fp, config)) continue;
+      // Use lstat (not stat) and skip symlinks: a symlink INSIDE root pointing
+      // OUT of root would otherwise be followed and its target read/embedded.
+      if (lstatSync(fp).isSymbolicLink()) continue;
       const s = statSync(fp);
       if (s.isDirectory() && !entry.startsWith(".")) walk(fp);
       if (s.isFile() && config.fileTypes.includes(extname(entry)))

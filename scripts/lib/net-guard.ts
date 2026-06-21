@@ -50,7 +50,10 @@ function isPrivateIPv4(ip: string): boolean {
   if (a === 192 && b === 168) return true;        // RFC1918 192.168.0.0/16
   if (a === 169 && b === 254) return true;        // link-local + metadata 169.254.0.0/16
   if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT 100.64.0.0/10
-  if (a === 192 && b === 0) return true;          // 192.0.0.0/24 (incl. 192.0.0.0/29)
+  if (a === 192 && b === 0) return true;          // 192.0.0.0/24 (incl. TEST-NET-1 192.0.2.0/24)
+  if (a === 198 && (b === 18 || b === 19)) return true;    // benchmark 198.18.0.0/15
+  if (a === 198 && b === 51 && parts[2] === 100) return true; // TEST-NET-2 198.51.100.0/24
+  if (a === 203 && b === 0 && parts[2] === 113) return true;  // TEST-NET-3 203.0.113.0/24
   if (a >= 224) return true;                      // multicast/reserved 224.0.0.0/4 + 240/4
 
   return false;

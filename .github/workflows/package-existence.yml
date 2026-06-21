@@ -104,11 +104,21 @@ jobs:
               name="${spec%@*}"                 # name@ver -> name ; name -> name
             fi
 
-            if npm view "$name" version >/dev/null 2>&1; then
+            # Only a CONFIRMED 404 fails the build. A transient network/registry
+            # error is retried once, then warned-not-failed, so flaky CI never
+            # blocks a PR over a real, existing package.
+            if out=$(npm view "$name" version 2>&1); then
               echo "OK     $name"
-            else
-              echo "MISSING $name  (npm view returned 404 / error)"
+            elif echo "$out" | grep -q 'E404'; then
+              echo "MISSING $name  (npm view returned 404)"
               fail=1
+            elif out=$(npm view "$name" version 2>&1); then
+              echo "OK     $name  (succeeded on retry)"
+            elif echo "$out" | grep -q 'E404'; then
+              echo "MISSING $name  (npm view returned 404)"
+              fail=1
+            else
+              echo "WARN   $name  (transient npm error, not failing): $(echo "$out" | head -1)"
             fi
           done
 
