@@ -98,3 +98,65 @@ export function deriveJourney(signals: Signals, now: string): Journey {
     updatedAt: now,
   };
 }
+
+export function readSignals(root: string): Signals {
+  const nonEmpty = (rel: string) => {
+    try {
+      return readFileSync(join(root, rel), "utf-8").trim().length > 0;
+    } catch {
+      return false;
+    }
+  };
+  const contextFilled = ["user/USER.md", "user/COMPASS.md", "user/GOALS.md"].every(nonEmpty);
+
+  let hasIndex = false;
+  try {
+    const s = JSON.parse(readFileSync(join(root, "data/rag/status.json"), "utf-8"));
+    hasIndex = Number(s.totalDocuments ?? 0) > 0 || Number(s.totalChunks ?? 0) > 0;
+  } catch {
+    /* no status file */
+  }
+  if (!hasIndex) {
+    try {
+      const v = JSON.parse(readFileSync(join(root, "data/rag/vectors.json"), "utf-8"));
+      hasIndex = Array.isArray(v.documents) && v.documents.length > 0;
+    } catch {
+      /* no vectors file */
+    }
+  }
+
+  let phase3Ticked = false;
+  try {
+    const plan = readFileSync(join(root, "user/MY-PLAN.md"), "utf-8");
+    phase3Ticked = plan
+      .split(/\r?\n/)
+      .some((l) => /^\s*- \[x\]/i.test(l) && /phase\s*3\b/i.test(l));
+  } catch {
+    /* no plan file */
+  }
+
+  return { contextFilled, hasIndex, phase3Ticked };
+}
+
+export function saveJourney(root: string, j: Journey): void {
+  mkdirSync(join(root, "data"), { recursive: true });
+  const p = join(root, JOURNEY_PATH);
+  const tmp = p + ".tmp";
+  writeFileSync(tmp, JSON.stringify(j, null, 2) + "\n", "utf-8");
+  renameSync(tmp, p);
+}
+
+export function loadJourney(root: string, now: string): Journey {
+  const p = join(root, JOURNEY_PATH);
+  if (existsSync(p)) {
+    try {
+      const j = JSON.parse(readFileSync(p, "utf-8")) as Journey;
+      if (j && j.schemaVersion === 1 && j.phases) return j;
+    } catch {
+      /* corrupt — fall through and re-bootstrap */
+    }
+  }
+  const j = deriveJourney(readSignals(root), now);
+  saveJourney(root, j);
+  return j;
+}

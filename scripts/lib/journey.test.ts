@@ -43,3 +43,46 @@ test("emptyPhases starts phase 1 not_started and 2-4 locked", () => {
   expect(p["2"].status).toBe("locked");
   expect(p["4"].status).toBe("locked");
 });
+
+import { loadJourney, saveJourney } from "./journey.ts";
+import { mkdtempSync, writeFileSync, mkdirSync, readFileSync, existsSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+
+function tmpRoot(): string {
+  return mkdtempSync(join(tmpdir(), "journey-"));
+}
+
+test("loadJourney bootstraps + persists when absent", () => {
+  const root = tmpRoot();
+  const j = loadJourney(root, NOW);
+  expect(j.currentPhase).toBe(1);
+  expect(existsSync(join(root, "data/journey.json"))).toBe(true);
+});
+
+test("loadJourney reads an existing file verbatim", () => {
+  const root = tmpRoot();
+  const j = loadJourney(root, NOW);
+  j.focus = "custom focus";
+  saveJourney(root, j);
+  const reloaded = loadJourney(root, "2099-01-01T00:00:00.000Z");
+  expect(reloaded.focus).toBe("custom focus");
+});
+
+test("loadJourney recovers from a corrupt file by re-bootstrapping", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(join(root, "data/journey.json"), "{ not json", "utf-8");
+  const j = loadJourney(root, NOW);
+  expect(j.schemaVersion).toBe(1);
+});
+
+test("readSignals reflects filled context", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "user"), { recursive: true });
+  for (const f of ["USER.md", "COMPASS.md", "GOALS.md"]) {
+    writeFileSync(join(root, "user", f), "real content", "utf-8");
+  }
+  const { readSignals } = require("./journey.ts");
+  expect(readSignals(root).contextFilled).toBe(true);
+});
