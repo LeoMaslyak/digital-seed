@@ -32,6 +32,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSy
 import { detectActivityState, describeState } from "../core/src/activity-state.ts";
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
 import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney } from "./lib/journey.ts";
+import { safeExec, commandExists } from "./lib/safe-exec.ts";
 
 const ROOT   = join(dirname(new URL(import.meta.url).pathname), "..");
 const args   = process.argv.slice(2);
@@ -302,7 +303,36 @@ function writeFirstWin(options: { force?: boolean } = {}): void {
   console.log(`   Open it, pick one boring real win, then run: bun run seed first-prompt`);
 }
 
-function printFirstPrompt(): void {
+/**
+ * Copy text to the OS clipboard using the shell-free safeExec helper, feeding
+ * the text on stdin. Returns true if a clipboard tool ran successfully.
+ * Tools by platform: darwin=pbcopy, win32=clip, linux=xclip|wl-copy.
+ */
+function copyToClipboard(text: string): boolean {
+  type Tool = { cmd: string; argv: string[] };
+  let candidates: Tool[] = [];
+  if (process.platform === "darwin") {
+    candidates = [{ cmd: "pbcopy", argv: [] }];
+  } else if (process.platform === "win32") {
+    candidates = [{ cmd: "clip", argv: [] }];
+  } else {
+    // Linux / other: prefer xclip (X11), fall back to wl-copy (Wayland).
+    candidates = [
+      { cmd: "xclip", argv: ["-selection", "clipboard"] },
+      { cmd: "wl-copy", argv: [] },
+    ];
+  }
+  for (const tool of candidates) {
+    if (!commandExists(tool.cmd)) continue;
+    try {
+      const res = safeExec(tool.cmd, tool.argv, { input: text });
+      if (res.exitCode === 0) return true;
+    } catch { /* try the next tool */ }
+  }
+  return false;
+}
+
+function printFirstPrompt(opts: { copy?: boolean } = {}): void {
   const firstWinPath = join(ROOT, "user", "FIRST-WIN.md");
   const hasFirstWin = existsSync(firstWinPath);
   const base = [
@@ -327,6 +357,14 @@ function printFirstPrompt(): void {
   console.log(prompt);
   console.log(endRuler);
   console.log(footer);
+
+  if (opts.copy) {
+    if (copyToClipboard(prompt)) {
+      console.log(USE_ANSI ? `${ANSI.mint}✅ Copied to clipboard — just paste it into your agent.${ANSI.reset}` : "✅ Copied to clipboard — just paste it into your agent.");
+    } else {
+      console.log(USE_ANSI ? `${ANSI.dim}(No clipboard tool found — copy the prompt above manually. On Linux, install xclip or wl-copy to enable --copy.)${ANSI.reset}` : "(No clipboard tool found — copy the prompt above manually. On Linux, install xclip or wl-copy to enable --copy.)");
+    }
+  }
 }
 
 const USER_CONTEXT_FILES = [
@@ -353,6 +391,18 @@ function materializeUserContext(): string[] {
     } catch { /* best-effort; `seed doctor` will surface anything still missing */ }
   }
   return created;
+}
+
+/**
+ * Reduce a matched secret to a safe, recognizable snippet: keep the first 6
+ * characters (enough to identify which kind of secret it is — `sk-ant`, `ghp_`,
+ * `postgr`…) then "…". Collapse internal whitespace so multi-line PEM matches
+ * print on one line. Never prints the full secret to the terminal/logs.
+ */
+function redactSecret(match: string): string {
+  const flat = match.replace(/\s+/g, " ").trim();
+  const head = flat.slice(0, 6);
+  return flat.length > 6 ? `${head}…` : `${head}`;
 }
 
 function privacyScan(): void {
@@ -397,13 +447,33 @@ function privacyScan(): void {
     if (allow.includes(rel) || /\.(png|jpg|jpeg|gif|webp|pdf|lock)$/i.test(rel)) continue;
     let text = "";
     try { text = readFileSync(file, "utf-8"); } catch { continue; }
+    // Precompute line-start offsets so a match index maps to a line number.
+    const lineStarts: number[] = [0];
+    for (let i = 0; i < text.length; i++) if (text[i] === "\n") lineStarts.push(i + 1);
+    const lineAt = (idx: number): number => {
+      // Binary search: last lineStart <= idx.
+      let lo = 0, hi = lineStarts.length - 1, ans = 0;
+      while (lo <= hi) {
+        const mid = (lo + hi) >> 1;
+        if (lineStarts[mid] <= idx) { ans = mid; lo = mid + 1; } else { hi = mid - 1; }
+      }
+      return ans + 1;
+    };
+    // Collect EVERY non-placeholder match from EVERY pattern (no early break)
+    // so a user fixing one secret sees all the rest in one pass. De-dupe on
+    // line+redacted-snippet so the same leak under multiple patterns is one hit.
+    const seen = new Set<string>();
     for (const rx of risky) {
       const g = new RegExp(rx.source, rx.flags.includes("g") ? rx.flags : rx.flags + "g");
-      let real = false;
       for (const m of text.matchAll(g)) {
-        if (!PLACEHOLDER.test(m[0])) { real = true; break; }
+        if (PLACEHOLDER.test(m[0])) continue;
+        const line = lineAt(m.index ?? 0);
+        const redacted = redactSecret(m[0]);
+        const key = `${line} ${redacted}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        hits.push(`${rel}:${line}: ${redacted}`);
       }
-      if (real) { hits.push(`${rel}: ${rx}`); break; }
     }
   }
 
@@ -640,6 +710,29 @@ function recipe(args: string[]): void {
     console.log(`✅ Wrote ${out}`);
     return;
   }
+  // If the first arg names an actual recipe folder (e.g. `seed recipe obsidian`),
+  // point at its README rather than erroring — that is what the user meant.
+  const recipeDir = join(recipesDir, name);
+  if (
+    !name.startsWith("_") && !name.startsWith(".") &&
+    existsSync(recipeDir) && statSync(recipeDir).isDirectory()
+  ) {
+    const readme = join("recipes", name, "README.md");
+    if (existsSync(join(ROOT, readme))) {
+      console.log(`📖 Recipe "${name}":`);
+      console.log(`   ${readme}`);
+    } else {
+      console.log(`Recipe "${name}" exists but has no README.md yet (recipes/${name}/).`);
+    }
+    // If a matching integration ships a setup guide, surface it too.
+    const setup = join("integrations", name, "setup.md");
+    if (existsSync(join(ROOT, setup))) {
+      console.log(`   Setup steps: ${setup}`);
+    }
+    console.log(`\nOpen it with: open ${readme}`);
+    return;
+  }
+
   console.error(`Unknown recipe command: ${args.join(" ")}`);
   console.log("Try: bun run seed recipe list");
   process.exit(1);
@@ -837,7 +930,7 @@ BEGINNER — first 15 minutes
   bun run seed onboard                 Show the first 15-minute path (animated)
   bun run seed onboard --plain         Same path, no animation or color
   bun run seed doctor                  Friendly setup health check
-  bun run seed first-prompt            Print the first agent prompt
+  bun run seed first-prompt [--copy]   Print the first agent prompt (--copy: to clipboard)
   bun run seed privacy-scan            Check for common private leftovers
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
@@ -953,7 +1046,7 @@ else if (cmd === "intro") {
   const delayMs = delayArg ? Number(delayArg.split("=")[1]) : 55;
   printTerminalSeedIntro({ animate: !rest.includes("--static") && USE_ANSI, frames, delayMs });
 }
-else if (cmd === "first-prompt") { printFirstPrompt(); }
+else if (cmd === "first-prompt") { printFirstPrompt({ copy: rest.includes("--copy") }); }
 else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") }); }
 else if (cmd === "what-next") { printWhatNext(); }
 else if (cmd === "guide") {
@@ -1018,8 +1111,22 @@ else if (cmd === "visual-qa") {
 }
 else if (cmd === "recipe") { recipe(rest); }
 else if (cmd === "index") {
-  if (rest[0] && !rest[0].startsWith("--")) run("scripts/embed.ts", ["--path", rest[0], ...rest.slice(1)]);
-  else run("scripts/embed.ts", rest);
+  if (rest[0] && !rest[0].startsWith("--")) {
+    // An explicit folder was given — fail loudly if it does not exist instead
+    // of silently reporting "Files found: 0" and exiting 0.
+    if (!existsSync(rest[0])) {
+      console.error(`❌ No such folder: ${rest[0]}`);
+      console.error(`   Pass a path that exists, e.g.: bun run seed index ~/notes`);
+      process.exit(1);
+    }
+    run("scripts/embed.ts", ["--path", rest[0], ...rest.slice(1)]);
+  } else {
+    // Bare `seed index` (or only flags): index the kit's bundled docs + your
+    // user/ files. Tell the user how to index THEIR own notes, then proceed.
+    console.log("ℹ️  Indexing the kit's bundled docs + your user/ files.");
+    console.log("   To index your own notes, pass a folder: bun run seed index ~/notes");
+    run("scripts/embed.ts", rest);
+  }
 }
 
 // ── Collaboration ──────────────────────────────────────────────────────────────

@@ -56,6 +56,8 @@ On every meaningful session:
 2. Load only the context files needed for the request.
 3. If the user is new or context is sparse, start a conversational onboarding interview.
 4. Check `data/pending-tasks.json` and `data/shift-handoff.json` when continuity matters.
+
+(These `data/*.json` files are created on demand as you onboard, park ideas, and track tasks — their **absence in a fresh clone is normal**, not an error. Treat a missing file as "nothing recorded yet," not a failure.)
 5. Route work to the right specialist mode or pattern.
 
 ## Onboarding Interview

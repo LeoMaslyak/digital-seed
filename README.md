@@ -132,6 +132,8 @@ The beginner surface is intentionally short. Everything else is optional, advanc
 ```bash
 bun run seed plan             # Get the AI-guided phase-selection prompt (paste into your agent)
 bun run seed guide            # where you are in the four phases + your single next step
+bun run seed park "<idea>"    # park an off-track idea for a later phase
+bun run seed complete <phase> <step>  # mark a journey step done
 bun run seed onboard          # First 15-minute path (--plain for no animation)
 bun run seed doctor           # Check local setup health
 bun run seed first-prompt     # Print the first agent prompt

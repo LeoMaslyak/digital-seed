@@ -470,8 +470,9 @@ create_user_context() {
     _live="$SCRIPT_DIR/user/${_f}.md"
     _tpl="$SCRIPT_DIR/docs/data-room/templates/${_f}.template.md"
     if [ -s "$_live" ] && ! { [ -f "$_tpl" ] && cmp -s "$_live" "$_tpl"; }; then
-      cp "$_live" "${_live}.bak"
-      echo -e "  ${YELLOW}⚠${NC} Backed up your existing user/${_f}.md → user/${_f}.md.bak"
+      _bak="${_live}.bak.$(date +%Y%m%d%H%M%S)"
+      cp "$_live" "$_bak"
+      echo -e "  ${YELLOW}⚠${NC} Backed up your existing user/${_f}.md → user/$(basename "$_bak")"
     fi
   done
 
