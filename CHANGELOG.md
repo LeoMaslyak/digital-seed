@@ -4,6 +4,23 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.4-alpha] - 2026-06-22
+
+### Added
+
+- **Proactive, phased guide.** The agent now opens each session with where you
+  are in the four-phase journey and your single next step, **parks** off-track
+  ideas to keep you on track (deferring the moment you insist), and surfaces
+  just-in-time guidance from the existing docs — all backed by a single
+  git-ignored `data/journey.json` state read/written through `scripts/lib/journey.ts`
+  (which bootstraps from your existing files for current users). New `seed guide`
+  command; `seed what-next` now reads the journey; `config/journey.yaml` maps each
+  phase to docs. Adds a `## Proactive Guide` section to `.claude/CLAUDE.md` (below
+  the Trust Boundary, so the safety rules stay first) and a "Unit tests" +
+  "Journey state" gate to `release-check`.
+- The Markdown link checker now skips fenced and inline code, so code samples
+  containing link-like syntax are no longer misreported as broken links.
+
 ### Security
 
 - **Removed non-existent npm package names from integration recipes (audit C2).**
