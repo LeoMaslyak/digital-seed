@@ -4,6 +4,25 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The proactive guide now advances** (tester finding H1). `loadJourney` previously
+  returned the cached `data/journey.json` verbatim, so `seed guide`/`what-next`
+  stayed frozen at the bootstrap phase even after the user filled their context or
+  indexed notes. It now reconciles the cached state against live signals and moves
+  forward (never regresses), with a `seed guide --refresh` escape hatch. +regression test.
+- **Parking lot & step-completion are now reachable from the CLI** (H3): new
+  `seed park "<idea>"` and `seed complete <phase> <step>` commands wrap the existing
+  helpers the agent contract relies on; `seed guide` added to the help taxonomy.
+- **`seed index` no longer looks broken** (M1): the local JSON keyword index — the
+  intended offline default — is announced as friendly info instead of a red
+  "Cannot find module @lancedb/lancedb" error, with a one-command path to local
+  semantic search.
+- **A corrupt `{"phases":{"1":null}}` journey file self-heals** instead of crashing
+  `seed guide` (M3). +regression test.
+- The Phase 3 next-step nudge no longer contradicts the "integrations are not a
+  day-one step" guidance (M2).
+
 ### Changed
 
 - Post-release hardening follow-ups (residual audit lows):

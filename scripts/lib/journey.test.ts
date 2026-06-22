@@ -60,13 +60,52 @@ test("loadJourney bootstraps + persists when absent", () => {
   expect(existsSync(join(root, "data/journey.json"))).toBe(true);
 });
 
-test("loadJourney reads an existing file verbatim", () => {
+test("loadJourney preserves user data (parking lot) across reloads", () => {
+  const root = tmpRoot();
+  loadJourney(root, NOW);
+  park(root, "telegram bot", 3, NOW);
+  const reloaded = loadJourney(root, "2099-01-01T00:00:00.000Z");
+  expect(reloaded.parkingLot.map((p) => p.idea)).toContain("telegram bot");
+});
+
+test("loadJourney auto-advances when signals show progress past the cached state (H1)", () => {
+  const root = tmpRoot();
+  // bootstrap at Phase 1 while the context is still empty
+  let j = loadJourney(root, NOW);
+  expect(j.currentPhase).toBe(1);
+  // the user fills in their real context (no templates present here, so non-empty = filled)
+  mkdirSync(join(root, "user"), { recursive: true });
+  for (const n of ["USER", "COMPASS", "GOALS"]) {
+    writeFileSync(join(root, "user", `${n}.md`), `real ${n} content`, "utf-8");
+  }
+  // reloading the SAME cached journey must notice the progress and advance
+  j = loadJourney(root, NOW);
+  expect(j.currentPhase).toBe(2);
+  expect(j.phases["1"].status).toBe("done");
+});
+
+test("loadJourney never regresses below the cached phase", () => {
   const root = tmpRoot();
   const j = loadJourney(root, NOW);
-  j.focus = "custom focus";
+  j.currentPhase = 3;
+  j.phases["1"].status = "done";
+  j.phases["2"].status = "done";
   saveJourney(root, j);
-  const reloaded = loadJourney(root, "2099-01-01T00:00:00.000Z");
-  expect(reloaded.focus).toBe("custom focus");
+  // no signals present, but the cache says Phase 3 — must stay at 3, not pull back
+  expect(loadJourney(root, NOW).currentPhase).toBe(3);
+});
+
+test("normalizeJourney self-heals a null phase entry instead of crashing (M3)", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/journey.json"),
+    JSON.stringify({ schemaVersion: 1, currentPhase: 2, phases: { "1": null } }),
+    "utf-8",
+  );
+  const j = loadJourney(root, NOW); // must not throw
+  expect(typeof j.phases["1"].status).toBe("string");
+  expect(j.phases["4"].status).toBeDefined();
 });
 
 test("loadJourney recovers from a corrupt file by re-bootstrapping", () => {

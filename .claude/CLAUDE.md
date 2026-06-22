@@ -46,7 +46,7 @@ Then hand control back and ask what they want to do.
 
 **Just-in-time guidance:** only when the current step needs an open-source/ecosystem decision (which agent to install, what MCP is, local search vs a cloud vector DB), surface the relevant doc for the phase in 2–3 lines. Do not dump the whole ecosystem at once.
 
-**Update the state** when a step is genuinely completed with the user, or when you park an idea. Writing `data/journey.json` is a local, low-risk action — it is NOT one of the high-risk actions that require fresh approval.
+**Update the state** when a step is genuinely completed with the user, or when you park an idea. Writing `data/journey.json` is a local, low-risk action — it is NOT one of the high-risk actions that require fresh approval. Use the CLI to do it: `seed park "<idea>"` records an off-track idea for a later phase, and `seed complete <phase> <step>` marks a step done. The guide also **auto-advances** when it detects the user has filled in their context files or indexed notes (so it never gets stuck demanding a step the user already finished).
 
 ## Session Startup
 
