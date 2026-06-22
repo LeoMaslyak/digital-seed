@@ -31,7 +31,7 @@ import { join, dirname } from "path";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "fs";
 import { detectActivityState, describeState } from "../core/src/activity-state.ts";
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
-import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText } from "./lib/journey.ts";
+import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney } from "./lib/journey.ts";
 
 const ROOT   = join(dirname(new URL(import.meta.url).pathname), "..");
 const args   = process.argv.slice(2);
@@ -844,6 +844,9 @@ BEGINNER — first 15 minutes
   bun run seed recipe list             List integration recipes
   bun run seed plan                    Print the AI-guided phase-selection prompt
   bun run seed what-next               Print one recommended next action
+  bun run seed guide                   Where you are in the 4 phases + your single next step
+  bun run seed park "<idea>"           Save an off-track idea for a later phase
+  bun run seed complete <phase> <step> Mark a step done (advance the journey)
   bun run seed feedback                Show the easiest ways to report friction
   bun run seed hooks install           Install pre-commit secret-scan hook
   bun run seed hooks status            Show pre-commit hook status
@@ -957,7 +960,8 @@ else if (cmd === "guide") {
   const plain = rest.includes("--plain");
   const dimIf = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.dim}${t}${ANSI.reset}`);
   const boldIf = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}`);
-  const j = loadJourney(ROOT, new Date().toISOString());
+  const now = new Date().toISOString();
+  const j = rest.includes("--refresh") ? refreshJourney(ROOT, now) : loadJourney(ROOT, now);
   const ns = nextStep(j, loadGuidanceMap(ROOT));
   const def = PHASES.find((p) => p.n === j.currentPhase);
 
@@ -978,6 +982,30 @@ else if (cmd === "guide") {
       console.log(dimIf("\n  (MY-PLAN.md updated to match your journey.)"));
     }
   }
+}
+else if (cmd === "park") {
+  const idea = rest.filter((a) => !a.startsWith("--")).join(" ").trim();
+  if (!idea) {
+    console.error('Usage: bun run seed park "<idea to revisit in a later phase>"');
+    process.exit(1);
+  }
+  const phaseArg = rest.find((a) => a.startsWith("--phase="));
+  const now = new Date().toISOString();
+  const phase = phaseArg ? Number(phaseArg.split("=")[1]) : loadJourney(ROOT, now).currentPhase;
+  const updated = park(ROOT, idea, phase, now);
+  console.log(`📌 Parked for later (${updated.parkingLot.length} total): ${idea}`);
+}
+else if (cmd === "complete") {
+  const positional = rest.filter((a) => !a.startsWith("--"));
+  const phase = Number(positional[0]);
+  const step = positional[1];
+  if (!phase || !step) {
+    console.error("Usage: bun run seed complete <phase> <step>   (e.g. seed complete 1 first-prompt)");
+    console.error("Steps: " + PHASES.map((p) => `${p.n}=[${p.steps.join(",")}]`).join("  "));
+    process.exit(1);
+  }
+  const j = completeStep(ROOT, phase, step, new Date().toISOString());
+  console.log(`✅ Marked phase ${phase} step "${step}" done — now in Phase ${j.currentPhase}.`);
 }
 else if (cmd === "feedback") { printFeedback({ writeDraft: rest.includes("--write-draft") }); }
 else if (cmd === "privacy-scan") { privacyScan(); }

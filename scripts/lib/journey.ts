@@ -41,7 +41,7 @@ export const PHASES = [
 const FOCUS: Record<number, string> = {
   1: "tell me about yourself so I can fill in USER.md, COMPASS.md and GOALS.md",
   2: "index one notes folder for local search (seed index <folder>)",
-  3: "pick one integration recipe (seed recipe list)",
+  3: "Phases 1-2 are set up — use them for a few days before adding integrations (not a day-one step). When ready: seed recipe list",
   4: "set up an always-on agent when you're ready (optional)",
 };
 
@@ -167,6 +167,15 @@ export function saveJourney(root: string, j: Journey): void {
 function normalizeJourney(j: Journey): Journey {
   if (typeof j.currentPhase !== "number") j.currentPhase = 1;
   if (!Array.isArray(j.parkingLot)) j.parkingLot = [];
+  if (!j.phases || typeof j.phases !== "object") j.phases = emptyPhases();
+  // Repair any null / non-object / status-less phase entry, so a sticky
+  // {"phases":{"1":null}} self-heals instead of crashing `seed guide`.
+  for (const k of ["1", "2", "3", "4"]) {
+    const p = (j.phases as Record<string, unknown>)[k] as PhaseState | undefined;
+    if (!p || typeof p !== "object" || typeof p.status !== "string") {
+      j.phases[k] = { status: k === "1" ? "not_started" : "locked", useful: false, completedSteps: [] };
+    }
+  }
   if (typeof j.focus !== "string") j.focus = focusForPhase(j.currentPhase, j.phases);
   return j;
 }
@@ -175,13 +184,67 @@ export function loadJourney(root: string, now: string): Journey {
   const p = join(root, JOURNEY_PATH);
   if (existsSync(p)) {
     try {
-      const j = JSON.parse(readFileSync(p, "utf-8")) as Journey;
-      if (j && j.schemaVersion === 1 && j.phases) return normalizeJourney(j);
+      const cached = JSON.parse(readFileSync(p, "utf-8")) as Journey;
+      if (cached && cached.schemaVersion === 1 && cached.phases) {
+        return reconcile(normalizeJourney(cached), readSignals(root), root, now);
+      }
     } catch {
       /* corrupt — fall through and re-bootstrap */
     }
   }
   const j = deriveJourney(readSignals(root), now);
+  saveJourney(root, j);
+  return j;
+}
+
+/**
+ * Advance a cached journey when the user's real progress (signals) has moved
+ * PAST the persisted state — so `seed guide` notices when you fill your context
+ * or index notes. Never regresses: manual `seed complete`/`park` progress and
+ * the parking lot are preserved; this only moves forward.
+ */
+function reconcile(cached: Journey, signals: Signals, root: string, now: string): Journey {
+  const derived = deriveJourney(signals, now);
+  let changed = false;
+  for (const k of ["1", "2", "3", "4"]) {
+    if (derived.phases[k]?.status === "done" && cached.phases[k]?.status !== "done") {
+      cached.phases[k] = { ...cached.phases[k], status: "done", useful: true };
+      changed = true;
+    }
+  }
+  const target = Math.max(cached.currentPhase || 1, derived.currentPhase);
+  if (target !== cached.currentPhase) {
+    cached.currentPhase = target;
+    changed = true;
+  }
+  const cur = cached.phases[String(cached.currentPhase)];
+  if (cur && cur.status === "locked") {
+    cur.status = "in_progress";
+    changed = true;
+  }
+  const newFocus = focusForPhase(cached.currentPhase, cached.phases);
+  if (cached.focus !== newFocus) {
+    cached.focus = newFocus;
+    changed = true;
+  }
+  if (changed) {
+    cached.updatedAt = now;
+    saveJourney(root, cached);
+  }
+  return cached;
+}
+
+/** Force a full re-derive from signals, preserving the parking lot (`seed guide --refresh`). */
+export function refreshJourney(root: string, now: string): Journey {
+  let parkingLot: ParkedIdea[] = [];
+  try {
+    const cached = JSON.parse(readFileSync(join(root, JOURNEY_PATH), "utf-8")) as Journey;
+    if (Array.isArray(cached?.parkingLot)) parkingLot = cached.parkingLot;
+  } catch {
+    /* no prior file */
+  }
+  const j = deriveJourney(readSignals(root), now);
+  j.parkingLot = parkingLot;
   saveJourney(root, j);
   return j;
 }

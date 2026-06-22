@@ -206,7 +206,10 @@ async function initDB(): Promise<void> {
     }
     console.log("✓ LanceDB connected");
   } catch (e) {
-    console.log(`⚠ LanceDB not available, using JSON fallback: ${(e as Error).message}`);
+    // The JSON keyword index is the intended, supported offline default — not an
+    // error. (LanceDB is an optional accelerator and isn't bundled by default.)
+    console.log("ℹ Using the local keyword index (JSON) — works offline, no setup needed.");
+    console.log("   For local semantic search, run: ollama pull nomic-embed-text  then re-index.");
     useFallback = true;
   }
 }
