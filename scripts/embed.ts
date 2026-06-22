@@ -86,6 +86,23 @@ function loadConfig(): EmbedConfig {
     defaults.dimensions = 768;
   }
 
+  // Hard privacy gate (mirrors mcp/rag-server): cloud embeddings (OpenAI) stay
+  // OFF unless the user EXPLICITLY opts in — even if OPENAI_API_KEY is set, or the
+  // yaml requests `provider: openai`. This is the contract the docs promise; the
+  // `seed index` CLI must honor it so it never silently uploads the user's notes.
+  const cloudOptIn = ["1", "true", "yes", "on"].includes(
+    (process.env.RAG_EMBED_CLOUD || "").toLowerCase(),
+  );
+  if (defaults.provider === "openai" && !(cloudOptIn && process.env.OPENAI_API_KEY)) {
+    console.error(
+      "ℹ Embeddings stay LOCAL (Ollama) — your notes are NOT uploaded. " +
+        "To use OpenAI cloud embeddings, set RAG_EMBED_CLOUD=1 (with OPENAI_API_KEY).",
+    );
+    defaults.provider = "ollama";
+    defaults.model = "nomic-embed-text";
+    defaults.dimensions = 768;
+  }
+
   return defaults;
 }
 

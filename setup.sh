@@ -656,6 +656,8 @@ PATTERNS=(
   # GitHub tokens (classic PAT + OAuth)
   'ghp_[A-Za-z0-9]{30,}'
   'gho_[A-Za-z0-9]{30,}'
+  'github_pat_[A-Za-z0-9_]{20,}'
+  'sk_(live|test)_[A-Za-z0-9]{16,}'
   # Database / connection strings with inline credentials
   # (covers postgres/postgresql/mysql/mongodb(+srv)/redis/amqp and any other
   # scheme://user:pass@ form). Written as a generic scheme charclass rather than

@@ -47,6 +47,8 @@ const SECRET_PATTERNS: Array<[string, RegExp]> = [
   ["Google API key (AIza…)", /AIza[0-9A-Za-z_-]{30,}/],
   ["GitHub token (ghp_…)", /ghp_[A-Za-z0-9_]{20,}/],
   ["GitHub OAuth token (gho_…)", /gho_[A-Za-z0-9_]{20,}/],
+  ["GitHub fine-grained PAT (github_pat_…)", /github_pat_[A-Za-z0-9_]{20,}/],
+  ["Stripe secret key (sk_live_/sk_test_)", /sk_(?:live|test)_[A-Za-z0-9]{16,}/],
   ["DB/connection string with inline credentials", /(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis|amqp):\/\/[^\s:@/]+:[^\s@/]+@/i],
   ["OAuth client_secret JSON", /"client_secret"\s*:\s*"[^"]+"/],
   ["Slack token (xox…)", /xox[baprs]-[A-Za-z0-9-]{10,}/],

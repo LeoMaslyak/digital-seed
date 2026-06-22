@@ -9,7 +9,7 @@ import { createWriteStream, existsSync, mkdirSync } from "fs";
 import { join, basename } from "path";
 import { Writable } from "stream";
 import { safeExec, commandExists, sanitizeFilename } from "./safe-exec.ts";
-import { assertSafeUrl } from "./net-guard.ts";
+import { safeFetch } from "./net-guard.ts";
 
 export interface DownloadOptions {
   timeout?: number;       // ms, default 60000
@@ -76,10 +76,10 @@ export async function downloadFile(
   const timer = setTimeout(() => controller.abort(), opts.timeout ?? DEFAULT_TIMEOUT);
 
   try {
-    // SSRF guard: reject non-http(s) and loopback/RFC1918/link-local/metadata
-    // targets before fetching (same guard the web fetch/scrape paths use).
-    await assertSafeUrl(url);
-    const res = await fetch(url, { signal: controller.signal });
+    // SSRF guard: safeFetch validates the URL AND re-validates every redirect
+    // hop (redirect:"manual"), so a public URL can't 30x-bounce into
+    // loopback/RFC1918/metadata. (Raw fetch() only checked the first hop.)
+    const res = await safeFetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
 
     // Determine filename. Remote-derived names (Content-Disposition / URL)

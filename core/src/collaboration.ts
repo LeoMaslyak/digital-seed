@@ -113,6 +113,8 @@ export const PERSONAL_DATA_PATTERNS: Array<{ name: string; pattern: RegExp }> = 
   { name: "phone (intl)",     pattern: /\+\d{1,3}[\s\-]?\(?\d{2,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{3,4}/g },
   { name: "phone (US)",       pattern: /\(\d{3}\)[\s]?\d{3}[\-\s]\d{4}/g                     },
   { name: "API key",          pattern: /\b(sk-[a-zA-Z0-9]{20,}|api[_-]?key\s*[:=]\s*\S{6,})/gi },
+  { name: "Stripe key",       pattern: /\bsk_(live|test)_[a-zA-Z0-9]{16,}/g                     },
+  { name: "GitHub PAT",       pattern: /\b(ghp_|gho_|github_pat_)[A-Za-z0-9_]{20,}/g            },
   { name: "personal path",    pattern: /\/Users\/[^/\s]+/g                                      },
   { name: "env variable key", pattern: /\b[A-Z]{3,}_[A-Z_]+_KEY\s*[:=]/g                       },
   { name: "password",         pattern: /\b(password|passwd|secret)\s*[:=]\s*\S{4,}/gi           },

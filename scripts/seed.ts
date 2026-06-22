@@ -420,6 +420,8 @@ function privacyScan(): void {
     /AIza[0-9A-Za-z_-]{30,}/,
     /ghp_[A-Za-z0-9_]+/,
     /gho_[A-Za-z0-9_]+/,
+    /github_pat_[A-Za-z0-9_]{20,}/,
+    /sk_(?:live|test)_[A-Za-z0-9]{16,}/,
     // DB / connection strings with inline credentials
     /(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis|amqp):\/\/[^\s:@/]+:[^\s@/]+@/i,
     // OAuth client secret JSON

@@ -325,6 +325,21 @@ function publishEntry(
     return "failed";
   }
 
+  // Hardlinks share an inode with their twin but keep their OWN path, so the
+  // realpath check above can't tell that this "template" file is the same bytes
+  // as user/MEMORY.md. A legitimate data-room source is a unique file
+  // (nlink === 1); refuse any multiply-linked regular file rather than risk
+  // publishing aliased personal data while the guard reports SAFE.
+  try {
+    const st = statSync(realpathSync(localPath));
+    if (st.isFile() && st.nlink > 1) {
+      console.error(`  ⛔ REFUSED ${entry.driveName}: ${entry.source} is a hardlink (nlink=${st.nlink}) — it may alias a personal file. Publish from a plain copy instead.`);
+      return "failed";
+    }
+  } catch {
+    /* stat failed — existsSync already passed; fall through */
+  }
+
   // Note: --dry-run is handled entirely by printDryRunPlan() in main(), which
   // returns before any entry is published. publishEntry() therefore only runs on
   // a real publish, so there is no dry-run branch here.
