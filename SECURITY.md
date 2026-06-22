@@ -25,12 +25,12 @@ All data stays on your machine:
 | `.claude/settings.json` | MCP config and any env values you add | **ignored** (copy from `.claude/settings.example.json`) |
 | `config/config.yaml`, `config/autonomy.yaml`, `config/token-budget.json`, `config/digest.yaml` | Local configuration (some embed webhook URLs/tokens) | **ignored** |
 | `user/**` (your filled-in `USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`, `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md`) | Personal context you fill in | **ignored** (the whole `user/` tree is git-ignored) |
-| `user/README.md`, `user/**/*.template.md` | Repo docs and pristine starter templates | **tracked** (explicitly allow-listed) |
+| `user/README.md` | Repo doc (the pristine starter templates ship under `docs/data-room/templates/`; the gitignore also allow-lists any `user/**/*.template.md` you add) | **tracked** |
 | `data/`, `logs/`, `exports/` | Runtime data and exports | **ignored** |
 
 **Honest trust-boundary nuance:** the entire `user/` tree is now git-ignored — only `user/README.md` and pristine `*.template.md` files are tracked. This means filling in any `user/*.md` (including `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md`) does **not** stage your personal content for commit by default. Likewise `.claude/settings.json` and `config/digest.yaml` are ignored so MCP env values and webhook URLs are not committed. **Still run `bun run seed privacy-scan` before pushing a fork**, and if you deliberately force-add an ignored file, `git` will not warn you — review `git diff --staged` first.
 
-A maintainer-side check inside `privacy-scan` looks for obvious personal content in tracked `user/*.md` files and warns when a template appears to have been filled in.
+A maintainer-side check inside `privacy-scan` flags any personal `user/*.md` file that has been force-added to git (those must stay ignored) and scans the tree for common secret shapes (provider API keys, DB/OAuth/Slack/AWS/Telegram tokens) — run it before you publish a fork.
 
 ## API key management
 

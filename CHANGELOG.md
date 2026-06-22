@@ -4,6 +4,21 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Post-release hardening follow-ups (residual audit lows):
+  - The proactive guide now treats a freshly materialized template as *present*,
+    not *filled in* — Phase 1 only counts as done once you actually edit
+    `USER.md`/`COMPASS.md`/`GOALS.md` away from their templates.
+  - `setup.sh` backs up an existing, user-edited `USER.md`/`GOALS.md` to `*.bak`
+    before overwriting it on a re-run (no silent data loss).
+  - `deck-gen` Google-Slides upload runs `gog` in argv form (no shell).
+  - `publish-data-room` resolves symlinks/`..` and re-checks the real path, so a
+    source that lexically looks safe but resolves to a personal file (or outside
+    the repo) is still refused; the dry-run PERSONAL-DATA flag is now computed.
+  - `SECURITY.md` corrected: pristine starter templates live under
+    `docs/data-room/templates/`, and `privacy-scan`'s behavior described accurately.
+
 ## [0.4.4-alpha] - 2026-06-22
 
 ### Added

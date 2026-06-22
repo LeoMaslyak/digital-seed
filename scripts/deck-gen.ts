@@ -12,6 +12,7 @@ import PptxGenJS from "pptxgenjs";
 import { join, dirname } from "path";
 import { mkdirSync, existsSync } from "fs";
 import { execSync } from "child_process";
+import { safeExec } from "./lib/safe-exec.ts";
 import { aiCall } from "./lib/ai-call.ts";
 import { fetchCaseContext } from "./lib/web-fetcher.ts";
 
@@ -758,11 +759,10 @@ function gogAvailable(): boolean {
 
 function uploadToGoogleSlides(filePath: string): string | null {
   try {
-    const output = execSync(`gog drive upload "${filePath}"`, {
-      encoding: "utf-8",
-      timeout: 60_000,
-      stdio: ["pipe", "pipe", "pipe"],
-    }).trim();
+    // argv form (no shell) so a path can never be reinterpreted by /bin/sh.
+    const res = safeExec("gog", ["drive", "upload", filePath], { timeout: 60_000 });
+    if (res.exitCode !== 0) return null;
+    const output = res.stdout.trim();
 
     // Parse file ID from gog output — look for a Google Drive file ID pattern
     const idMatch = output.match(/(?:id[:\s]+|\/d\/|fileId[:\s]+)([a-zA-Z0-9_-]{20,})/i)

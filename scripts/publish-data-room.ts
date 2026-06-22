@@ -37,8 +37,8 @@
  *                                permission error does not block the rest of the publish.
  */
 
-import { existsSync, readFileSync, statSync } from "fs";
-import { join, dirname, basename } from "path";
+import { existsSync, readFileSync, statSync, realpathSync } from "fs";
+import { join, dirname, basename, relative, resolve, isAbsolute } from "path";
 import { execFileSync } from "child_process";
 
 const ROOT = join(dirname(new URL(import.meta.url).pathname), "..");
@@ -306,13 +306,33 @@ function publishEntry(
     return "skipped";
   }
 
+  // Defense-in-depth: resolve symlinks/.. and re-check the REAL path, so a source
+  // that lexically looks safe but resolves to a personal file (or outside the
+  // repo) is still refused — the string check above only sees the manifest text.
+  let realRel: string;
+  try {
+    realRel = relative(ROOT, realpathSync(localPath));
+  } catch {
+    realRel = relative(ROOT, resolve(localPath));
+  }
+  if (realRel.startsWith("..") || isAbsolute(realRel)) {
+    console.error(`  ⛔ REFUSED ${entry.driveName}: source resolves outside the repo (${realRel}).`);
+    return "failed";
+  }
+  const realReason = personalDataReason(realRel);
+  if (realReason) {
+    console.error(`  ⛔ REFUSED ${entry.driveName}: ${realReason} — after resolving symlinks.`);
+    return "failed";
+  }
+
   if (flags.dryRun) {
     const size = statSync(localPath).size;
     const destUrl =
       folderId && folderId !== "<dry-run-folder>"
         ? `https://drive.google.com/drive/folders/${folderId}`
         : "(folder will be created on first live publish)";
-    console.log(`  → ${entry.driveName}  [PERSONAL-DATA: NO]  ← ${entry.source} (${size} bytes)`);
+    const personalFlag = personalDataReason(entry.source) || personalDataReason(realRel) ? "YES" : "NO";
+    console.log(`  → ${entry.driveName}  [PERSONAL-DATA: ${personalFlag}]  ← ${entry.source} (${size} bytes)`);
     console.log(`      destination folder: ${destUrl}`);
   }
 
