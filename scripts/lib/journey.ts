@@ -100,14 +100,27 @@ export function deriveJourney(signals: Signals, now: string): Journey {
 }
 
 export function readSignals(root: string): Signals {
-  const nonEmpty = (rel: string) => {
+  // A context file counts as "filled" only if it exists, is non-empty, AND
+  // diverges from its pristine template — a freshly materialized template is
+  // "present", not "filled in by the user", so the guide must not treat Phase 1
+  // as done just because `seed onboard` scaffolded the files.
+  const filled = (name: string) => {
+    let content: string;
     try {
-      return readFileSync(join(root, rel), "utf-8").trim().length > 0;
+      content = readFileSync(join(root, "user", `${name}.md`), "utf-8");
     } catch {
       return false;
     }
+    if (content.trim().length === 0) return false;
+    try {
+      const tpl = readFileSync(join(root, "docs/data-room/templates", `${name}.template.md`), "utf-8");
+      if (content.trim() === tpl.trim()) return false; // pristine, not yet filled in
+    } catch {
+      /* no template on disk — any non-empty content counts as filled */
+    }
+    return true;
   };
-  const contextFilled = ["user/USER.md", "user/COMPASS.md", "user/GOALS.md"].every(nonEmpty);
+  const contextFilled = ["USER", "COMPASS", "GOALS"].every(filled);
 
   let hasIndex = false;
   try {

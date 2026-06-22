@@ -159,3 +159,21 @@ test("park ignores whitespace-only ideas", () => {
   const j = park(root, "   ", 3, NOW);
   expect(j.parkingLot.length).toBe(0);
 });
+
+test("readSignals: a pristine materialized template does NOT count as filled", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "user"), { recursive: true });
+  mkdirSync(join(root, "docs/data-room/templates"), { recursive: true });
+  for (const n of ["USER", "COMPASS", "GOALS"]) {
+    writeFileSync(join(root, "docs/data-room/templates", `${n}.template.md`), `TEMPLATE ${n}`, "utf-8");
+    writeFileSync(join(root, "user", `${n}.md`), `TEMPLATE ${n}`, "utf-8"); // pristine copy
+  }
+  const { readSignals } = require("./journey.ts");
+  expect(readSignals(root).contextFilled).toBe(false);
+  // user edits only USER.md away from the template — still not all three filled
+  writeFileSync(join(root, "user/USER.md"), "I am a real person with real goals", "utf-8");
+  expect(readSignals(root).contextFilled).toBe(false);
+  // user edits the remaining two
+  for (const n of ["COMPASS", "GOALS"]) writeFileSync(join(root, "user", `${n}.md`), `edited ${n}`, "utf-8");
+  expect(readSignals(root).contextFilled).toBe(true);
+});
