@@ -4,6 +4,8 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.5-alpha] - 2026-06-22
+
 ### Fixed
 
 - **The proactive guide now advances** (tester finding H1). `loadJourney` previously
@@ -22,6 +24,18 @@ All notable changes to Digital Seed will be documented in this file.
   `seed guide` (M3). +regression test.
 - The Phase 3 next-step nudge no longer contradicts the "integrations are not a
   day-one step" guidance (M2).
+- **`seed doctor` flags an unpulled Ollama embedding model** (with the `ollama pull`
+  fix), and `seed index` prints a one-time hint when embeddings come back empty,
+  instead of silently degrading to keyword-only (M4).
+- **`publish-data-room --dry-run` is fully offline** — it prints the resolved plan
+  (sources, sizes, PERSONAL-DATA flags) with zero Drive contact, and refuses a
+  symlink/`..` to a personal file up-front (M5/M6).
+- **`privacy-scan` reports every secret** in a file with line numbers + redacted
+  snippets, not just the first match + the raw regex (L4).
+- `seed index <missing-folder>` now exits non-zero; `seed recipe <name>` opens the
+  recipe (README + setup) instead of erroring; `seed first-prompt --copy` copies to
+  the clipboard; `setup.sh` uses a timestamped backup so a second re-run can't
+  clobber the first; the dead BigQuery link was replaced (L3/L5/L7/L8/L9).
 
 ### Changed
 
