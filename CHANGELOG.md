@@ -4,6 +4,40 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.6-alpha] - 2026-06-22
+
+### Security
+
+A second hostile re-audit found that several earlier fixes were applied to the
+hardened *library* path but not to the *CLI path users actually run*. Closed:
+
+- **CRITICAL — `seed index` could silently upload your private notes to OpenAI.**
+  The `RAG_EMBED_CLOUD` opt-in gate existed in the MCP rag-server but was missing
+  from `scripts/embed.ts` (the path the onboarding tells beginners to run), so a
+  user with `OPENAI_API_KEY` set — but who deliberately left cloud embedding OFF
+  per the docs — had `user/`/`patterns/`/`docs/` POSTed to OpenAI. Embeddings now
+  default to **local Ollama** and require an explicit `RAG_EMBED_CLOUD=1` opt-in,
+  matching the documented contract.
+- **CRITICAL — `seed import` no longer silently overwrites the agent's Trust
+  Boundary.** A malicious/shared archive could replace `.claude/CLAUDE.md` (the
+  agent's safety rules) verbatim. Import now extracts everything else and diverts
+  an incoming policy file to `.claude/CLAUDE.md.imported` with a loud warning for
+  manual review — an imported archive can never rewrite your agent's rules.
+- **HIGH — download redirect SSRF.** `downloadFile` validated only the first hop
+  then let `fetch()` auto-follow redirects; it now uses `safeFetch` (manual
+  redirect + per-hop re-validation), so a public URL can't 30x-bounce into
+  loopback/RFC1918/cloud-metadata.
+- **HIGH — secret scanners missed Stripe + fine-grained GitHub PATs.** Added
+  `sk_live_`/`sk_test_` and `github_pat_` to all four detection layers (privacy
+  scan, pre-commit hook, collab boundary, installer hook).
+- **HIGH — hardlink bypass of the data-room guard.** The publish guard resolved
+  symlinks but not hardlinks (which keep an in-repo path while aliasing a personal
+  file's bytes); it now refuses any multiply-linked source.
+
+A medium/low footgun-hardening backlog from the same audit is tracked in the
+audit docs (marketplace-install SSRF, `deck-gen/excel-gen --web` fencing,
+`journey.json` parking-lot validation, TOCTOU on the publish upload path, etc.).
+
 ## [0.4.5-alpha] - 2026-06-22
 
 ### Fixed

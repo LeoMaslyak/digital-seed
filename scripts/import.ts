@@ -3,7 +3,7 @@
  * Digital Seed Import — Restore from a portable archive.
  */
 
-import { existsSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 import { resolve, join, dirname, sep } from "path";
 import { safeExec } from "./lib/safe-exec.ts";
 
@@ -77,17 +77,32 @@ try {
     }
   }
 
-  // 3. Extract members directly at ROOT (argv form, no shell). The name-escape
-  //    guard (step 1) and the link guard (step 2) have already rejected every
-  //    traversal vector, so members restore where they belong (user/, config/,
-  //    …) — no wrapper directory, matching the original restore behavior.
-  const res = safeExec(
-    "tar",
-    ["-xzf", archive, "-C", ROOT_RESOLVED],
-    { inherit: true },
-  );
+  // 3. Never silently overwrite the agent's policy file: .claude/CLAUDE.md holds
+  //    the Trust Boundary (the agent's safety rules). If the archive carries one,
+  //    extract everything ELSE and divert the incoming policy to a *.imported file
+  //    for manual review — importing an untrusted archive must NOT be able to
+  //    rewrite your agent's safety rules.
+  const POLICY = ".claude/CLAUDE.md";
+  const hasPolicy = members.includes(POLICY) || members.includes("./" + POLICY);
+
+  const tarArgs = ["-xzf", archive, "-C", ROOT_RESOLVED];
+  if (hasPolicy) tarArgs.push("--exclude", POLICY, "--exclude", "./" + POLICY);
+  const res = safeExec("tar", tarArgs, { inherit: true });
   if (res.exitCode !== 0) {
     throw new Error(`tar extraction failed (code ${res.exitCode})`);
+  }
+
+  if (hasPolicy) {
+    // Extract just the incoming policy to stdout and stage it for review.
+    const got = safeExec("tar", ["-xOzf", archive, POLICY]);
+    const incoming = got.exitCode === 0 && got.stdout
+      ? got.stdout
+      : safeExec("tar", ["-xOzf", archive, "./" + POLICY]).stdout || "";
+    if (incoming) writeFileSync(join(ROOT_RESOLVED, POLICY + ".imported"), incoming, "utf-8");
+    console.error("\n⚠  AGENT POLICY NOT REPLACED.");
+    console.error(`   This archive contained a new ${POLICY} (your agent's Trust Boundary / rules).`);
+    console.error(`   It was saved to ${POLICY}.imported — review the diff and replace it MANUALLY,`);
+    console.error("   only if you fully trust the source. An imported archive must never rewrite your agent's safety rules.");
   }
 
   console.log("✅ Import complete!");
