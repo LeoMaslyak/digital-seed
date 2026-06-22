@@ -76,7 +76,10 @@ opens a **read-only transaction** for queries:
 Use community MCP servers for Google Cloud services (vet and pin them yourself,
 see the verification steps in the [MCP README](../../mcp/README.md)):
 
-- **BigQuery:** [mcp-bigquery](https://github.com/ergut/mcp-bigquery)
+- **BigQuery:** search the [official MCP servers list](https://github.com/modelcontextprotocol/servers)
+  and npm for a maintained BigQuery MCP, then verify it with
+  `npm view <name>` (check the publisher, last-publish date, and README) and pin
+  the version before use. Do not `npx -y` an unverified name.
 - **Firestore:** Check [MCP server directory](https://github.com/modelcontextprotocol/servers)
 
 ## Microsoft shared drive / OneDrive

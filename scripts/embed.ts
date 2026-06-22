@@ -21,6 +21,20 @@ const STATUS_FILE = join(DATA_DIR, "status.json");
 if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
 if (!existsSync(DB_DIR)) mkdirSync(DB_DIR, { recursive: true });
 
+// Print the "no embeddings produced" hint at most once per run, so a
+// missing local model degrades to keyword-only without spamming per file.
+let emptyEmbeddingHintShown = false;
+function noteEmptyEmbedding(config: EmbedConfig): void {
+  if (emptyEmbeddingHintShown) return;
+  emptyEmbeddingHintShown = true;
+  if (config.provider === "ollama") {
+    console.error(
+      "\n⚠ No embeddings produced — for local semantic search run: " +
+        "ollama pull nomic-embed-text, then re-index.\n"
+    );
+  }
+}
+
 // ─── Config ─────────────────────────────────────────────────────────
 
 interface EmbedConfig {
@@ -304,6 +318,7 @@ async function indexAll(config: EmbedConfig, specificPath?: string): Promise<voi
 
         for (let i = 0; i < chunks.length; i++) {
           const embedding = await getEmbedding(chunks[i], config);
+          if (embedding.length === 0) noteEmptyEmbedding(config);
           docs.push({
             id: `${hash}-${i}`, content: chunks[i], source: file,
             hash, embedding, indexedAt: new Date().toISOString(), chunkIndex: i,
@@ -372,7 +387,7 @@ async function watchMode(config: EmbedConfig): Promise<void> {
       const docs: any[] = [];
       for (let i = 0; i < chunks.length; i++) {
         const embedding = await getEmbedding(chunks[i], config);
-        if (embedding.length === 0) continue;
+        if (embedding.length === 0) { noteEmptyEmbedding(config); continue; }
         docs.push({
           id: `${hash}-${i}`, content: chunks[i], source: filePath,
           hash, embedding, indexedAt: new Date().toISOString(), chunkIndex: i,

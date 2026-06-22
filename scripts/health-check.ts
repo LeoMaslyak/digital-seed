@@ -19,6 +19,26 @@ function check(name: string, fn: () => { ok: boolean; detail: string }) {
   }
 }
 
+// Async checks resolve into `checks` and are awaited before printing. A check
+// that resolves to `null` is a no-op (the check doesn't apply on this machine).
+const pendingChecks: Promise<void>[] = [];
+function asyncCheck(
+  name: string,
+  fn: () => Promise<{ ok: boolean; detail: string } | null>
+) {
+  pendingChecks.push(
+    fn()
+      .then((result) => {
+        if (result) {
+          checks.push({ name, status: result.ok ? "ok" : "warn", detail: result.detail });
+        }
+      })
+      .catch((e) => {
+        checks.push({ name, status: "fail", detail: String(e) });
+      })
+  );
+}
+
 // Check user context files
 check("User context", () => {
   const starterFiles = [
@@ -96,6 +116,57 @@ check("AI provider", () => {
   return { ok: false, detail: "Not configured — run ./setup.sh" };
 });
 
+// Check the local Ollama embedding model when Ollama is the embeddings provider.
+// Ollama can be installed and running while the model itself was never pulled,
+// which silently degrades semantic search to keyword-only with no signal.
+asyncCheck("Ollama embedding model", async () => {
+  // Determine the embeddings provider + model the same way scripts/embed.ts does.
+  let provider = process.env.OPENAI_API_KEY ? "openai" : "ollama";
+  let model = process.env.OPENAI_API_KEY ? "text-embedding-3-small" : "nomic-embed-text";
+  const cfgPath = join(ROOT, "config", "embeddings.yaml");
+  if (existsSync(cfgPath)) {
+    try {
+      const yaml = require("js-yaml");
+      const raw = yaml.load(readFileSync(cfgPath, "utf-8")) as any;
+      if (raw?.provider) provider = String(raw.provider);
+      if (raw?.model) model = String(raw.model);
+    } catch {
+      // fall back to defaults
+    }
+  }
+
+  // Only relevant when Ollama provides embeddings.
+  if (provider !== "ollama") return null;
+
+  // Query Ollama's tag list; gracefully skip if it isn't reachable.
+  let tags: any;
+  try {
+    const resp = await fetch("http://localhost:11434/api/tags", {
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!resp.ok) return null;
+    tags = await resp.json();
+  } catch {
+    // Ollama not running / not installed — leave it to the AI provider check.
+    return null;
+  }
+
+  // Model names in /api/tags may carry a tag suffix (e.g. "nomic-embed-text:latest").
+  const installed: string[] = Array.isArray(tags?.models)
+    ? tags.models.map((m: any) => String(m?.name ?? ""))
+    : [];
+  const base = model.split(":")[0];
+  const hasModel = installed.some((n) => n === model || n.split(":")[0] === base);
+
+  if (hasModel) {
+    return { ok: true, detail: `${model} pulled` };
+  }
+  return {
+    ok: false,
+    detail: `Ollama embedding model not pulled — run: ollama pull ${model}`,
+  };
+});
+
 // Check MCP servers
 check("MCP servers", () => {
   const memServer = existsSync(join(ROOT, "mcp/memory-server/src/index.ts"));
@@ -123,6 +194,10 @@ check("Security hooks", () => {
   const exists = existsSync(hook);
   return { ok: exists, detail: exists ? "Pre-commit hook installed" : "Not installed — run: bun run seed hooks install" };
 });
+
+// Wait for any async checks (e.g. the Ollama embedding-model probe) to resolve
+// before printing, so their rows aren't dropped.
+await Promise.all(pendingChecks);
 
 // Print results
 const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf-8"));

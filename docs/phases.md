@@ -51,6 +51,7 @@ bun run seed hooks install
 
 - Indexes one local folder (`~/Documents/Notes`, an Obsidian vault, or any directory of files)
 - Enables `bun run seed search "..."` for local retrieval
+- Uses a local JSON keyword index by default (offline, no setup); for local **semantic** search you can optionally `ollama pull nomic-embed-text` and re-index
 - Optionally indexes a GitHub repo with `bun run seed learn owner/repo`
 
 **What it skips:** No cloud embedding service (uses a local JSON index). No hosted vector database.

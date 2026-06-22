@@ -325,16 +325,9 @@ function publishEntry(
     return "failed";
   }
 
-  if (flags.dryRun) {
-    const size = statSync(localPath).size;
-    const destUrl =
-      folderId && folderId !== "<dry-run-folder>"
-        ? `https://drive.google.com/drive/folders/${folderId}`
-        : "(folder will be created on first live publish)";
-    const personalFlag = personalDataReason(entry.source) || personalDataReason(realRel) ? "YES" : "NO";
-    console.log(`  → ${entry.driveName}  [PERSONAL-DATA: ${personalFlag}]  ← ${entry.source} (${size} bytes)`);
-    console.log(`      destination folder: ${destUrl}`);
-  }
+  // Note: --dry-run is handled entirely by printDryRunPlan() in main(), which
+  // returns before any entry is published. publishEntry() therefore only runs on
+  // a real publish, so there is no dry-run branch here.
 
   const prior = existing.filter((c) => c.type === "file" && c.name === entry.driveName);
 
@@ -356,6 +349,73 @@ function publishEntry(
   }
 }
 
+/**
+ * Print the full resolved manifest plan WITHOUT contacting Drive.
+ *
+ * Used for --dry-run. A privacy-conscious user can run this on a machine with no
+ * `gog`/Drive auth and still see exactly what would be published — each entry's
+ * driveName, source, resolved size, computed PERSONAL-DATA flag, and a generic
+ * destination note — with zero network contact. The live folder lookup only
+ * happens for a real publish.
+ */
+function printDryRunPlan(): void {
+  let entries = 0;
+  let missing = 0;
+  let flagged = 0;
+
+  const folders = new Map<string, ManifestEntry[]>();
+  for (const entry of MANIFEST) {
+    if (!folders.has(entry.folder)) folders.set(entry.folder, []);
+    folders.get(entry.folder)!.push(entry);
+  }
+
+  for (const [folder, folderEntries] of folders) {
+    console.log(`\n${folder}`);
+    console.log(`      destination: <root>/${folder}/  (folder created on first live publish)`);
+    for (const entry of folderEntries) {
+      const localPath = join(ROOT, entry.source);
+
+      // Resolve symlinks/.. to the real path so the PERSONAL-DATA flag reflects
+      // where the source actually points, not just the manifest text.
+      let realRel: string;
+      try {
+        realRel = relative(ROOT, realpathSync(localPath));
+      } catch {
+        realRel = relative(ROOT, resolve(localPath));
+      }
+      const outsideRepo = realRel.startsWith("..") || isAbsolute(realRel);
+      const isPersonal =
+        personalDataReason(entry.source) !== null ||
+        outsideRepo ||
+        personalDataReason(realRel) !== null;
+      const personalFlag = isPersonal ? "YES" : "NO";
+
+      let sizeNote: string;
+      if (!existsSync(localPath)) {
+        sizeNote = "MISSING";
+        missing++;
+      } else {
+        sizeNote = `${statSync(localPath).size} bytes`;
+      }
+      if (isPersonal) flagged++;
+      entries++;
+
+      console.log(`  → ${entry.driveName}  [PERSONAL-DATA: ${personalFlag}]  ← ${entry.source} (${sizeNote})`);
+      if (outsideRepo) {
+        console.log(`      ⚠️  source resolves outside the repo (${realRel}) — would be REFUSED on a live publish`);
+      } else if (realRel !== entry.source.replace(/\\/g, "/")) {
+        console.log(`      (resolves to ${realRel})`);
+      }
+    }
+  }
+
+  console.log(
+    `\nDry run: ${entries} entr${entries === 1 ? "y" : "ies"} planned, ` +
+      `${missing} missing local source(s), ${flagged} flagged PERSONAL-DATA.`,
+  );
+  console.log(`No Drive contact was made. Re-run without --dry-run to publish.`);
+}
+
 function main(): void {
   console.log(`Digital Seed — public data room publisher\n`);
   console.log(`Mode: ${flags.dryRun ? "DRY RUN" : "LIVE"}`);
@@ -364,7 +424,28 @@ function main(): void {
 
   // Manifest self-check: never start with a manifest that would publish live
   // personal context, even in dry-run. Fails closed.
-  const personalEntries = MANIFEST.filter((e) => personalDataReason(e.source) !== null);
+  //
+  // This checks each source two ways and refuses on either:
+  //   1. The literal manifest string (catches a manifest edit that names user/*.md).
+  //   2. The realpathSync()-resolved path relative to ROOT (catches a symlink or
+  //      ".." source that lexically looks safe but resolves to a personal file or
+  //      to somewhere outside the repo). The robust per-entry check in
+  //      publishEntry() only runs after the Drive folder lookup (needs auth), so
+  //      doing it here means the symlink/".." vector is caught up-front and in
+  //      dry-run — before any network contact.
+  const personalEntries = MANIFEST.filter((e) => {
+    if (personalDataReason(e.source) !== null) return true;
+    const localPath = join(ROOT, e.source);
+    let realRel: string;
+    try {
+      realRel = relative(ROOT, realpathSync(localPath));
+    } catch {
+      realRel = relative(ROOT, resolve(localPath));
+    }
+    // Resolves outside the repo, or the resolved path itself is personal.
+    if (realRel.startsWith("..") || isAbsolute(realRel)) return true;
+    return personalDataReason(realRel) !== null;
+  });
   if (personalEntries.length > 0) {
     console.error(`\n⛔ Refusing to run: the manifest sources live personal data.`);
     for (const e of personalEntries) {
@@ -377,22 +458,39 @@ function main(): void {
     process.exit(2);
   }
 
-  // Privacy gate: before any LIVE upload, require the project privacy scan to pass.
-  // Dry-run is exempt (it uploads nothing) but still benefits from the manifest
-  // self-check above.
-  if (!flags.dryRun) {
-    console.log(`\nRunning privacy scan before publishing…`);
-    if (!privacyScanPasses()) {
-      console.error(
-        `\n⛔ Refusing to publish: privacy scan did not pass. Fix the reported items\n` +
-          `   (or run "bun run seed privacy-scan" to inspect) and re-run.`,
-      );
-      process.exit(2);
-    }
-    console.log(`Privacy scan passed; continuing with publish.\n`);
+  // Dry run is fully OFFLINE: print the resolved plan and stop before any
+  // privacy scan, folder lookup, or other Drive/`gog`/network contact. This lets
+  // a privacy-conscious user preview exactly what would be published even on a
+  // machine with no Drive auth — no live calls, no stack traces.
+  if (flags.dryRun) {
+    printDryRunPlan();
+    return;
   }
 
-  const rootId = findRootFolder();
+  // Privacy gate: before any LIVE upload, require the project privacy scan to pass.
+  console.log(`\nRunning privacy scan before publishing…`);
+  if (!privacyScanPasses()) {
+    console.error(
+      `\n⛔ Refusing to publish: privacy scan did not pass. Fix the reported items\n` +
+        `   (or run "bun run seed privacy-scan" to inspect) and re-run.`,
+    );
+    process.exit(2);
+  }
+  console.log(`Privacy scan passed; continuing with publish.\n`);
+
+  // Only a real publish contacts Drive. If auth is missing, show a friendly
+  // one-liner instead of a raw stack trace, and point the user at --dry-run.
+  let rootId: string;
+  try {
+    rootId = findRootFolder();
+  } catch (e) {
+    console.error(
+      `\n⛔ Could not reach Google Drive: ${(e as Error).message.split("\n")[0]}\n` +
+        `   Make sure the "gog" CLI is installed and authenticated (try "gog accounts"),\n` +
+        `   or run with --dry-run to preview the plan offline.`,
+    );
+    process.exit(2);
+  }
   console.log(`Root folder: ${flags.rootName}\n  https://drive.google.com/drive/folders/${rootId}\n`);
 
   const folderPlans = new Map<string, FolderPlan>();
