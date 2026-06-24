@@ -332,6 +332,22 @@ function copyToClipboard(text: string): boolean {
   return false;
 }
 
+/**
+ * Detect which terminal AI agents are installed and return the EXACT command to
+ * launch each in this folder — so a beginner is told "run `claude` here" rather
+ * than the vague "open your agent."
+ */
+function detectAgents(): Array<{ name: string; label: string; launch: string }> {
+  const agents = [
+    { name: "claude", label: "Claude Code", launch: "claude" },
+    { name: "codex", label: "Codex CLI", launch: "codex" },
+    { name: "gemini", label: "Gemini CLI", launch: "gemini" },
+    { name: "cursor", label: "Cursor", launch: "cursor ." },
+    { name: "windsurf", label: "Windsurf", launch: "windsurf ." },
+  ];
+  return agents.filter((a) => commandExists(a.name));
+}
+
 function printFirstPrompt(opts: { copy?: boolean } = {}): void {
   const firstWinPath = join(ROOT, "user", "FIRST-WIN.md");
   const hasFirstWin = existsSync(firstWinPath);
@@ -929,6 +945,7 @@ that is optional or maintainer-only. Skip on day one. Add only after the
 local loop (context files + first prompt + local search) is already useful.
 
 BEGINNER — first 15 minutes
+  bun run seed start                   ⭐ Start here — one guided first session
   bun run seed onboard                 Show the first 15-minute path (animated)
   bun run seed onboard --plain         Same path, no animation or color
   bun run seed doctor                  Friendly setup health check
@@ -1040,6 +1057,58 @@ else if (cmd === "onboard" || cmd === "init") {
       console.log("   It blocks commits that contain obvious API-key patterns.");
     }
   }
+}
+else if (cmd === "start") {
+  const plain = rest.includes("--plain");
+  const h = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}`);
+  const cmdC = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.gold}${t}${ANSI.reset}`);
+  const dim = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.dim}${t}${ANSI.reset}`);
+
+  console.log(h("Welcome to Digital Seed — let's get you a useful AI in about 10 minutes."));
+  console.log(dim("No accounts to create, nothing to break. Everything stays on your machine.\n"));
+
+  // 1. Materialize the personal context files (idempotent).
+  const created = materializeUserContext();
+  if (created.length > 0) {
+    console.log(h("1. Your context files are ready"));
+    console.log(`   Created ${created.length} files under user/ (git-ignored — never committed).`);
+    console.log(dim("   These are where your AI learns who you are. You'll fill them in next.\n"));
+  } else {
+    console.log(h("1. Your context files already exist") + dim("  (under user/)\n"));
+  }
+
+  // 2. The single most valuable thing to do: put real content in 3 files.
+  console.log(h("2. Tell your AI who you are (the one step that matters most)"));
+  console.log("   Open these three files and write a few honest lines in each:");
+  console.log(cmdC("     user/USER.md") + dim("      — who you are, your role, your context"));
+  console.log(cmdC("     user/GOALS.md") + dim("     — what you're trying to get done"));
+  console.log(cmdC("     user/COMPASS.md") + dim("   — your priorities and how you like to work"));
+  console.log(dim("   Rough notes are fine. Open the folder in any editor, or run `seed onboard` for the guided path.\n"));
+
+  // 3. Tell them the EXACT command for the agent they actually have.
+  console.log(h("3. Open your AI agent in this folder"));
+  const found = detectAgents();
+  if (found.length > 0) {
+    const a = found[0];
+    console.log(`   You have ${a.label}. In a terminal in this folder, run:`);
+    console.log(cmdC(`     ${a.launch}`));
+    if (found.length > 1) {
+      console.log(dim(`   (also found: ${found.slice(1).map((x) => x.label).join(", ")})`));
+    }
+  } else {
+    console.log(dim("   No AI agent detected. The easiest free option is Claude Code:"));
+    console.log(dim("     see docs/install-claude-code.md  (or Cursor / Codex CLI / Gemini CLI)."));
+  }
+  console.log("");
+
+  // 4. Hand them the ready-to-paste first prompt (and copy it).
+  console.log(h("4. Paste this prompt into your agent — it produces your first useful thing"));
+  printFirstPrompt({ copy: true });
+
+  // Record progress + point at the always-available guide.
+  try { completeStep(ROOT, 1, "context", new Date().toISOString()); } catch { /* best-effort */ }
+  console.log("");
+  console.log(dim("Lost or coming back later? Run `bun run seed guide` any time — it always tells you your single next step."));
 }
 else if (cmd === "intro") {
   const framesArg = rest.find((arg) => arg.startsWith("--frames="));

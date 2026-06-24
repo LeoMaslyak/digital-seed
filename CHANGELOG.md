@@ -4,6 +4,17 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0-alpha] - 2026-06-24
+
+### Added
+
+- **`seed start` — one guided first session** (the newcomer on-ramp). A single
+  command that: creates your context files, tells you the three to fill in,
+  **detects the AI agent you already have and prints the exact command to launch
+  it** (no more vague "open your agent"), hands you a ready-to-paste first prompt
+  (copied to your clipboard), and records your progress so `seed guide` advances.
+  The README and help now lead with `seed start`. (Roadmap item A1–A4.)
+
 ## [0.4.7-alpha] - 2026-06-24
 
 ### Security
