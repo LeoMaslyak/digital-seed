@@ -24,6 +24,7 @@ import {
   readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync, readdirSync,
 } from "fs";
 import { join, dirname } from "path";
+import { safeFetch } from "./lib/net-guard.ts";
 
 const ROOT = join(dirname(new URL(import.meta.url).pathname), "..");
 
@@ -243,7 +244,9 @@ async function installPattern(id: string, entry: RegistryEntry, force = false): 
   if (entry.url) {
     console.log(`📥 Fetching ${entry.name}...`);
     try {
-      const res = await fetch(entry.url);
+      // SSRF guard: safeFetch validates the URL + every redirect hop, so a
+      // pattern URL can't bounce into loopback/RFC1918/cloud-metadata.
+      const res = await safeFetch(entry.url);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const content = await res.text();
 
@@ -251,6 +254,12 @@ async function installPattern(id: string, entry: RegistryEntry, force = false): 
       writeFileSync(join(destDir, "system.md"), content, "utf-8");
       registerInstalled(id, "pattern", entry.version, "remote");
       console.log(`✅ Installed ${entry.name} → patterns/${id}/system.md`);
+      // This file becomes AGENT INSTRUCTIONS (a pattern's system prompt). Make
+      // the trust decision explicit — the user just ran remote text as policy.
+      console.log(
+        `⚠  patterns/${id}/system.md was downloaded from ${entry.url} and will be used as\n` +
+          "   agent instructions. Review it before relying on it — only install patterns you trust.",
+      );
     } catch (e) {
       console.error(`❌ Download failed: ${(e as Error).message}`);
       process.exit(1);

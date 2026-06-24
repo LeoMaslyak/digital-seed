@@ -4,6 +4,33 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.7-alpha] - 2026-06-24
+
+### Security
+
+Clears the medium/low footgun backlog from the second hostile re-audit:
+
+- **Prompt-injection fence on `deck-gen --web` / `excel-gen --web`** — scraped web
+  text is now wrapped as DATA-not-instructions (shared `scripts/lib/fence.ts`),
+  matching the `web` command. (Audit M14.)
+- **`seed index` no longer follows symlinks** out of the indexed tree (couldn't
+  read/embed an out-of-folder file via a planted link). (M9.)
+- **`marketplace install` routes its download through `safeFetch`** (per-hop SSRF
+  re-validation) and prints an explicit warning that a downloaded pattern becomes
+  agent instructions — review before trusting. (M12/M13.)
+- **repo-bot index path traversal closed** — the repo id is now fully sanitized
+  (every unsafe run, not just the first slash), so a crafted id can't write/unlink
+  an arbitrary `.json`. (M15.)
+- **`journey.json` is fully validated on load** — a poisoned parking lot
+  (`[null]`, non-objects, control-char/terminal-escape ideas, out-of-range phase)
+  is sanitized instead of crashing or terminal-injecting `seed guide`/`seed park`.
+  +regression test. (M17 + cli-state lows.)
+
+Remaining (tracked, lower-likelihood — need product/UX decisions): the data-room
+publish TOCTOU + destination-folder confirmation (M7/M8) and the default
+`seed index` scope question (M10) are documented in the audit docs for a
+follow-up.
+
 ## [0.4.6-alpha] - 2026-06-22
 
 ### Security
