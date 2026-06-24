@@ -4,6 +4,22 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.1-alpha] - 2026-06-24
+
+### Added
+
+- **Broadened the open-source catalog's reference section** to a real index of the
+  community "awesome list" ecosystem — so the guide points beginners at the wide
+  body of community-researched repos, not just a handful. New verified references:
+  `sindresorhus/awesome` (the root index of all awesome lists), `awesome-selfhosted`,
+  `awesome-privacy`, `awesome-generative-ai`, `Awesome-LLM`, `awesome-local-ai`,
+  `awesome-ai-tools`, `awesome-chatgpt-prompts`, and `awesome-mcp-clients`. Added
+  **Ollama** as a real vetted local-AI tool (it powers `seed index` semantic search).
+  `seed catalog` now groups these under a "General references" heading; `seed find`
+  matches needs like "self-host", "private alternatives", "run AI locally", and
+  "learn how to prompt". Every list is a discovery map, not a safety review — the
+  guide still says `seed vet` before installing anything from them.
+
 ## [0.6.0-alpha] - 2026-06-24
 
 ### Added

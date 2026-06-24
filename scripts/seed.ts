@@ -1321,7 +1321,8 @@ else if (cmd === "catalog") {
     for (const ph of byPhase) {
       const inPhase = entries.filter((e) => (e.phase || 0) === ph);
       if (!inPhase.length) continue;
-      console.log(USE_ANSI ? `${ANSI.bold}${ANSI.mint}Phase ${ph || "—"}${ANSI.reset}` : `Phase ${ph || "—"}`);
+      const heading = ph === 0 ? "General references (awesome lists — explore widely, vet before installing)" : `Phase ${ph}`;
+      console.log(USE_ANSI ? `${ANSI.bold}${ANSI.mint}${heading}${ANSI.reset}` : heading);
       for (const e of inPhase) console.log("  • " + formatEntry(e).split("\n").join("\n  "));
       console.log("");
     }

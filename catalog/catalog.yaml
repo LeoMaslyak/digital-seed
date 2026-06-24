@@ -168,3 +168,130 @@ tools:
     when_to_use: "The safest place to start when you want to connect something — official reference servers first."
     caution: "Some reference servers are archived/deprecated — check maintenance status before relying on one."
     alternatives: [mcp-github, mcp-postgres]
+
+  # ── More curated directories — the broader "awesome list" ecosystem ─────────
+  # These are community-maintained indexes (not single tools). They are a great
+  # reference point for discovering repos, but a listing is DISCOVERY, not a
+  # safety review — always `seed vet` and read the code before installing one.
+
+  - id: ref-awesome-root
+    name: awesome (the root index of all awesome lists)
+    category: reference
+    serves: ["find a curated list for any topic", "the gateway to all awesome lists", "explore open source broadly"]
+    phase: 0
+    repo: https://github.com/sindresorhus/awesome
+    trust: { tier: community, provenance: community-list, reviewed: "the canonical index of awesome lists" }
+    accesses: []
+    when_to_use: "When your need isn't in this catalog at all — start here to find a community-curated list for almost any topic, then `seed vet` your pick."
+    caution: "An index of indexes. Anything you follow from here is unreviewed by Digital Seed — vet before installing."
+    alternatives: []
+
+  - id: ref-awesome-mcp-clients
+    name: awesome-mcp-clients
+    category: reference
+    serves: ["find an MCP client", "apps that can talk to MCP servers"]
+    phase: 3
+    repo: https://github.com/punkpeye/awesome-mcp-clients
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated directory of MCP clients" }
+    accesses: []
+    when_to_use: "When you want a different app/front-end to connect to your MCP servers."
+    caution: "Clients vary in maturity — `seed vet` and check what each can access."
+    alternatives: [ref-awesome-mcp]
+
+  - id: ref-awesome-local-ai
+    name: awesome-local-ai
+    category: reference
+    serves: ["run AI locally", "local LLM tools", "offline AI", "private on-device AI"]
+    phase: 2
+    repo: https://github.com/janhq/awesome-local-ai
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated directory of local/offline AI tools" }
+    accesses: []
+    when_to_use: "When you want to keep everything on your own machine — local model runners, UIs, and tooling."
+    caution: "Local tools still vary in quality; check resource needs and read before running."
+    alternatives: [ollama]
+
+  - id: ref-awesome-generative-ai
+    name: awesome-generative-ai
+    category: reference
+    serves: ["understand the generative-AI landscape", "discover AI tools and models"]
+    phase: 0
+    repo: https://github.com/steven2358/awesome-generative-ai
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated landscape of generative AI" }
+    accesses: []
+    when_to_use: "For orientation — a broad map of the generative-AI ecosystem."
+    caution: "A landscape map, not a recommendation. Vet anything before use."
+    alternatives: []
+
+  - id: ref-awesome-llm
+    name: Awesome-LLM
+    category: reference
+    serves: ["learn about large language models", "models, papers, and LLM tooling"]
+    phase: 0
+    repo: https://github.com/Hannibal046/Awesome-LLM
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated LLM reference" }
+    accesses: []
+    when_to_use: "To go deeper on how LLMs work and what's available."
+    caution: "Reference material; more technical. Skip on day one."
+    alternatives: []
+
+  - id: ref-awesome-selfhosted
+    name: awesome-selfhosted
+    category: reference
+    serves: ["self-host my own services", "own my data", "free software alternatives to cloud apps"]
+    phase: 0
+    repo: https://github.com/awesome-selfhosted/awesome-selfhosted
+    trust: { tier: community, provenance: community-list, reviewed: "large, well-maintained directory of self-hostable software" }
+    accesses: []
+    when_to_use: "When you want to run services yourself instead of trusting a cloud provider — fits the local-first, own-your-data ethos."
+    caution: "Self-hosting means you run (and secure) it. Start small; vet each project."
+    alternatives: [ref-awesome-privacy]
+
+  - id: ref-awesome-privacy
+    name: awesome-privacy
+    category: reference
+    serves: ["privacy-respecting alternatives", "de-google my life", "private tools"]
+    phase: 0
+    repo: https://github.com/pluja/awesome-privacy
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated privacy-respecting alternatives" }
+    accesses: []
+    when_to_use: "When you want private, often open-source alternatives to mainstream services."
+    caution: "Alternatives vary; verify the project and its threat model fits yours."
+    alternatives: [ref-awesome-selfhosted]
+
+  - id: ref-awesome-ai-tools
+    name: awesome-ai-tools
+    category: reference
+    serves: ["browse AI tools by category", "discover what AI can do for me"]
+    phase: 0
+    repo: https://github.com/mahseema/awesome-ai-tools
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated AI tools directory" }
+    accesses: []
+    when_to_use: "For a broad, categorized browse of AI tools."
+    caution: "A directory — quality and safety vary. Vet before adopting anything."
+    alternatives: []
+
+  - id: ref-awesome-prompts
+    name: awesome-chatgpt-prompts
+    category: reference
+    serves: ["learn how to prompt", "prompt ideas and examples", "get more out of my AI"]
+    phase: 1
+    repo: https://github.com/f/awesome-chatgpt-prompts
+    trust: { tier: community, provenance: community-list, reviewed: "popular community prompt collection" }
+    accesses: []
+    when_to_use: "Early on — to learn how to ask your AI for better results. No install, just ideas."
+    caution: "Prompts are text, not software — safe to read. Adapt them to your own context."
+    alternatives: []
+
+  # ── A real local tool the kit itself uses ───────────────────────────────────
+  - id: ollama
+    name: Ollama
+    category: utility
+    serves: ["run AI models locally", "free local embeddings", "offline AI, no account", "powers local semantic search"]
+    phase: 2
+    repo: https://github.com/ollama/ollama
+    install: { method: see-repo, note: "official installer at ollama.com" }
+    trust: { tier: vetted, provenance: official, reviewed: "the standard local model runner; Digital Seed uses it for local embeddings" }
+    accesses: [filesystem, network]
+    when_to_use: "The easiest way to run models on your own machine — free, no account. Powers `seed index` local semantic search when installed (`ollama pull nomic-embed-text`)."
+    caution: "Pulls model files over the network (large downloads); inference then runs locally. Models themselves vary in quality/license — pick reputable ones."
+    alternatives: [ref-awesome-local-ai]

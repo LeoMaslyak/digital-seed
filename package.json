@@ -1,6 +1,6 @@
 {
   "name": "digital-seed",
-  "version": "0.6.0-alpha",
+  "version": "0.6.1-alpha",
   "description": "A public starter kit for building your own personal AI operating system",
   "type": "module",
   "scripts": {
