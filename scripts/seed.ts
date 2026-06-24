@@ -33,6 +33,7 @@ import { detectActivityState, describeState } from "../core/src/activity-state.t
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
 import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney } from "./lib/journey.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
+import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
 const ROOT   = join(dirname(new URL(import.meta.url).pathname), "..");
 const args   = process.argv.slice(2);
@@ -346,6 +347,96 @@ function detectAgents(): Array<{ name: string; label: string; launch: string }> 
     { name: "windsurf", label: "Windsurf", launch: "windsurf ." },
   ];
   return agents.filter((a) => commandExists(a.name));
+}
+
+/**
+ * `seed vet` — the teach-them-to-fish safety check for ANY open-source tool a
+ * user is considering (catalog or not). Offline by default (npm-existence +
+ * static heuristics — the checks that catch the typosquat/non-existent-package
+ * class); `--online` adds live repo signals via gh when available.
+ */
+function vetTarget(target: string, opts: { online?: boolean } = {}): void {
+  const bold = (t: string) => (USE_ANSI ? `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}` : t);
+  const dim = (t: string) => (USE_ANSI ? `${ANSI.dim}${t}${ANSI.reset}` : t);
+  console.log(bold(`Vetting: ${target}\n`));
+
+  // 1. Is it already in our curated catalog?
+  const { entries } = loadCatalog(ROOT);
+  const pkgBase = (s: string) => (s.startsWith("@") ? "@" + s.slice(1).split("@")[0] : s.split("@")[0]).toLowerCase();
+  const targetPkg = pkgBase(target);
+  const known = entries.find((e) => {
+    if (e.id.toLowerCase() === target.toLowerCase()) return true;
+    if (target.length > 3 && e.repo.toLowerCase().includes(target.toLowerCase())) return true;
+    const ep = e.install ? String(e.install.package || "") : "";
+    return ep.length > 0 && pkgBase(ep) === targetPkg && targetPkg.length > 0;
+  });
+  if (known) {
+    console.log(`📋 In the Digital Seed catalog: ${known.name}  [${tierBadge(known.trust.tier)}]`);
+    if (known.trust.reviewed) console.log(dim(`   ${known.trust.reviewed}`));
+    if (known.caution) console.log(`   ⚠ ${known.caution}`);
+    console.log("");
+  } else {
+    console.log(dim("Not in the Digital Seed catalog — so treat it as unreviewed and check it yourself below.\n"));
+  }
+
+  const isUrl = /^https?:\/\//i.test(target);
+  const isScopedNpm = target.startsWith("@") && target.includes("/");
+  const isBareNpm = !isUrl && !target.includes("/");
+  const isRepo = !isUrl && !isScopedNpm && /^[^/\s]+\/[^/\s]+$/.test(target);
+
+  // 2. npm existence + vendor-impersonation (the C2 lesson: fictional / look-alike packages).
+  if (isScopedNpm || isBareNpm) {
+    const pkg = target.split("@").filter(Boolean)[0] ? (target.startsWith("@") ? "@" + target.slice(1).split("@")[0] : target.split("@")[0]) : target;
+    let exists = false, err = "";
+    try {
+      const res = safeExec("npm", ["view", pkg, "version"], { timeout: 20000 });
+      exists = res.exitCode === 0 && res.stdout.trim().length > 0;
+      if (!exists) err = (res.stderr || "").includes("E404") ? "does NOT exist on npm (E404)" : (res.stderr.trim().split("\n")[0] || "not found");
+    } catch { err = "could not run `npm view` (is npm installed?)"; }
+    console.log(exists
+      ? `  ✅ npm: \`${pkg}\` exists.`
+      : `  ⛔ npm: \`${pkg}\` ${err}.  A non-existent name is the #1 supply-chain trap — do NOT \`npx -y\` it.`);
+
+    // Vendor-impersonation scope heuristic.
+    const OFFICIAL: Record<string, string> = { anthropic: "@anthropic-ai", openai: "@openai", google: "@google", modelcontextprotocol: "@modelcontextprotocol" };
+    if (target.startsWith("@")) {
+      const scope = target.slice(1).split("/")[0].toLowerCase();
+      for (const [vendor, official] of Object.entries(OFFICIAL)) {
+        if (scope.includes(vendor) && "@" + scope !== official) {
+          console.log(`  ⚠ scope @${scope} resembles ${vendor} but the official scope is ${official} — possible impersonation. Confirm the publisher.`);
+        }
+      }
+    }
+    if (!target.includes("@", 1) && !isScopedNpm) console.log(dim("  ⚠ no version pinned — always install an exact version, never a floating tag."));
+  }
+
+  // 3. Live repo signals (opt-in, best-effort via gh).
+  if ((isRepo || isUrl) && opts.online) {
+    const slug = isUrl ? target.replace(/^https?:\/\/[^/]+\//, "").replace(/\.git$/, "").split("/").slice(0, 2).join("/") : target;
+    if (commandExists("gh")) {
+      try {
+        const res = safeExec("gh", ["api", `repos/${slug}`, "--jq", '{stars: .stargazers_count, pushed: .pushed_at, archived: .archived, license: .license.spdx_id}'], { timeout: 20000 });
+        if (res.exitCode === 0) console.log(`  🔎 repo ${slug}: ${res.stdout.trim()}`);
+        else console.log(dim(`  (could not fetch repo signals for ${slug})`));
+      } catch { console.log(dim("  (gh lookup failed)")); }
+    } else {
+      console.log(dim("  (install `gh` for live repo signals, or check the repo page manually)"));
+    }
+  } else if (isRepo || isUrl) {
+    console.log(dim("  (run with --online to fetch live repo signals via gh)"));
+  }
+
+  // 4. The universal checklist — the durable skill.
+  console.log("\n" + bold("Before you install or connect it, check:"));
+  for (const line of [
+    "Is the repo real, recently updated, and reasonably popular (not abandoned)?",
+    "Is the publisher who you think it is? (official scope vs a look-alike)",
+    "What can it ACCESS — your files, email, shell, network, credentials? Least privilege only.",
+    "Does it run install/postinstall scripts? Prefer `--ignore-scripts` where possible.",
+    "Pin an exact version. Read the code (or a release) before trusting it.",
+    "Connect it with a scoped/read-only token first — never your full credentials.",
+  ]) console.log("  • " + line);
+  console.log(dim("\nDigital Seed never auto-installs. You decide — this just helps you decide safely."));
 }
 
 function printFirstPrompt(opts: { copy?: boolean } = {}): void {
@@ -954,6 +1045,9 @@ BEGINNER — first 15 minutes
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed recipe list             List integration recipes
+  bun run seed find "<need>"           Find vetted open-source tools for a need (+ what each can access)
+  bun run seed catalog                 Browse the curated open-source tool catalog
+  bun run seed vet <repo-or-package>   Safety-check any tool before you install it
   bun run seed plan                    Print the AI-guided phase-selection prompt
   bun run seed what-next               Print one recommended next action
   bun run seed guide                   Where you are in the 4 phases + your single next step
@@ -1213,6 +1307,52 @@ else if (cmd === "search")  {
   localSearch(rest.join(" "));
 }
 else if (cmd === "repos")   { run("scripts/repo-bot.ts", ["list"]); }
+
+// ── Open-source guide: find/browse vetted tools, and vet anything yourself ──────
+else if (cmd === "catalog") {
+  const { entries, problems } = loadCatalog(ROOT);
+  if (problems.length) console.error(`(catalog warnings: ${problems.length} — run \`seed catalog --check\` for detail)`);
+  if (rest.includes("--check")) {
+    if (problems.length) { problems.forEach((p) => console.error(`  ✗ ${p}`)); process.exit(1); }
+    console.log(`✅ Catalog OK — ${entries.length} vetted/listed tools, all entries valid.`);
+  } else {
+    console.log("Open-source tools Digital Seed knows about (curated — verify before trusting):\n");
+    const byPhase = [1, 2, 3, 4, 0];
+    for (const ph of byPhase) {
+      const inPhase = entries.filter((e) => (e.phase || 0) === ph);
+      if (!inPhase.length) continue;
+      console.log(USE_ANSI ? `${ANSI.bold}${ANSI.mint}Phase ${ph || "—"}${ANSI.reset}` : `Phase ${ph || "—"}`);
+      for (const e of inPhase) console.log("  • " + formatEntry(e).split("\n").join("\n  "));
+      console.log("");
+    }
+    console.log("Tip: `seed find \"<what you want>\"` to match a need, or `seed vet <repo-or-package>` to check anything yourself.");
+  }
+}
+else if (cmd === "find") {
+  const need = rest.filter((a) => !a.startsWith("--")).join(" ").trim();
+  if (!need) { console.error('Usage: bun run seed find "<what you want to do>"   (e.g. "connect my email")'); process.exit(1); }
+  const { entries } = loadCatalog(ROOT);
+  const matches = matchNeed(entries, need);
+  if (!matches.length) {
+    console.log(`No vetted tool in the catalog matches "${need}" yet.`);
+    console.log("That's the honest answer — Digital Seed won't invent a repo. Options:");
+    console.log("  • Browse the curated directories: `seed catalog` (see the 'reference' lists).");
+    console.log("  • Found a candidate yourself? Check it safely first: `seed vet <repo-or-package>`.");
+    console.log("  • Open a PR to add it to the catalog (see catalog/CONTRIBUTING.md).");
+    process.exit(0);
+  }
+  console.log(`Vetted/listed options for "${need}":\n`);
+  for (const e of matches.slice(0, 6)) {
+    console.log("• " + formatEntry(e));
+    console.log("");
+  }
+  console.log("Before installing any of these, run `seed vet <repo-or-package>` and read the code. Digital Seed never auto-installs.");
+}
+else if (cmd === "vet") {
+  const target = rest.filter((a) => !a.startsWith("--")).join(" ").trim();
+  if (!target) { console.error("Usage: bun run seed vet <npm-package | owner/repo | https://github.com/...>"); process.exit(1); }
+  vetTarget(target, { online: rest.includes("--online") });
+}
 
 // ── Web & Drive ──────────────────────────────────────────────────────────────
 else if (cmd === "web")   { run("scripts/web.ts", rest); }
