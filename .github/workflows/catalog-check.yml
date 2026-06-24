@@ -23,5 +23,5 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - name: Validate catalog (schema + blast-radius + repo URLs + npm existence)
-        run: bun run scripts/catalog-check.ts --npm
+      - name: Validate catalog (schema + blast-radius + repo existence + npm existence)
+        run: bun run scripts/catalog-check.ts --npm --repos

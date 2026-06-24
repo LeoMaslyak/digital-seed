@@ -4,6 +4,17 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+### Security
+
+- **Catalog CI now verifies repo URLs actually EXIST, not just their format.** A
+  quality-gate hostile audit found that `catalog-check` validated the *shape* of
+  each `repo:` URL but never checked it resolved — so a community PR could add a
+  plausible-but-dead/typosquat GitHub URL (even `tier: vetted`, `accesses:
+  [credentials]`) and CI would pass. `catalog-check --repos` now does a real
+  existence check (confirmed 404 fails; transient/network errors only warn), and
+  the `catalog-check` CI workflow runs `--npm --repos`. Closes the catalog's #1
+  safety promise — "every entry points at a real repo".
+
 ## [0.6.1-alpha] - 2026-06-24
 
 ### Added
