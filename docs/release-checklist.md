@@ -99,7 +99,7 @@ See [`docs/data-room-guide.md`](data-room-guide.md#permission-fallbacks) for the
 For an alpha release:
 
 ```bash
-git tag v0.6.0-alpha
+git tag v0.6.1-alpha
 git push origin main --tags
 ```
 

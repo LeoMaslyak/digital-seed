@@ -12,6 +12,14 @@ test("the shipped catalog loads with zero validation problems", () => {
   expect(entries.length).toBeGreaterThan(5);
 });
 
+test("the catalog carries a broad reference section of awesome lists", () => {
+  const { entries } = loadCatalog(REPO_ROOT);
+  const refs = entries.filter((e) => e.category === "reference");
+  expect(refs.length).toBeGreaterThanOrEqual(10);
+  // the root index of all awesome lists is the gateway reference
+  expect(refs.map((e) => e.repo)).toContain("https://github.com/sindresorhus/awesome");
+});
+
 test("every shipped entry has a real https repo URL and known blast-radius terms", () => {
   const { entries } = loadCatalog(REPO_ROOT);
   for (const e of entries) {
