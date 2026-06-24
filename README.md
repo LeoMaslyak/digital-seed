@@ -55,10 +55,12 @@ Then:
 git clone https://github.com/LeoMaslyak/digital-seed.git
 cd digital-seed
 bun install
-bun run seed onboard
+bun run seed start
 ```
 
-The five-step `seed onboard` path: check setup → open your three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.
+**`seed start`** is the one guided command for your first session: it creates your context files, tells you the three to fill in, detects the AI agent you already have and gives you the exact command to launch it, and hands you a ready-to-paste prompt that produces your first useful result. Come back anytime with `bun run seed guide`, which always tells you your single next step.
+
+(Prefer the classic walkthrough? `bun run seed onboard` shows the five-step path: check setup → open your three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.)
 
 > Note: your personal context files (`user/USER.md`, `GOALS.md`, `MEMORY.md`, `PREFERENCES.md`, `COMPASS.md`, `DOMAINS.md`, `ANTI-GOALS.md`) are **not** present in a fresh clone — they hold your personal data and the whole `user/` tree is git-ignored. **`bun run seed onboard` (or `./setup.sh`) creates any that are missing** from the pristine starters in [`docs/data-room/templates/`](docs/data-room/templates/). To create them by hand instead:
 >

@@ -40,6 +40,21 @@ test("seed what-next prints a one-line Next:", async () => {
   expect(out).toContain("Next:");
 });
 
+test("seed start runs the guided first session end-to-end", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["start", "--plain"]);
+  expect(out).toContain("Welcome to Digital Seed");
+  // materializes context
+  expect(existsSync(join(root, "user/USER.md"))).toBe(true);
+  // points at the three core files + the paste-prompt step
+  expect(out).toContain("user/USER.md");
+  expect(out).toContain("paste"); // the first-prompt step
+  // detects-or-explains the agent step (one of: a launch hint or the install note)
+  expect(out.toLowerCase()).toMatch(/run:|claude|no ai agent detected/);
+  // records progress so the guide advances
+  expect(existsSync(join(root, "data/journey.json"))).toBe(true);
+});
+
 import { readFileSync as rf } from "fs";
 
 test("CLAUDE.md defines the Proactive Guide contract", () => {
