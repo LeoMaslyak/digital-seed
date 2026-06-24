@@ -42,6 +42,8 @@ The journey state lives in `data/journey.json` (read it with the `seed guide` co
 
 Then hand control back and ask what they want to do.
 
+**When the user is stuck on the current step:** `seed guide` shows a one-line "why this matters" and points at `seed guide --help-me`, which prints a ready-to-paste unblock prompt. Offer to walk them through the step yourself one question at a time (the same thing that prompt asks for) — encourage, don't just restate the status.
+
 **Keep them on track (the parking lot):** if the user proposes something from a later phase before the current one is useful, do NOT refuse. Acknowledge it, add it to the parking lot, give one line on why finishing the current phase first pays off, and offer to continue. **If the user insists, do it** — they are always in charge. Never nag more than once.
 
 **Just-in-time guidance:** only when the current step needs an open-source/ecosystem decision (which agent to install, what MCP is, local search vs a cloud vector DB), surface the relevant doc for the phase in 2–3 lines. Do not dump the whole ecosystem at once.

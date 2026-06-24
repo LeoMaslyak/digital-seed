@@ -34,6 +34,43 @@ test("seed guide on a fresh workspace shows Phase 1 + a next step", async () => 
   expect(out.toLowerCase()).toContain("next");
 });
 
+test("seed guide coaches: shows why-this-matters and points a stuck user at recovery", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["guide", "--plain"]);
+  expect(out).toContain("Why this matters");
+  expect(out).toContain("--help-me");
+});
+
+test("seed guide --help-me prints a paste-ready unblock prompt", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["guide", "--help-me", "--plain"]);
+  expect(out.toLowerCase()).toContain("paste"); // tells them to paste it into their agent
+  expect(out).toContain("Phase 1 of 4"); // the prompt names where they are
+  expect(out.toLowerCase()).toContain("one question at a time");
+});
+
+test("seed guide --refresh survives a poisoned parkingLot (no crash, no escape leak)", async () => {
+  const root = sandbox();
+  const ESC = String.fromCharCode(0x1b);
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/journey.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      currentPhase: 1,
+      phases: { "1": { status: "in_progress" }, "2": { status: "locked" }, "3": { status: "locked" }, "4": { status: "locked" } },
+      parkingLot: [null, { idea: "evil" + ESC + "[2Jnote", phase: 3, noted: "n" }],
+      focus: "x",
+      updatedAt: "n",
+    }),
+    "utf-8",
+  );
+  const out = await seed(root, ["guide", "--refresh", "--plain"]);
+  expect(out).not.toContain("TypeError"); // refreshJourney bypass used to crash here
+  expect(out).toContain("Phase 1"); // still renders the guide
+  expect([...out].some((c) => c.charCodeAt(0) === 0x1b)).toBe(false); // no raw ESC leak
+});
+
 test("seed what-next prints a one-line Next:", async () => {
   const root = sandbox();
   const out = await seed(root, ["what-next"]);

@@ -217,6 +217,73 @@ test("readSignals: a pristine materialized template does NOT count as filled", (
   expect(readSignals(root).contextFilled).toBe(true);
 });
 
+// ── A6: coach output (phaseProgress / whyForPhase / unblockPrompt) ──────────────
+import { phaseProgress, whyForPhase, unblockPrompt } from "./journey.ts";
+
+test("phaseProgress: fresh journey has 0 done, a 4-cell bar, and no deflating label", () => {
+  const j = deriveJourney({ contextFilled: false, hasIndex: false, phase3Ticked: false }, NOW);
+  const p = phaseProgress(j);
+  expect(p.done).toBe(0);
+  expect(p.total).toBe(4);
+  expect(p.label).toBe(""); // never show "0 of 4" to a day-one user
+  expect([...p.bar].length).toBe(4); // one cell per phase
+});
+
+test("phaseProgress: counts completed phases and shows the label once N>=1", () => {
+  const j = deriveJourney({ contextFilled: true, hasIndex: true, phase3Ticked: false }, NOW); // 1 & 2 done
+  const p = phaseProgress(j);
+  expect(p.done).toBe(2);
+  expect(p.label).toContain("2 of 4");
+});
+
+test("phaseProgress: step progress appears only for a multi-step current phase", () => {
+  const root = tmpRoot();
+  loadJourney(root, NOW);
+  const j = completeStep(root, 1, "context", NOW); // phase 1 in progress, 1 of 2 steps
+  const p = phaseProgress(j);
+  expect(p.step).toEqual({ done: 1, total: 2 });
+});
+
+test("phaseProgress: ascii option renders without unicode block glyphs", () => {
+  const j = deriveJourney({ contextFilled: false, hasIndex: false, phase3Ticked: false }, NOW);
+  const p = phaseProgress(j, { ascii: true });
+  expect(/^[#=\-]+$/.test(p.bar)).toBe(true); // ascii-only
+});
+
+test("whyForPhase: every phase has a substantive line; unknown phase falls back to phase 1", () => {
+  for (const n of [1, 2, 3, 4]) {
+    expect(whyForPhase(n).length).toBeGreaterThan(20);
+  }
+  expect(whyForPhase(99)).toBe(whyForPhase(1));
+});
+
+test("unblockPrompt: names the current phase, its title, the focus step, and asks for one-at-a-time help", () => {
+  const j = deriveJourney({ contextFilled: true, hasIndex: false, phase3Ticked: false }, NOW); // phase 2
+  const prompt = unblockPrompt(j);
+  expect(prompt).toContain("Phase 2");
+  expect(prompt).toContain("Local search");
+  expect(prompt).toContain(j.focus);
+  expect(prompt.toLowerCase()).toContain("one question at a time");
+});
+
+test("unblockPrompt: scrubs terminal escapes from the focus + parked ideas it embeds", () => {
+  // Construct a poisoned journey DIRECTLY (not via loadJourney) so the prompt
+  // builder itself must own the safety of the text it asks the user to paste.
+  const j = {
+    schemaVersion: 1,
+    currentPhase: 1,
+    phases: emptyPhases(),
+    focus: "do this\u001b[2J\u0007 thing",
+    parkingLot: [{ idea: "evil\u001b[31midea", phase: 3, noted: NOW }],
+    updatedAt: NOW,
+  } as unknown as import("./journey.ts").Journey;
+  const prompt = unblockPrompt(j);
+  expect(prompt).not.toContain("\u001b");
+  // newlines (\x0a) are part of the template and allowed; nothing else control-ish
+  // eslint-disable-next-line no-control-regex
+  expect(/[\x00-\x09\x0b-\x1f\x7f]/.test(prompt)).toBe(false);
+});
+
 test("loadJourney sanitizes a poisoned parkingLot (no crash, control chars stripped)", () => {
   const root = tmpRoot();
   mkdirSync(join(root, "data"), { recursive: true });
@@ -226,7 +293,7 @@ test("loadJourney sanitizes a poisoned parkingLot (no crash, control chars strip
       schemaVersion: 1,
       currentPhase: 99,
       phases: { "1": { status: "done" } },
-      parkingLot: [null, "notanobject", { idea: "ev[31mil", phase: "x" }],
+      parkingLot: [null, "notanobject", { idea: "ev\u001b[31mil", phase: "x" }],
       focus: "x",
       updatedAt: "x",
     }),
@@ -237,4 +304,70 @@ test("loadJourney sanitizes a poisoned parkingLot (no crash, control chars strip
   expect(j.parkingLot.length).toBe(1); // null + string dropped
   // eslint-disable-next-line no-control-regex
   expect(/[\x00-\x1f\x7f]/.test(j.parkingLot[0].idea)).toBe(false); // control chars stripped
+});
+
+// ── A6 hostile-audit fixes: C1 control-char gap + --refresh sanitization bypass ──
+// Control chars are built at runtime via fromCharCode (keeps the source pure ASCII).
+import { refreshJourney } from "./journey.ts";
+
+const CSI = String.fromCharCode(0x9b); // C1 CSI (8-bit equivalent of ESC[)
+const OSC = String.fromCharCode(0x9d); // C1 OSC
+const ST = String.fromCharCode(0x9c); //  C1 ST
+const ESC = String.fromCharCode(0x1b); // C0 ESC
+const hasC1 = (s: string) => [...s].some((ch) => ch.charCodeAt(0) >= 0x80 && ch.charCodeAt(0) <= 0x9f);
+const hasCtrl = (s: string) =>
+  [...s].some((ch) => {
+    const c = ch.charCodeAt(0);
+    return (c <= 0x1f && c !== 0x0a) || c === 0x7f || (c >= 0x80 && c <= 0x9f);
+  });
+
+test("loadJourney strips C1 control bytes (CSI/OSC/ST) from parkingLot ideas", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/journey.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      currentPhase: 1,
+      phases: emptyPhases(),
+      parkingLot: [{ idea: "evil" + CSI + "2J" + OSC + "0;t" + ST, phase: 3, noted: NOW }],
+      focus: "x",
+      updatedAt: NOW,
+    }),
+    "utf-8",
+  );
+  const j = loadJourney(root, NOW);
+  expect(hasC1(j.parkingLot[0].idea)).toBe(false);
+});
+
+test("unblockPrompt strips C1 control bytes from the fields it embeds", () => {
+  const j = {
+    schemaVersion: 1,
+    currentPhase: 1,
+    phases: emptyPhases(),
+    focus: "focus" + CSI + "2J",
+    parkingLot: [{ idea: "idea" + OSC + "0;t" + ST, phase: 3, noted: NOW }],
+    updatedAt: NOW,
+  } as unknown as import("./journey.ts").Journey;
+  expect(hasC1(unblockPrompt(j))).toBe(false);
+});
+
+test("refreshJourney sanitizes a poisoned parkingLot (drops null, strips escapes, no crash)", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/journey.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      currentPhase: 1,
+      phases: emptyPhases(),
+      parkingLot: [null, { idea: "keep" + ESC + "[2J" + CSI + "me", phase: 3, noted: NOW }],
+      focus: "x",
+      updatedAt: NOW,
+    }),
+    "utf-8",
+  );
+  const j = refreshJourney(root, NOW); // must not throw
+  expect(j.parkingLot.length).toBe(1); // null dropped
+  expect(hasCtrl(j.parkingLot[0].idea)).toBe(false);
 });

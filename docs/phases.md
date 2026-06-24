@@ -4,7 +4,7 @@ Phases are the simplest way to decide what to install and when. You do not need 
 
 The phases are designed so that each one is fully useful on its own. You do not need Phase 3 to get value from Phase 1. Add the next phase only after the current one is actually paying its way.
 
-> Not sure where you are? Run `bun run seed guide` — it tells you your current phase, your single next step, and anything parked for later.
+> Not sure where you are? Run `bun run seed guide` — it tells you your current phase, why this step matters, your single next step, and anything parked for later. If you get stuck on a step, `bun run seed guide --help-me` prints a prompt you can paste into your AI agent to be walked through it.
 
 ---
 

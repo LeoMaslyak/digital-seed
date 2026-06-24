@@ -45,6 +45,18 @@ const FOCUS: Record<number, string> = {
   4: "set up an always-on agent when you're ready (optional)",
 };
 
+/** One plain, non-cheerleading line per phase: *why* the current step is worth doing. */
+const WHY: Record<number, string> = {
+  1: "Until your seed knows who you are, every answer it gives is generic. This first step is what turns it into yours.",
+  2: "Indexing your own notes lets the assistant answer from your material — privately, on your machine, with no account or upload.",
+  3: "Connecting one tool is where the seed starts saving you real time. Add them one at a time, least-access first.",
+  4: "An always-on agent can work while you're away — a big step, worth taking only once Phases 1–3 already earn their keep.",
+};
+
+export function whyForPhase(phase: number): string {
+  return WHY[phase] ?? WHY[1];
+}
+
 export function emptyPhases(): Record<string, PhaseState> {
   return {
     "1": { status: "not_started", useful: false, completedSteps: [] },
@@ -164,10 +176,10 @@ export function saveJourney(root: string, j: Journey): void {
  * dereference undefined on a hand-edited or partially-written file (e.g. a
  * valid schemaVersion-1 object that lacks `parkingLot`).
  */
-/** Strip ASCII control chars (incl. terminal escapes) from a string field. */
+/** Strip C0/C1 control chars + DEL (incl. 7-bit ESC and 8-bit CSI/OSC terminal escapes) from a string field. */
 function sanitizeText(s: unknown): string {
   // eslint-disable-next-line no-control-regex
-  return String(s ?? "").replace(/[\x00-\x1f\x7f]/g, " ").slice(0, 500);
+  return String(s ?? "").replace(/[\x00-\x1f\x7f-\x9f]/g, " ").slice(0, 500);
 }
 
 function normalizeJourney(j: Journey): Journey {
@@ -266,8 +278,12 @@ export function refreshJourney(root: string, now: string): Journey {
   }
   const j = deriveJourney(readSignals(root), now);
   j.parkingLot = parkingLot;
-  saveJourney(root, j);
-  return j;
+  // Route through normalizeJourney so a poisoned/hand-edited journey.json cannot
+  // bypass parking-lot sanitization on the --refresh path: drops null/non-object
+  // entries and strips control chars before any consumer renders them.
+  const normalized = normalizeJourney(j);
+  saveJourney(root, normalized);
+  return normalized;
 }
 
 export function completeStep(root: string, phase: number, step: string, now: string): Journey {
@@ -338,6 +354,83 @@ export function nextStep(
     focus: j.focus,
     guidanceDocs: guidance[String(j.currentPhase)] ?? [],
   };
+}
+
+export interface PhaseProgress {
+  done: number;
+  total: number;
+  /** A 4-cell bar: filled = done, half = current, empty = remaining. Plain text, never ANSI. */
+  bar: string;
+  /** "N of 4 done" once at least one phase is done; "" otherwise (no deflating "0 of 4"). */
+  label: string;
+  /** Step progress within the current phase — present only when that phase has >1 step. */
+  step?: { done: number; total: number };
+}
+
+/** Honest, derived progress for the coach view — no new persisted state, no day-streak. */
+export function phaseProgress(j: Journey, opts: { ascii?: boolean } = {}): PhaseProgress {
+  const total = PHASES.length;
+  const g = opts.ascii
+    ? { done: "#", current: "=", rest: "-" }
+    : { done: "▓", current: "▒", rest: "░" };
+
+  let done = 0;
+  let bar = "";
+  for (const { n } of PHASES) {
+    const st = j.phases[String(n)]?.status;
+    if (st === "done") {
+      done++;
+      bar += g.done;
+    } else if (n === j.currentPhase) {
+      bar += g.current;
+    } else {
+      bar += g.rest;
+    }
+  }
+
+  const label = done >= 1 ? `${done} of ${total} done` : "";
+
+  let step: { done: number; total: number } | undefined;
+  const def = PHASES.find((p) => p.n === j.currentPhase);
+  const cur = j.phases[String(j.currentPhase)];
+  if (def && def.steps.length > 1 && cur?.status === "in_progress") {
+    const completed = def.steps.filter((s) => (cur.completedSteps ?? []).includes(s)).length;
+    step = { done: completed, total: def.steps.length };
+  }
+
+  return { done, total, bar, label, step };
+}
+
+/**
+ * A ready-to-paste prompt the user hands to their AI agent when stuck on the
+ * current step. Print-only: no network, no subprocess. Self-sanitizing — every
+ * dynamic field (focus, parked ideas) is stripped of control chars before it is
+ * embedded, so the text the user copies elsewhere can never carry a terminal
+ * escape (every C0/C1 control char and DEL is stripped), even if
+ * `data/journey.json` was hand-edited or poisoned.
+ */
+export function unblockPrompt(j: Journey): string {
+  const def = PHASES.find((p) => p.n === j.currentPhase) ?? PHASES[0];
+  const focus = sanitizeText(j.focus || focusForPhase(j.currentPhase, j.phases));
+  const parked = (Array.isArray(j.parkingLot) ? j.parkingLot : [])
+    .map((p) => sanitizeText(p?.idea))
+    .filter((s) => s.length > 0);
+
+  const lines = [
+    "I'm using Digital Seed, a local-first personal-AI starter kit, and I'm a bit stuck.",
+    "",
+    `Where I am: Phase ${def.n} of 4 — ${def.title}.`,
+    `My next step: ${focus}`,
+  ];
+  if (parked.length) {
+    lines.push(`Things I've set aside for later: ${parked.join("; ")}.`);
+  }
+  lines.push(
+    "",
+    "Please walk me through this next step, one question at a time, in plain language.",
+    "Assume I'm not technical. If something needs a command, give me the exact command and tell me what it does before I run it. Don't do anything irreversible without checking with me first.",
+  );
+  return lines.join("\n");
 }
 
 /** Update only the "- [ ]/[x] Phase N" lines of a MY-PLAN body from journey state. */
