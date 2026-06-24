@@ -58,7 +58,7 @@ bun install
 bun run seed start
 ```
 
-**`seed start`** is the one guided command for your first session: it creates your context files, tells you the three to fill in, detects the AI agent you already have and gives you the exact command to launch it, and hands you a ready-to-paste prompt that produces your first useful result. Come back anytime with `bun run seed guide` — it shows where you are, why the next step matters, and your single next step. Stuck? `bun run seed guide --help-me` prints a prompt you can paste into your agent to get unstuck.
+**`seed start`** is the one guided command for your first session: it creates your context files, tells you the three to fill in, detects the AI agent you already have and gives you the exact command to launch it, and hands you a ready-to-paste prompt that produces your first useful result. Come back anytime with `bun run seed guide` — it shows where you are, why the next step matters, and your single next step, and when you return after a day it greets you with what changed since last time. Stuck? `bun run seed guide --help-me` prints a prompt you can paste into your agent to get unstuck.
 
 (Prefer the classic walkthrough? `bun run seed onboard` shows the five-step path: check setup → open your three context files → paste the first prompt → optionally index one notes folder → pick one recipe. Stop after step five until something is actually useful.)
 

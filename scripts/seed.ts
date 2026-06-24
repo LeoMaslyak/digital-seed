@@ -32,6 +32,7 @@ import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSy
 import { detectActivityState, describeState } from "../core/src/activity-state.ts";
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
 import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney, phaseProgress, whyForPhase, unblockPrompt } from "./lib/journey.ts";
+import { welcomeBackForGuide, journeyDigestSection, saveWelcomeDigest } from "./lib/welcome-back.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1234,6 +1235,18 @@ else if (cmd === "guide") {
     console.log(unblockPrompt(j));
     console.log(sep);
   } else {
+    // Welcome-back digest (B1): surface what changed since the user was last here
+    // — only across a day boundary and only when there's news (no first-run noise).
+    if (!rest.includes("--no-welcome")) {
+      const welcome = welcomeBackForGuide(ROOT, j, now);
+      if (welcome) {
+        const [head, ...body] = welcome.split("\n");
+        console.log(boldIf(head));
+        if (body.length) console.log(dimIf(body.join("\n")));
+        console.log("");
+      }
+    }
+
     const ns = nextStep(j, loadGuidanceMap(ROOT));
     const def = PHASES.find((p) => p.n === j.currentPhase);
     const prog = phaseProgress(j, { ascii });
@@ -1317,7 +1330,22 @@ else if (cmd === "index") {
 else if (cmd === "collab")  { run("scripts/collab.ts", rest); }
 
 // ── Daily digest ──────────────────────────────────────────────────────────────
-else if (cmd === "digest")  { run("scripts/digest.ts", rest); }
+else if (cmd === "digest")  {
+  // Lead with the journey section (B1) — useful for a newcomer whose advanced
+  // digest sections are all empty. Read-only: does not advance the guide's
+  // welcome baseline. Skip for --json so machine output stays clean.
+  if (!rest.includes("--json")) {
+    const now = new Date().toISOString();
+    const j = loadJourney(ROOT, now);
+    console.log(journeyDigestSection(ROOT, j, now).join("\n"));
+    console.log("");
+    if (rest.includes("--save")) {
+      const saved = saveWelcomeDigest(ROOT, j, now);
+      console.log(`(saved your seed summary to ${saved.replace(ROOT + "/", "")})\n`);
+    }
+  }
+  run("scripts/digest.ts", rest);
+}
 
 // ── Repo bot ──────────────────────────────────────────────────────────────────
 else if (cmd === "learn")   { run("scripts/repo-bot.ts", ["learn", ...rest]); }
