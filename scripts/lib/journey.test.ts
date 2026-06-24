@@ -216,3 +216,25 @@ test("readSignals: a pristine materialized template does NOT count as filled", (
   for (const n of ["COMPASS", "GOALS"]) writeFileSync(join(root, "user", `${n}.md`), `edited ${n}`, "utf-8");
   expect(readSignals(root).contextFilled).toBe(true);
 });
+
+test("loadJourney sanitizes a poisoned parkingLot (no crash, control chars stripped)", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/journey.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      currentPhase: 99,
+      phases: { "1": { status: "done" } },
+      parkingLot: [null, "notanobject", { idea: "ev[31mil", phase: "x" }],
+      focus: "x",
+      updatedAt: "x",
+    }),
+    "utf-8",
+  );
+  const j = loadJourney(root, NOW); // must not throw
+  expect(j.currentPhase).toBeLessThanOrEqual(4); // clamped
+  expect(j.parkingLot.length).toBe(1); // null + string dropped
+  // eslint-disable-next-line no-control-regex
+  expect(/[\x00-\x1f\x7f]/.test(j.parkingLot[0].idea)).toBe(false); // control chars stripped
+});

@@ -9,7 +9,7 @@
  *   bun run embed --path <p>   — Index a specific path
  */
 
-import { readFileSync, existsSync, readdirSync, statSync, mkdirSync, writeFileSync } from "fs";
+import { readFileSync, existsSync, readdirSync, statSync, lstatSync, mkdirSync, writeFileSync } from "fs";
 import { join, dirname, extname, relative } from "path";
 import { createHash } from "crypto";
 
@@ -190,6 +190,9 @@ function discoverFiles(targetPath: string, config: EmbedConfig): string[] {
     for (const entry of readdirSync(dir)) {
       const fp = join(dir, entry);
       if (shouldExclude(fp, config)) continue;
+      // Skip symlinks: a link inside the indexed tree pointing OUT of it would
+      // otherwise have its target read (and, on the cloud path, embedded/uploaded).
+      if (lstatSync(fp).isSymbolicLink()) continue;
       const s = statSync(fp);
       if (s.isDirectory() && !entry.startsWith(".")) walk(fp);
       if (s.isFile() && config.fileTypes.includes(extname(entry))) files.push(fp);

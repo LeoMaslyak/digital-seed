@@ -164,9 +164,30 @@ export function saveJourney(root: string, j: Journey): void {
  * dereference undefined on a hand-edited or partially-written file (e.g. a
  * valid schemaVersion-1 object that lacks `parkingLot`).
  */
+/** Strip ASCII control chars (incl. terminal escapes) from a string field. */
+function sanitizeText(s: unknown): string {
+  // eslint-disable-next-line no-control-regex
+  return String(s ?? "").replace(/[\x00-\x1f\x7f]/g, " ").slice(0, 500);
+}
+
 function normalizeJourney(j: Journey): Journey {
-  if (typeof j.currentPhase !== "number") j.currentPhase = 1;
-  if (!Array.isArray(j.parkingLot)) j.parkingLot = [];
+  if (typeof j.currentPhase !== "number" || !Number.isFinite(j.currentPhase)) j.currentPhase = 1;
+  j.currentPhase = Math.min(4, Math.max(1, Math.floor(j.currentPhase)));
+  // Validate every parking-lot entry: drop non-objects, coerce/sanitize fields,
+  // so a poisoned journal.json (e.g. parkingLot:[null] or a control-char idea)
+  // can't crash or terminal-inject `seed guide`/`seed park`.
+  if (!Array.isArray(j.parkingLot)) {
+    j.parkingLot = [];
+  } else {
+    j.parkingLot = j.parkingLot
+      .filter((p): p is ParkedIdea => !!p && typeof p === "object")
+      .map((p) => ({
+        idea: sanitizeText((p as ParkedIdea).idea),
+        phase: Number.isFinite((p as ParkedIdea).phase) ? Number((p as ParkedIdea).phase) : j.currentPhase,
+        noted: sanitizeText((p as ParkedIdea).noted),
+      }))
+      .filter((p) => p.idea.length > 0);
+  }
   if (!j.phases || typeof j.phases !== "object") j.phases = emptyPhases();
   // Repair any null / non-object / status-less phase entry, so a sticky
   // {"phases":{"1":null}} self-heals instead of crashing `seed guide`.

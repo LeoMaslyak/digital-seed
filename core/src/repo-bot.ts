@@ -191,7 +191,11 @@ function chunkText(
 // ─── Index storage ────────────────────────────────────────────────────────────
 
 function indexPath(root: string, repoId: string): string {
-  return join(root, REPO_INDEX_DIR, repoId.replace("/", "__") + ".json");
+  // Sanitize the whole id, not just the first slash: replace every unsafe run
+  // and strip leading dots so a crafted repoId can't escape the index dir
+  // (e.g. "a/../../etc/x" or "a/b/c" writing/deleting an arbitrary .json).
+  const safe = repoId.replace(/[^A-Za-z0-9._-]+/g, "__").replace(/^\.+/, "");
+  return join(root, REPO_INDEX_DIR, (safe || "repo") + ".json");
 }
 
 function saveRepoIndex(root: string, index: RepoIndex): void {
