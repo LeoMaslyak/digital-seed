@@ -4,6 +4,34 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0-alpha] - 2026-06-24
+
+### Added
+
+- **Open-source guide — find the right repos safely, avoid the sketchy ones.**
+  Digital Seed now guides newcomers through the open-source world from a curated,
+  community-contributable catalog (`catalog/catalog.yaml`) — it recommends only
+  from the catalog and **never free-searches the web and invents a repo**.
+  - `seed find "<need>"` — match a plain-language need (e.g. "connect my email",
+    "always-on agent") to vetted/listed tools, each with a **trust tier**
+    (✅ vetted / 🟡 community / ⚠️ unvetted) and a plain-language **blast radius**
+    (what it can access — "your-email, credentials, runs-continuously").
+  - `seed catalog` — browse the whole catalog by phase.
+  - `seed vet <repo-or-package>` — the teach-them-to-fish safety check for ANY
+    tool: npm-existence (catches the typosquat/non-existent class), vendor-scope
+    impersonation, version-pinning, optional live repo signals (`--online`), and
+    the universal "before you install" checklist. Offline by default.
+  - Catalog seeded from the community "awesome" lists + real projects incl.
+    **OpenClaw** (`openclaw/openclaw`) and **Hermes** (`NousResearch/hermes-agent`),
+    plus the official MCP servers. Every entry points at a real repo (CI rejects
+    anything else), declares its blast radius from a controlled vocabulary, and
+    pins installs. Contribute via PR — see `catalog/CONTRIBUTING.md`.
+  - The agent contract (`.claude/CLAUDE.md`) gained a high-precedence "Guiding
+    open-source choices" section: recommend only from the catalog, always show
+    tier + blast radius, resist scope creep (park later-phase tools), never
+    auto-install. New `catalog-check` CI job + `release-check` step validate the
+    catalog (schema + blast-radius + repo URLs + npm existence).
+
 ## [0.5.0-alpha] - 2026-06-24
 
 ### Added

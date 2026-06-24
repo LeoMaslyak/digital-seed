@@ -91,6 +91,19 @@ If the terminal is unfamiliar, [let an AI agent install it for you](docs/ai-agen
 
 **Not day one:** wiring email/Slack/calendar, hosted vector DBs, always-on agents, dashboards, multi-agent setups. Add those only after the local loop is already useful. ([full breakdown](docs/first-15-minutes.md#day-one--not-day-one))
 
+### Finding open-source tools, safely
+
+When you're ready to connect something or add an always-on agent, Digital Seed guides you to the **right** open-source tool and keeps you away from sketchy ones — it recommends only from a curated, community-contributable catalog, never a blind web search:
+
+```bash
+bun run seed find "connect my email"     # vetted/listed options + what each can ACCESS
+bun run seed find "always-on agent"      # e.g. OpenClaw, Hermes — with trust tier + caution
+bun run seed catalog                     # browse the whole curated catalog
+bun run seed vet <repo-or-package>       # safety-check ANY tool before you install it
+```
+
+Every entry shows a **trust tier** (✅ vetted / 🟡 community-verify-first / ⚠️ unvetted) and a plain-language **blast radius** ("this can read your email and run shell commands"). Nothing is ever auto-installed. Want to add a tool? [Open a PR](catalog/CONTRIBUTING.md) — CI validates every entry.
+
 ## Public data room
 
 The [Digital Seed public data room](https://drive.google.com/drive/folders/1EYfexEOzKKY4NJzBb_mNXEBc8FZLfVpG) is an optional workshop/share pack for people who do not want to start in GitHub: start-here notes, visual story, guides, templates, recipes, audit notes, and the NotebookLM intro video. GitHub remains the source of truth. Refresh the data room with `bun run seed drive publish-data-room` (see [data room guide](docs/data-room-guide.md) for the `--no-delete` fallback).

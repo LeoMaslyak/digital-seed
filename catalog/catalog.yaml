@@ -1,0 +1,170 @@
+# Digital Seed — open-source tool catalog
+#
+# This is a CURATED, community-contributable map of open-source tools for common
+# needs, with a TRUST TIER and a plain-language BLAST-RADIUS for each. The guide
+# recommends ONLY from this catalog — it never free-searches the web and "picks
+# one", because a newcomer can't tell a real repo from a typosquat. If nothing
+# here fits a need, the honest answer is "no vetted option yet — here's how to
+# evaluate one safely" (see `seed vet`), never an invented repo.
+#
+# Want to add a tool? Open a PR. Read catalog/CONTRIBUTING.md first — every entry
+# must point at a REAL repo, declare what it can access, and never tell a beginner
+# to `npx -y` an unverified name. CI validates this file on every PR.
+#
+# Trust tiers:
+#   vetted     — reviewed by the Digital Seed maintainers (real, maintained, sane
+#                permissions, pinned install). Recommend confidently.
+#   community  — a real, notable, widely-used project, but NOT deeply reviewed
+#                here. Recommend WITH the `seed vet` checklist; verify before trust.
+#   unvetted   — no bundled/verified option exists yet; you must evaluate it
+#                yourself before installing.
+#
+# Blast-radius vocabulary (what a tool can touch — the column a beginner needs):
+#   local-only · filesystem · network · shell · credentials · runs-continuously ·
+#   spends-money · your-email · your-calendar · your-files · your-messages ·
+#   your-code · your-notes
+
+schemaVersion: 1
+
+tools:
+  # ── Agent runtimes — Phase 4 (always-on / advanced) ─────────────────────────
+  - id: openclaw
+    name: OpenClaw
+    category: agent-runtime
+    serves: ["always-on personal AI assistant", "autonomous agent", "run my own AI on any OS"]
+    phase: 4
+    repo: https://github.com/openclaw/openclaw
+    install: { method: see-repo }
+    trust: { tier: community, provenance: community-org, reviewed: "directory-listed, not maintainer-reviewed" }
+    accesses: [shell, filesystem, network, credentials, runs-continuously]
+    when_to_use: "Only once Phases 1–3 are genuinely paying off. A self-hosted always-on assistant is a big step — broad permissions, runs continuously."
+    caution: "Major, popular project, but it runs continuously with wide access. Understand its security posture and run it sandboxed before giving it real credentials."
+    alternatives: [hermes]
+
+  - id: hermes
+    name: Hermes Agent
+    category: agent-runtime
+    serves: ["personal AI agent that grows with you", "always-on assistant", "autonomous agent"]
+    phase: 4
+    repo: https://github.com/NousResearch/hermes-agent
+    install: { method: see-repo }
+    trust: { tier: community, provenance: community-org, reviewed: "directory-listed, not maintainer-reviewed" }
+    accesses: [shell, filesystem, network, credentials, runs-continuously]
+    when_to_use: "A Phase-4 step, like OpenClaw. Pick based on which community/feature-set fits you; compare both before committing."
+    caution: "Real, popular project; same posture as any always-on agent — broad access, runs continuously. Verify and sandbox before trusting it with real data."
+    alternatives: [openclaw]
+
+  # ── MCP servers — Phase 3 (connect a real tool) ─────────────────────────────
+  - id: mcp-github
+    name: GitHub MCP server
+    category: mcp-server
+    serves: ["connect GitHub", "issues, PRs, repos from my agent", "github assistant"]
+    phase: 3
+    repo: https://github.com/modelcontextprotocol/servers
+    install: { method: npm, package: "@modelcontextprotocol/server-github", pinned: "2025.4.8", runs_install_scripts: true }
+    trust: { tier: vetted, provenance: official, reviewed: "official @modelcontextprotocol scope; npm package marked DEPRECATED — prefer GitHub's maintained remote MCP server if available" }
+    accesses: [your-code, network, credentials]
+    when_to_use: "When you want your agent to read/triage issues, PRs and repos. Use a least-privilege token."
+    caution: "The npm package is deprecated — confirm with `npm view` and prefer the currently-maintained server. Give it a scoped GitHub token, never your full PAT."
+    alternatives: []
+
+  - id: mcp-postgres
+    name: PostgreSQL MCP server
+    category: mcp-server
+    serves: ["connect a database", "query my postgres from my agent"]
+    phase: 3
+    repo: https://github.com/modelcontextprotocol/servers
+    install: { method: npm, package: "@modelcontextprotocol/server-postgres", pinned: "0.6.2", runs_install_scripts: true }
+    trust: { tier: vetted, provenance: official, reviewed: "official scope; DEPRECATED on npm; read-only transactions" }
+    accesses: [your-files, network, credentials]
+    when_to_use: "Read-only querying of a database you own. Lead with a least-privilege `GRANT SELECT` role."
+    caution: "Deprecated package — verify before use. NEVER paste a live connection string into a tracked file; keep it in .env (gitignored)."
+    alternatives: []
+
+  - id: mcp-obsidian
+    name: Obsidian MCP server
+    category: mcp-server
+    serves: ["connect Obsidian", "read/search/create my notes"]
+    phase: 3
+    repo: https://github.com/punkpeye/awesome-mcp-servers
+    install: { method: choose-and-verify }
+    trust: { tier: unvetted, provenance: community, reviewed: "no single vetted package bundled" }
+    accesses: [your-notes, filesystem]
+    when_to_use: "When you want your agent to work with your Obsidian vault."
+    caution: "No vetted package is bundled. Choose one from the awesome-mcp-servers list, run `seed vet <name>`, read the code, and pin the version. Do NOT `npx -y` an unverified name."
+    alternatives: []
+
+  - id: mcp-gmail
+    name: Gmail MCP server
+    category: mcp-server
+    serves: ["connect email", "read/draft/send Gmail from my agent", "inbox triage"]
+    phase: 3
+    repo: https://github.com/punkpeye/awesome-mcp-servers
+    install: { method: choose-and-verify }
+    trust: { tier: unvetted, provenance: community, reviewed: "no single vetted package bundled" }
+    accesses: [your-email, network, credentials]
+    when_to_use: "When you want inbox help. Start read-only / draft-only before allowing send."
+    caution: "This server receives your Gmail OAuth credentials — the highest-blast-radius connection. Verify the package and publisher with `seed vet`, read the code, and prefer least-privilege scopes. Anthropic publishes under @anthropic-ai, not @anthropic."
+    alternatives: []
+
+  - id: mcp-calendar
+    name: Google Calendar MCP server
+    category: mcp-server
+    serves: ["connect calendar", "see/add events from my agent"]
+    phase: 3
+    repo: https://github.com/punkpeye/awesome-mcp-servers
+    install: { method: choose-and-verify }
+    trust: { tier: unvetted, provenance: community, reviewed: "early-stage community servers only" }
+    accesses: [your-calendar, network, credentials]
+    when_to_use: "When you want calendar awareness. Request `calendar.readonly` first."
+    caution: "Community calendar servers are individually published and early-stage. `seed vet` it, request least-privilege OAuth scope (calendar.readonly / calendar.events)."
+    alternatives: []
+
+  # ── Reference — curated directories to explore (community-maintained) ───────
+  - id: ref-awesome-mcp
+    name: awesome-mcp-servers
+    category: reference
+    serves: ["find an MCP server for anything", "browse what can connect to my agent"]
+    phase: 3
+    repo: https://github.com/punkpeye/awesome-mcp-servers
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated directory — a discovery map, NOT a safety review" }
+    accesses: []
+    when_to_use: "When the catalog doesn't have an integration you need — browse here, then `seed vet` your pick before installing."
+    caution: "A directory of many servers at varying quality. Listing ≠ safe. Always `seed vet` and read the code before connecting one to your data."
+    alternatives: []
+
+  - id: ref-awesome-agents
+    name: awesome-ai-agents
+    category: reference
+    serves: ["find an AI agent framework", "browse autonomous agents"]
+    phase: 4
+    repo: https://github.com/e2b-dev/awesome-ai-agents
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated directory — discovery, not a safety review" }
+    accesses: []
+    when_to_use: "When comparing always-on / autonomous agent options beyond OpenClaw and Hermes."
+    caution: "A broad directory. Agent runtimes have wide permissions — `seed vet` and understand the posture before running one."
+    alternatives: [openclaw, hermes]
+
+  - id: ref-awesome-llm-apps
+    name: awesome-llm-apps
+    category: reference
+    serves: ["find runnable AI/RAG app examples", "see what people build"]
+    phase: 2
+    repo: https://github.com/Shubhamsaboo/awesome-llm-apps
+    trust: { tier: community, provenance: community-list, reviewed: "community-curated directory" }
+    accesses: []
+    when_to_use: "For ideas and runnable examples of what a personal-AI setup can do."
+    caution: "Examples vary in quality and freshness. Read before running; treat any that need keys/credentials with care."
+    alternatives: []
+
+  - id: ref-mcp-official
+    name: Official MCP servers
+    category: reference
+    serves: ["official, reference MCP servers", "trusted starting point for connections"]
+    phase: 3
+    repo: https://github.com/modelcontextprotocol/servers
+    trust: { tier: vetted, provenance: official, reviewed: "official Model Context Protocol reference servers" }
+    accesses: []
+    when_to_use: "The safest place to start when you want to connect something — official reference servers first."
+    caution: "Some reference servers are archived/deprecated — check maintenance status before relying on one."
+    alternatives: [mcp-github, mcp-postgres]

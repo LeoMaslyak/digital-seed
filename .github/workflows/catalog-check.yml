@@ -1,0 +1,27 @@
+name: catalog-check
+
+# Validate the open-source tool catalog on every PR that touches it, so a
+# community PR can't slip in a malformed entry, an invented repo URL, an unknown
+# blast-radius term, or a non-existent npm package.
+on:
+  pull_request:
+    paths:
+      - "catalog/**"
+      - "scripts/lib/catalog.ts"
+      - "scripts/catalog-check.ts"
+  push:
+    branches: [main]
+    paths:
+      - "catalog/**"
+
+jobs:
+  catalog-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Validate catalog (schema + blast-radius + repo URLs + npm existence)
+        run: bun run scripts/catalog-check.ts --npm

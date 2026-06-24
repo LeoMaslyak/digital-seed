@@ -15,7 +15,9 @@ phases:
     title: Integrations
     guidance:
       - docs/phases.md
+      - 'run `seed find "<what you want to connect>"` for vetted options + what each can access'
   4:
     title: Always-on agent
     guidance:
       - docs/phases.md
+      - 'run `seed find "always-on agent"` (OpenClaw / Hermes) — a big step; `seed vet` before installing'
