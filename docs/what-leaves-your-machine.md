@@ -4,6 +4,8 @@ Digital Seed is local-first: the repo, templates, personal context files, local 
 
 The important caveat is that **your AI agent and optional integrations may send data out when you ask them to do work**. This page explains the boundary.
 
+> For a live view of *your* current posture — what's stored, what's configured to leave, and what your agent must ask you before doing — run **`bun run seed whoami`**.
+
 ## By default, Digital Seed itself does not upload your files
 
 A fresh clone plus the first-run path keeps your personal data local:

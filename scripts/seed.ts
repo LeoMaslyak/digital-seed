@@ -35,6 +35,7 @@ import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, c
 import { welcomeBackForGuide, journeyDigestSection, saveWelcomeDigest } from "./lib/welcome-back.ts";
 import { installSchedule, uninstallSchedule, planText, sendNotification } from "./lib/digest-schedule.ts";
 import { loadExamples, filterByCategory, formatExample, CATEGORIES } from "./lib/examples.ts";
+import { buildTrustReport, renderTrustReport } from "./lib/trust-surface.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1045,6 +1046,7 @@ BEGINNER — first 15 minutes
   bun run seed doctor                  Friendly setup health check
   bun run seed first-prompt [--copy]   Print the first agent prompt (--copy: to clipboard)
   bun run seed privacy-scan            Check for common private leftovers
+  bun run seed whoami                  What's stored / what can leave / what the agent may do
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed examples [category]     "What can it do?" — copy-paste task prompts for your agent
@@ -1454,6 +1456,13 @@ else if (cmd === "examples") {
   }
   console.log("Open your AI agent in this folder, paste a prompt, and let it run. Nothing leaves your machine.");
   if (!catArg) console.log("Filter to one kind: bun run seed examples <category>");
+}
+
+// ── Trust surface: what's stored / what leaves / what the agent may do / control (B6) ──
+else if (cmd === "whoami") {
+  const report = buildTrustReport(ROOT);
+  if (rest.includes("--json")) console.log(JSON.stringify(report, null, 2));
+  else console.log(renderTrustReport(report));
 }
 
 // ── Web & Drive ──────────────────────────────────────────────────────────────

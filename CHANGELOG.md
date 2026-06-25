@@ -6,6 +6,14 @@ All notable changes to Digital Seed will be documented in this file.
 
 ### Added
 
+- **A trust surface — `seed whoami` (roadmap B6).** A read-only local dashboard that plainly shows
+  what's stored on this machine (which context + data files exist), what *can* leave it (by default
+  nothing automatic; flags cloud embeddings / digest delivery if you've turned them on, and lists the
+  on-demand network commands), what your agent must ask you before doing (the high-risk-action list),
+  and how to stay in control (plain files you own; `git restore`; `seed privacy-scan`). Makes the
+  local-first guarantee visible at the moment it matters. Strictly read-only — no network, no
+  subprocess, no mutation; never prints a configured webhook URL or address (on/off only).
+
 - **A "what can it do?" task gallery — `seed examples` (roadmap B5).** A curated set of concrete,
   copy-paste task prompts ("draft my week from my goals", "turn these notes into a recap", "think
   through a decision with me") a newcomer can hand straight to their agent — every one works with
