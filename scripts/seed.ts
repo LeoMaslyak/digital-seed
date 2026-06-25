@@ -36,6 +36,7 @@ import { welcomeBackForGuide, journeyDigestSection, saveWelcomeDigest } from "./
 import { installSchedule, uninstallSchedule, planText, sendNotification } from "./lib/digest-schedule.ts";
 import { loadExamples, filterByCategory, formatExample, CATEGORIES } from "./lib/examples.ts";
 import { buildTrustReport, renderTrustReport } from "./lib/trust-surface.ts";
+import { loadGlossary, lookup, suggest, formatTerm } from "./lib/glossary.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1050,6 +1051,7 @@ BEGINNER — first 15 minutes
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
   bun run seed examples [category]     "What can it do?" — copy-paste task prompts for your agent
+  bun run seed explain <term>          Plain-language glossary (MCP, RAG, embeddings, …)
   bun run seed recipe list             List integration recipes
   bun run seed find "<need>"           Find vetted open-source tools for a need (+ what each can access)
   bun run seed catalog                 Browse the curated open-source tool catalog
@@ -1456,6 +1458,35 @@ else if (cmd === "examples") {
   }
   console.log("Open your AI agent in this folder, paste a prompt, and let it run. Nothing leaves your machine.");
   if (!catArg) console.log("Filter to one kind: bun run seed examples <category>");
+}
+
+// ── Just-in-time glossary: plain-language term explanations (A5) ─────────────────
+else if (cmd === "explain") {
+  const { terms, problems } = loadGlossary(ROOT);
+  if (rest.includes("--check")) {
+    if (problems.length) { problems.forEach((p) => console.error(`  ✗ ${p}`)); process.exit(1); }
+    console.log(`✅ Glossary OK — ${terms.length} term(s), all valid.`);
+    process.exit(0);
+  }
+  if (problems.length) console.error(`(glossary warnings: ${problems.length} — run \`seed explain --check\` for detail)`);
+  const query = rest.filter((a) => !a.startsWith("--")).join(" ").trim();
+  if (!query) {
+    console.log("Plain-language glossary — run `seed explain <term>` for any of these:\n");
+    for (const t of terms) console.log(`  ${t.term}`);
+    console.log("\nExample: bun run seed explain rag");
+  } else {
+    const hit = lookup(terms, query);
+    if (hit) {
+      console.log(formatTerm(hit));
+    } else {
+      // Never echo the raw query (could carry control chars); suggestions come
+      // from the validated/scrubbed term names only.
+      console.error(`No glossary entry matched. Run \`seed explain\` to see all ${terms.length} terms.`);
+      const sugg = suggest(terms, query);
+      if (sugg.length) console.error(`Closest: ${sugg.join(", ")}`);
+      process.exit(1);
+    }
+  }
 }
 
 // ── Trust surface: what's stored / what leaves / what the agent may do / control (B6) ──

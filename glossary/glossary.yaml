@@ -1,0 +1,144 @@
+# Plain-language glossary (roadmap A5) — browse with `seed explain` / look up with `seed explain <term>`.
+# Curated for newcomers: what it is, why it matters to you, and how it shows up in Digital Seed.
+# Contributions welcome — keep it jargon-free and one screen per term.
+# Fields: id, term, aliases, plain, why, see. (plain/why use YAML folded block scalars: >-)
+
+terms:
+  - id: agent
+    term: AI agent
+    aliases: [ai agent, coding agent, assistant]
+    plain: >-
+      A program built on an AI model that can read files and take actions for
+      you, not just chat. Claude Code, Cursor, Codex, and Gemini CLI are agents.
+    why: >-
+      Digital Seed gives the agent your context so it acts like an assistant that
+      already knows you, instead of a blank chat box.
+    see: [llm, context-window]
+
+  - id: llm
+    term: LLM (large language model)
+    aliases: [large language model, model, ai model]
+    plain: >-
+      The underlying AI that predicts text, the "brain" an agent uses. Claude,
+      GPT, Gemini, and Llama are LLMs.
+    why: >-
+      You choose which LLM your agent uses. Digital Seed works with whichever one
+      you already have.
+    see: [agent, token]
+
+  - id: prompt
+    term: Prompt
+    aliases: [prompts]
+    plain: >-
+      The text you give an AI, your question plus any context. A better prompt
+      gets a better answer.
+    why: >-
+      Digital Seed assembles strong prompts for you (seed first-prompt, seed
+      examples) so you don't start from a blank line.
+    see: [context-window, agent]
+
+  - id: context-window
+    term: Context window
+    aliases: [context, context length]
+    plain: >-
+      How much text an AI can hold in mind at once, your prompt plus the files
+      it's reading. It's limited, so what you include matters.
+    why: >-
+      Your user/ files are small on purpose, so the agent can load who-you-are
+      into its context without running out of room.
+    see: [prompt, rag]
+
+  - id: token
+    term: Token
+    aliases: [tokens]
+    plain: >-
+      The small chunks of text an AI counts, roughly three-quarters of a word
+      each. Models price and limit work by tokens.
+    why: It's why context is finite, and why concise context files beat dumping everything.
+    see: [llm, context-window]
+
+  - id: rag
+    term: RAG (retrieval-augmented generation)
+    aliases: [retrieval augmented generation, retrieval]
+    plain: >-
+      A way to let an AI answer using your own notes. It first finds the few
+      relevant snippets, then answers with them in view.
+    why: >-
+      It's how seed index and seed search let the assistant answer from your
+      material instead of only general knowledge, and it stays on your machine.
+    see: [embeddings, index, vector-db]
+
+  - id: embeddings
+    term: Embeddings
+    aliases: [embedding, vector embedding]
+    plain: >-
+      Numbers that capture the meaning of text, so a computer can find passages
+      that mean similar things, not just exact word matches.
+    why: >-
+      Digital Seed makes embeddings locally by default, turning your notes into
+      searchable meaning without leaving your machine.
+    see: [rag, vector-db]
+
+  - id: vector-db
+    term: Vector database
+    aliases: [vector db, vector store, vector database]
+    plain: A store for embeddings that can quickly find the closest-in-meaning items to a query.
+    why: >-
+      It's the search index behind local search. Digital Seed ships a simple
+      local one so you don't need a cloud service to start.
+    see: [embeddings, rag, index]
+
+  - id: index
+    term: Index (local search)
+    aliases: [indexing, seed index]
+    plain: >-
+      The step that reads a folder of notes and prepares it for meaning-based
+      search, via seed index <folder>.
+    why: >-
+      It's Phase 2 of the journey. Once indexed, ask questions and get answers
+      grounded in your own notes.
+    see: [rag, embeddings, vector-db]
+
+  - id: mcp
+    term: MCP (Model Context Protocol)
+    aliases: [model context protocol, mcp server]
+    plain: >-
+      A standard way to plug tools and data sources into an AI agent, like USB
+      for AI. An MCP server is one such plug-in (e.g. for your calendar).
+    why: >-
+      It's how Phase 3 integrations connect. MCP servers run as ordinary
+      programs with real access, so each one is a trust decision: vet first.
+    see: [integration, agent]
+
+  - id: integration
+    term: Integration (recipe)
+    aliases: [recipe, recipes, connector]
+    plain: >-
+      Connecting an outside service (notes, calendar, email) so your assistant
+      can use it. In Digital Seed these are called recipes.
+    why: >-
+      This is Phase 3, powerful but the first real "what leaves my machine" step.
+      One tool at a time, least access first; seed find lists vetted options.
+    see: [mcp, local-first]
+
+  - id: local-first
+    term: Local-first
+    aliases: [local first, privacy, on-device]
+    plain: >-
+      Your data lives on your computer by default, not in someone's cloud. Things
+      leave only when you explicitly ask them to.
+    why: >-
+      It's Digital Seed's core promise. Run seed whoami to see exactly what's
+      stored and what, if anything, is set up to leave.
+    see: [integration, rag]
+
+  - id: autonomy
+    term: Autonomy (always-on agent)
+    aliases: [autonomous, always-on, background agent, scheduled]
+    plain: >-
+      Letting an agent run on its own, on a schedule or continuously, instead of
+      only when you type a command.
+    why: >-
+      It's Phase 4, the biggest step. Worth it only once Phases 1-3 already pay
+      off; high-risk actions still need your fresh OK.
+    see: [agent, integration]
