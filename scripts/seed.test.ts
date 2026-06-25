@@ -172,3 +172,24 @@ test("seed digest --notify reports a desktop-notification outcome and exits clea
   const out = await seed(root, ["digest", "--notify"]);
   expect(out.toLowerCase()).toContain("notification"); // sent OR gracefully skipped
 });
+
+// ── B5: task examples gallery ───────────────────────────────────────────────
+test("seed examples lists task prompts with a paste hint", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["examples", "--plain"]);
+  expect(out).toContain("Draft my week from my goals"); // a known task title
+  expect(out.toLowerCase()).toContain("paste"); // paste-into-your-agent hint
+});
+
+test("seed examples <category> filters to that category", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["examples", "planning", "--plain"]);
+  expect(out).toContain("Draft my week from my goals"); // planning
+  expect(out).not.toContain("Run my Friday review"); // life-admin → filtered out
+});
+
+test("seed examples --check passes on the shipped gallery", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["examples", "--check"]);
+  expect(out.toLowerCase()).toContain("ok");
+});

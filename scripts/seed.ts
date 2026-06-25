@@ -34,6 +34,7 @@ import { describeOfflineMode } from "../core/src/offline-mode.ts";
 import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney, phaseProgress, whyForPhase, unblockPrompt } from "./lib/journey.ts";
 import { welcomeBackForGuide, journeyDigestSection, saveWelcomeDigest } from "./lib/welcome-back.ts";
 import { installSchedule, uninstallSchedule, planText, sendNotification } from "./lib/digest-schedule.ts";
+import { loadExamples, filterByCategory, formatExample, CATEGORIES } from "./lib/examples.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1046,6 +1047,7 @@ BEGINNER — first 15 minutes
   bun run seed privacy-scan            Check for common private leftovers
   bun run seed index <folder>          Build a local retrieval index
   bun run seed search "<query>"        Search your local retrieval index
+  bun run seed examples [category]     "What can it do?" — copy-paste task prompts for your agent
   bun run seed recipe list             List integration recipes
   bun run seed find "<need>"           Find vetted open-source tools for a need (+ what each can access)
   bun run seed catalog                 Browse the curated open-source tool catalog
@@ -1208,6 +1210,7 @@ else if (cmd === "start") {
   // Record progress + point at the always-available guide.
   try { completeStep(ROOT, 1, "context", new Date().toISOString()); } catch { /* best-effort */ }
   console.log("");
+  console.log(dim("Not sure what to ask your agent? Run `bun run seed examples` for ready-to-paste tasks."));
   console.log(dim("Lost or coming back later? Run `bun run seed guide` any time — it always tells you your single next step."));
 }
 else if (cmd === "intro") {
@@ -1426,6 +1429,31 @@ else if (cmd === "vet") {
   const target = rest.filter((a) => !a.startsWith("--")).join(" ").trim();
   if (!target) { console.error("Usage: bun run seed vet <npm-package | owner/repo | https://github.com/...>"); process.exit(1); }
   vetTarget(target, { online: rest.includes("--online") });
+}
+
+// ── "What can it do?" — copy-paste task examples (B5) ────────────────────────────
+else if (cmd === "examples") {
+  const { tasks, problems } = loadExamples(ROOT);
+  if (rest.includes("--check")) {
+    if (problems.length) { problems.forEach((p) => console.error(`  ✗ ${p}`)); process.exit(1); }
+    console.log(`✅ Examples OK — ${tasks.length} task(s), all valid.`);
+    process.exit(0);
+  }
+  if (problems.length) console.error(`(examples warnings: ${problems.length} — run \`seed examples --check\` for detail)`);
+  const catArg = rest.find((a) => !a.startsWith("--"));
+  if (catArg && !(CATEGORIES as readonly string[]).includes(catArg)) {
+    console.error(`Unknown category "${catArg}". Try one of: ${CATEGORIES.join(", ")}`);
+    process.exit(1);
+  }
+  const shown = catArg ? filterByCategory(tasks, catArg) : tasks;
+  console.log("What can it do? — copy a prompt below and paste it into your AI agent.\n");
+  const cats = (catArg ? [catArg] : CATEGORIES).filter((c) => shown.some((t) => t.category === c));
+  for (const c of cats) {
+    console.log(`── ${c} ──`);
+    for (const t of shown.filter((x) => x.category === c)) console.log(formatExample(t) + "\n");
+  }
+  console.log("Open your AI agent in this folder, paste a prompt, and let it run. Nothing leaves your machine.");
+  if (!catArg) console.log("Filter to one kind: bun run seed examples <category>");
 }
 
 // ── Web & Drive ──────────────────────────────────────────────────────────────

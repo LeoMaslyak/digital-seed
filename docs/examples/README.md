@@ -1,10 +1,19 @@
 # Examples Gallery
 
-Four fictional Digital Seed users, each showing what their first 15 minutes might look like. Use these as templates — copy the parts that match your situation, ignore the rest.
+Two kinds of examples:
 
-These profiles are made up. None of them are based on real people.
+- **"What can it do?" — task prompts.** Run **`bun run seed examples`** for a set of concrete,
+  copy-paste prompts you can hand straight to your AI agent ("draft my week from my goals", "turn
+  these notes into a recap"). Every one works with local context only — no accounts, nothing leaves
+  your machine. Filter with `bun run seed examples <category>` (planning, writing, learning, research,
+  life-admin, decisions). These live in `examples/examples.yaml`.
+- **"Who am I like?" — persona profiles** (below). Four fictional users showing what a first 15
+  minutes might look like.
 
-## Profiles
+## Profiles — what a first 15 minutes might look like
+
+Four fictional Digital Seed users. Use these as templates — copy the parts that match your situation,
+ignore the rest. These profiles are made up. None of them are based on real people.
 
 - [Student](student.md) — coursework, papers, study notes, exam prep
 - [Founder / Operator](founder.md) — small startup or solo operator running multiple priorities
