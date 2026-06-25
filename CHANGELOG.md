@@ -4,7 +4,28 @@ All notable changes to Digital Seed will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **`seed guide` is now a coach, not a status line (roadmap A6).** It shows an
+  honest progress bar (▓ done · ▒ current · ░ remaining, ASCII under `--plain`)
+  with an "N of 4 done" tally once you've finished a phase, a one-line *why this
+  step matters*, and a "Stuck? Run `seed guide --help-me`" footer. The new
+  `seed guide --help-me` prints a ready-to-paste prompt for your AI agent ("walk
+  me through this next step, one question at a time, I'm not technical") — it is
+  print-only (no network, no subprocess) and the pasted block is plain text in
+  every mode, so it stays copy-safe.
+
 ### Security
+
+- **Terminal-escape hardening for the journey state (found by the A6 hostile
+  audit).** Two pre-existing gaps were closed: (1) the parking-lot/`focus`
+  sanitizer missed the 8-bit C1 control range (CSI/OSC/ST, `\x80–\x9f`) — now
+  stripped alongside C0 + DEL; (2) `seed guide --refresh` bypassed the
+  parking-lot sanitizer, so a poisoned/hand-edited `data/journey.json` could
+  crash the command (`TypeError` on a `null` entry) or emit raw terminal escapes
+  even under `--plain`. `refreshJourney` now routes through the same normalizer as
+  the default load path. Both verified fixed end-to-end (exit 0, zero escape bytes
+  in output).
 
 - **Catalog CI now verifies repo URLs actually EXIST, not just their format.** A
   quality-gate hostile audit found that `catalog-check` validated the *shape* of

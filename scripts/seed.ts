@@ -31,7 +31,7 @@ import { join, dirname } from "path";
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "fs";
 import { detectActivityState, describeState } from "../core/src/activity-state.ts";
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
-import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney } from "./lib/journey.ts";
+import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney, phaseProgress, whyForPhase, unblockPrompt } from "./lib/journey.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1050,7 +1050,8 @@ BEGINNER — first 15 minutes
   bun run seed vet <repo-or-package>   Safety-check any tool before you install it
   bun run seed plan                    Print the AI-guided phase-selection prompt
   bun run seed what-next               Print one recommended next action
-  bun run seed guide                   Where you are in the 4 phases + your single next step
+  bun run seed guide                   Where you are + why this step matters + your single next step
+  bun run seed guide --help-me         Stuck? Print a prompt to paste into your agent
   bun run seed park "<idea>"           Save an off-track idea for a later phase
   bun run seed complete <phase> <step> Mark a step done (advance the journey)
   bun run seed feedback                Show the easiest ways to report friction
@@ -1216,28 +1217,46 @@ else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") 
 else if (cmd === "what-next") { printWhatNext(); }
 else if (cmd === "guide") {
   const plain = rest.includes("--plain");
-  const dimIf = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.dim}${t}${ANSI.reset}`);
-  const boldIf = (t: string) => (plain || !USE_ANSI ? t : `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}`);
+  const ascii = plain || !USE_ANSI;
+  const dimIf = (t: string) => (ascii ? t : `${ANSI.dim}${t}${ANSI.reset}`);
+  const boldIf = (t: string) => (ascii ? t : `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}`);
   const now = new Date().toISOString();
   const j = rest.includes("--refresh") ? refreshJourney(ROOT, now) : loadJourney(ROOT, now);
-  const ns = nextStep(j, loadGuidanceMap(ROOT));
-  const def = PHASES.find((p) => p.n === j.currentPhase);
 
-  console.log(boldIf(`You're in Phase ${j.currentPhase} of 4 — ${def?.title ?? ""}`));
-  const done = Object.entries(j.phases)
-    .filter(([, p]) => p.status === "done")
-    .map(([n]) => `Phase ${n}`);
-  if (done.length) console.log(dimIf(`  Done: ${done.join(", ")}`));
-  console.log(`\n  → Next: ${ns.focus}`);
-  if (ns.guidanceDocs.length) console.log(dimIf(`     Guide: ${ns.guidanceDocs.join(" · ")}`));
-  if (j.parkingLot.length) {
-    console.log(dimIf(`\n  Parked for later (${j.parkingLot.length}): ${j.parkingLot.map((p) => p.idea).join(", ")}`));
-  }
-  if (rest.includes("--sync")) {
-    const planPath = join(ROOT, "user", "MY-PLAN.md");
-    if (existsSync(planPath)) {
-      writeFileSync(planPath, syncMyPlanText(readFileSync(planPath, "utf-8"), j), "utf-8");
-      console.log(dimIf("\n  (MY-PLAN.md updated to match your journey.)"));
+  if (rest.includes("--help-me")) {
+    // A ready-to-paste prompt to get the user unstuck via their own AI agent.
+    // Print-only: no network, no subprocess. The block between the separators is
+    // plain text (never ANSI), so it stays copy-safe in any terminal.
+    const sep = ascii ? "----------------------------------------" : "────────────────────────────────────────";
+    console.log(dimIf("Stuck? Copy everything between the lines and paste it into your AI agent"));
+    console.log(dimIf("(open your agent in this folder first):\n"));
+    console.log(sep);
+    console.log(unblockPrompt(j));
+    console.log(sep);
+  } else {
+    const ns = nextStep(j, loadGuidanceMap(ROOT));
+    const def = PHASES.find((p) => p.n === j.currentPhase);
+    const prog = phaseProgress(j, { ascii });
+
+    const tail = prog.label ? `  (${prog.label})` : "";
+    console.log(`${boldIf(`You're in Phase ${j.currentPhase} of 4 — ${def?.title ?? ""}`)}  ${prog.bar}${dimIf(tail)}`);
+    if (prog.step && prog.step.done >= 1) console.log(dimIf(`  Step ${prog.step.done} of ${prog.step.total} in this phase`));
+
+    console.log(dimIf(`\n  Why this matters: ${whyForPhase(j.currentPhase)}`));
+
+    console.log(`\n  → Next: ${ns.focus}`);
+    if (ns.guidanceDocs.length) console.log(dimIf(`     Guide: ${ns.guidanceDocs.join(" · ")}`));
+    if (j.parkingLot.length) {
+      console.log(dimIf(`\n  Parked for later (${j.parkingLot.length}): ${j.parkingLot.map((p) => p.idea).join(", ")}`));
+    }
+    console.log(dimIf("\n  Stuck? Run  seed guide --help-me  for a prompt you can paste into your agent."));
+
+    if (rest.includes("--sync")) {
+      const planPath = join(ROOT, "user", "MY-PLAN.md");
+      if (existsSync(planPath)) {
+        writeFileSync(planPath, syncMyPlanText(readFileSync(planPath, "utf-8"), j), "utf-8");
+        console.log(dimIf("\n  (MY-PLAN.md updated to match your journey.)"));
+      }
     }
   }
 }
