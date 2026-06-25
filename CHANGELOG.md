@@ -6,6 +6,15 @@ All notable changes to Digital Seed will be documented in this file.
 
 ### Added
 
+- **A "what can it do?" task gallery — `seed examples` (roadmap B5).** A curated set of concrete,
+  copy-paste task prompts ("draft my week from my goals", "turn these notes into a recap", "think
+  through a decision with me") a newcomer can hand straight to their agent — every one works with
+  local context only, nothing leaves the machine. `seed examples <category>` filters (planning /
+  writing / learning / research / life-admin / decisions); `seed examples --check` validates the
+  gallery. Backed by `examples/examples.yaml` (community-contributable, validated + sanitized on load,
+  mirroring the tool catalog); surfaced from `seed start` and the examples docs. Distinct from the
+  existing persona profiles in `docs/examples/`.
+
 - **Opt-in daily scheduling + desktop notification for the digest (roadmap B1, follow-up).**
   `seed digest --schedule [HH:MM]` prints a ready-to-use plan (cron line on Linux, launchd on macOS)
   and only touches your system behind an explicit `--install`; the crontab edit is append-safe (a

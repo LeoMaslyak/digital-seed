@@ -1,0 +1,132 @@
+# Task examples — "what can it do?" (roadmap B5)
+#
+# A curated set of concrete, copy-paste prompts a newcomer can hand straight to
+# their AI agent (running in this folder). Every task here works with LOCAL
+# context only — no integrations, no accounts. Browse them with `seed examples`.
+#
+# This is the TASK gallery. The persona profiles in docs/examples/*.md are a
+# separate "who am I like" resource.
+#
+# Fields: id, title, category (planning|writing|learning|research|life-admin|decisions),
+#         needs (none|context|notes), prompt (the paste-ready text), good_for.
+# Contributions welcome — keep prompts local-only and genuinely useful.
+
+tasks:
+  - id: weekly-plan
+    title: Draft my week from my goals
+    category: planning
+    needs: context
+    prompt: |-
+      Read my user/GOALS.md, user/COMPASS.md, and user/USER.md, then draft a
+      one-page plan for this week: 3-5 priorities that actually move my goals,
+      each with a concrete first action. Keep it realistic for one week. Ask me
+      one or two questions only if something essential is missing.
+    good_for: turning your goals into a concrete, realistic week
+
+  - id: next-actions
+    title: What are my next 3 actions?
+    category: planning
+    needs: context
+    prompt: |-
+      Based on user/GOALS.md, tell me the 3 most useful things I could do next,
+      in priority order. For each: why it matters now, and the very first small
+      step. Prefer actions I can start today over big projects.
+    good_for: beating "I don't know where to start"
+
+  - id: notes-recap
+    title: Turn rough notes into a clean recap
+    category: writing
+    needs: notes
+    prompt: |-
+      Here are my rough notes (paste them below, or point me at a file). Turn
+      them into a clear recap: a 2-3 sentence summary, the key points as bullets,
+      decisions made, and any open questions or follow-ups. Keep my meaning;
+      don't invent anything.
+    good_for: making messy notes useful in a minute
+
+  - id: draft-message
+    title: Draft a message in my voice
+    category: writing
+    needs: context
+    prompt: |-
+      Read user/PREFERENCES.md and user/USER.md to match my tone, then draft a
+      message for this situation (describe it below). Give me 2 short options.
+      This is a DRAFT only — show it to me, do not send anything.
+    good_for: a fast first draft you can edit and send yourself
+
+  - id: explain-simply
+    title: Explain something to me, simply
+    category: learning
+    needs: none
+    prompt: |-
+      Explain this topic (name it below) in plain language, assuming I'm smart
+      but new to it. Start with a one-sentence "what it is", then a simple
+      analogy, then the 3 things actually worth knowing. Avoid jargon; if you
+      must use a term, define it in one line.
+    good_for: getting un-confused without the jargon
+
+  - id: learning-plan
+    title: Make me a 2-week learning plan
+    category: learning
+    needs: context
+    prompt: |-
+      Read user/GOALS.md. I want to learn the skill I name below because it
+      serves those goals. Build a focused 2-week plan: what to learn in what
+      order, ~30 minutes a day, with one tiny practice task each day and a small
+      project at the end. Keep it doable, not exhaustive.
+    good_for: a realistic path to a new skill
+
+  - id: compare-options
+    title: Compare my options
+    category: research
+    needs: none
+    prompt: |-
+      I'm choosing between a few options (list them below). Help me compare them
+      on the criteria that matter to me (ask me for those first if I haven't said).
+      Give a short table, the key trade-offs, and your honest recommendation with
+      the reason — flag anything you're unsure about.
+    good_for: making a clearer choice between alternatives
+
+  - id: summarize-doc
+    title: Summarize a long document
+    category: research
+    needs: notes
+    prompt: |-
+      Summarize the document below (or a file I point you at): a 3-sentence gist,
+      the main points as bullets, and anything that needs a decision or action
+      from me. Note anything important that's missing or unclear rather than
+      guessing.
+    good_for: getting the signal out of something long
+
+  - id: weekly-review
+    title: Run my Friday review
+    category: life-admin
+    needs: context
+    prompt: |-
+      Help me run a short weekly review. Ask me what moved this week and what
+      stalled, then: summarize the wins, name what's stuck and one unblock for
+      each, and propose next week's top 3 priorities grounded in user/GOALS.md.
+      Keep it to one screen.
+    good_for: a 10-minute reset that keeps you on track
+
+  - id: declutter-goals
+    title: Help me decide what to drop
+    category: decisions
+    needs: context
+    prompt: |-
+      Read user/GOALS.md and user/ANTI-GOALS.md. I feel over-committed. Help me
+      decide what to pause or drop: which goals genuinely conflict or aren't
+      worth it right now, and what to protect. Be honest and specific; ask me
+      what I'd regret not doing.
+    good_for: focus — saying no on purpose
+
+  - id: think-through-decision
+    title: Think through a decision with me
+    category: decisions
+    needs: none
+    prompt: |-
+      I have a decision to make (describe it below). Don't jump to an answer
+      first — help me think: what am I really optimizing for, what are the real
+      options, what could go wrong with each, and what would make this reversible
+      or low-risk. Then give your recommendation.
+    good_for: a calmer, clearer call on something that matters
