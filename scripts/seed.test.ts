@@ -193,3 +193,22 @@ test("seed examples --check passes on the shipped gallery", async () => {
   const out = await seed(root, ["examples", "--check"]);
   expect(out.toLowerCase()).toContain("ok");
 });
+
+// ── B6: trust surface (seed whoami) ─────────────────────────────────────────
+test("seed whoami shows the four trust sections and the local-first default", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["whoami", "--plain"]);
+  expect(out.toLowerCase()).toContain("on this machine");
+  expect(out.toLowerCase()).toContain("leave this machine");
+  expect(out.toLowerCase()).toMatch(/ask you first|approval/);
+  expect(out.toLowerCase()).toContain("staying in control");
+  expect(out.toLowerCase()).toContain("nothing leaves automatically");
+});
+
+test("seed whoami --json emits valid JSON with the report shape", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["whoami", "--json"]);
+  const j = JSON.parse(out);
+  expect(j.egress.automaticByDefault).toBe(true);
+  expect(Array.isArray(j.leash)).toBe(true);
+});
