@@ -107,3 +107,46 @@ test("CLAUDE.md defines the Proactive Guide contract", () => {
     expect(md.indexOf("Trust Boundary")).toBeLessThan(md.indexOf("## Proactive Guide"));
   }
 });
+
+// ── B1: welcome-back digest (passive surfacing + `seed digest` journey section) ──
+test("seed guide shows no welcome-back block on a first run", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["guide", "--plain"]);
+  expect(out).not.toContain("Since you were last here");
+});
+
+test("seed guide surfaces a welcome-back block after a day once something changed", async () => {
+  const root = sandbox();
+  await seed(root, ["guide", "--plain"]); // first run records the baseline
+  // back-date lastSeenAt so the next run crosses a day boundary
+  const statePath = join(root, "data/digest-state.json");
+  const st = JSON.parse(rf(statePath, "utf-8"));
+  st.lastSeenAt = "2020-01-01T00:00:00.000Z";
+  writeFileSync(statePath, JSON.stringify(st), "utf-8");
+  // a real change: fill the three context files
+  mkdirSync(join(root, "user"), { recursive: true });
+  for (const n of ["USER", "COMPASS", "GOALS"]) writeFileSync(join(root, "user", `${n}.md`), `real ${n}`, "utf-8");
+  const out = await seed(root, ["guide", "--plain"]);
+  expect(out).toContain("Since you were last here");
+  expect(out.toLowerCase()).toContain("context");
+});
+
+test("seed guide --no-welcome suppresses the welcome-back block", async () => {
+  const root = sandbox();
+  await seed(root, ["guide", "--plain"]);
+  const statePath = join(root, "data/digest-state.json");
+  const st = JSON.parse(rf(statePath, "utf-8"));
+  st.lastSeenAt = "2020-01-01T00:00:00.000Z";
+  writeFileSync(statePath, JSON.stringify(st), "utf-8");
+  mkdirSync(join(root, "user"), { recursive: true });
+  for (const n of ["USER", "COMPASS", "GOALS"]) writeFileSync(join(root, "user", `${n}.md`), `real ${n}`, "utf-8");
+  const out = await seed(root, ["guide", "--plain", "--no-welcome"]);
+  expect(out).not.toContain("Since you were last here");
+});
+
+test("seed digest leads with the journey section (phase + next step)", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["digest"]);
+  expect(out).toContain("Your seed");
+  expect(out.toLowerCase()).toContain("next step");
+});

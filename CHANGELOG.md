@@ -6,6 +6,18 @@ All notable changes to Digital Seed will be documented in this file.
 
 ### Added
 
+- **A zero-config "welcome back" digest (roadmap B1).** `seed guide` now greets a
+  returning user with what changed since they were last here ("you filled in your
+  context — Phase 1 done ✓", "you indexed your notes", "you parked 2 ideas") — but
+  only across a day boundary and only when there's news, so a first run and same-day
+  re-runs stay quiet. `seed digest` leads with a plain "Your seed" section (current
+  phase + single next step + recent changes) so it's useful for a newcomer whose
+  advanced digest sections are still empty; `seed digest --save` writes it to
+  `logs/digests/<date>-welcome.md`. `seed guide --no-welcome` opts out. Zero setup,
+  no network, no subprocess; the baseline lives in the gitignored
+  `data/digest-state.json`. (Opt-in scheduling + desktop notification land in a
+  follow-up.)
+
 - **`seed guide` is now a coach, not a status line (roadmap A6).** It shows an
   honest progress bar (▓ done · ▒ current · ░ remaining, ASCII under `--plain`)
   with an "N of 4 done" tally once you've finished a phase, a one-line *why this
