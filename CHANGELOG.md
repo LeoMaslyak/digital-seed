@@ -6,6 +6,14 @@ All notable changes to Digital Seed will be documented in this file.
 
 ### Added
 
+- **Opt-in daily scheduling + desktop notification for the digest (roadmap B1, follow-up).**
+  `seed digest --schedule [HH:MM]` prints a ready-to-use plan (cron line on Linux, launchd on macOS)
+  and only touches your system behind an explicit `--install`; the crontab edit is append-safe (a
+  tagged block, backup-first) and reversible with `seed digest --unschedule`. `seed digest --notify`
+  adds a best-effort desktop ping (the scheduled job uses `--save --notify`). Every subprocess uses
+  argv-form `safe-exec` (never a shell string); notifications degrade gracefully when no notifier is
+  available. Schedules ONLY the digest — never the advanced autonomy tasks.
+
 - **A zero-config "welcome back" digest (roadmap B1).** `seed guide` now greets a
   returning user with what changed since they were last here ("you filled in your
   context — Phase 1 done ✓", "you indexed your notes", "you parked 2 ideas") — but

@@ -150,3 +150,25 @@ test("seed digest leads with the journey section (phase + next step)", async () 
   expect(out).toContain("Your seed");
   expect(out.toLowerCase()).toContain("next step");
 });
+
+// ── B1 PR-2: opt-in schedule + notify ───────────────────────────────────────
+test("seed digest --schedule prints a plan and installs nothing", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["digest", "--schedule", "--plain"]);
+  expect(out).toContain("* * *"); // a cron expression
+  expect(out).toContain("--install");
+  expect(out.toLowerCase()).toContain("nothing has been installed");
+});
+
+test("seed digest --schedule 07:30 --notify reflects the time + notify in the plan", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["digest", "--schedule", "07:30", "--notify"]);
+  expect(out).toContain("30 7 * * *");
+  expect(out).toContain("--notify");
+});
+
+test("seed digest --notify reports a desktop-notification outcome and exits cleanly", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["digest", "--notify"]);
+  expect(out.toLowerCase()).toContain("notification"); // sent OR gracefully skipped
+});

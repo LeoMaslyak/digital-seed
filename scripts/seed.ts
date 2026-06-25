@@ -33,6 +33,7 @@ import { detectActivityState, describeState } from "../core/src/activity-state.t
 import { describeOfflineMode } from "../core/src/offline-mode.ts";
 import { loadJourney, loadGuidanceMap, nextStep, PHASES, syncMyPlanText, park, completeStep, refreshJourney, phaseProgress, whyForPhase, unblockPrompt } from "./lib/journey.ts";
 import { welcomeBackForGuide, journeyDigestSection, saveWelcomeDigest } from "./lib/welcome-back.ts";
+import { installSchedule, uninstallSchedule, planText, sendNotification } from "./lib/digest-schedule.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1074,7 +1075,10 @@ ADVANCED — optional power-user workflows
   bun run seed intro                   Replay the animated terminal intro
 
   bun run seed collab [...]            Shared projects / learning groups
-  bun run seed digest [...]            Daily digest (markdown / text / deliver)
+  bun run seed digest [...]            Your seed summary (--save / --json / --text)
+  bun run seed digest --notify         Print the digest + a best-effort desktop ping
+  bun run seed digest --schedule [HH:MM] [--install]   Plan (or install) a daily digest job
+  bun run seed digest --unschedule     Remove the scheduled daily digest job
   bun run seed schedule [clear]        View / clear pending background tasks
   bun run seed task <name>             Run an autonomous task
   bun run seed status                  Activity state + offline mode
@@ -1331,17 +1335,39 @@ else if (cmd === "collab")  { run("scripts/collab.ts", rest); }
 
 // ── Daily digest ──────────────────────────────────────────────────────────────
 else if (cmd === "digest")  {
+  const now = new Date().toISOString();
+
+  // Opt-in scheduling (B1 PR-2) — manage the daily job, no digest output.
+  // `--schedule` PRINTS the plan; it only mutates the system behind `--install`.
+  if (rest.includes("--unschedule")) {
+    console.log(uninstallSchedule(ROOT).message);
+    process.exit(0);
+  }
+  if (rest.includes("--schedule")) {
+    const opts = { notify: rest.includes("--notify"), time: rest.find((a) => /^\d{1,2}:\d{2}$/.test(a)) };
+    if (rest.includes("--install")) {
+      const r = installSchedule(ROOT, opts);
+      console.log(r.message);
+      process.exit(r.ok ? 0 : 1);
+    }
+    console.log(planText(ROOT, opts));
+    process.exit(0);
+  }
+
   // Lead with the journey section (B1) — useful for a newcomer whose advanced
   // digest sections are all empty. Read-only: does not advance the guide's
   // welcome baseline. Skip for --json so machine output stays clean.
   if (!rest.includes("--json")) {
-    const now = new Date().toISOString();
     const j = loadJourney(ROOT, now);
     console.log(journeyDigestSection(ROOT, j, now).join("\n"));
     console.log("");
     if (rest.includes("--save")) {
       const saved = saveWelcomeDigest(ROOT, j, now);
       console.log(`(saved your seed summary to ${saved.replace(ROOT + "/", "")})\n`);
+    }
+    if (rest.includes("--notify")) {
+      // Best-effort desktop ping (used by the scheduled job); never fails the command.
+      console.log(sendNotification("Digital Seed — your seed", `Next: ${j.focus}`).message);
     }
   }
   run("scripts/digest.ts", rest);
