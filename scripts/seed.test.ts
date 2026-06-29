@@ -212,3 +212,31 @@ test("seed whoami --json emits valid JSON with the report shape", async () => {
   expect(j.egress.automaticByDefault).toBe(true);
   expect(Array.isArray(j.leash)).toBe(true);
 });
+
+// ── A5: just-in-time glossary (seed explain) ────────────────────────────────
+test("seed explain <term> shows the plain explanation; an alias resolves", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["explain", "rag", "--plain"]);
+  expect(out.toLowerCase()).toContain("your own notes");
+  const alias = await seed(root, ["explain", "model context protocol", "--plain"]);
+  expect(alias).toContain("MCP");
+});
+
+test("seed explain with no argument lists the glossary terms", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["explain", "--plain"]);
+  expect(out).toContain("RAG");
+  expect(out).toContain("Embeddings");
+});
+
+test("seed explain on an unknown term reports no match (with the full-list hint)", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["explain", "zxqw", "--plain"]);
+  expect(out.toLowerCase()).toContain("no glossary entry");
+});
+
+test("seed explain --check passes on the shipped glossary", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["explain", "--check"]);
+  expect(out.toLowerCase()).toContain("ok");
+});

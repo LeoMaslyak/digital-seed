@@ -6,6 +6,14 @@ All notable changes to Digital Seed will be documented in this file.
 
 ### Added
 
+- **A just-in-time glossary — `seed explain <term>` (roadmap A5).** Plain-language, one-screen
+  explanations of the jargon that scares newcomers (agent, LLM, MCP, RAG, embeddings, vector DB,
+  context window, token, index, integration, local-first, autonomy): what it is, why it matters to
+  *you*, and how it shows up in Digital Seed. Resolves acronyms/aliases and fuzzy matches; `seed
+  explain` with no argument lists every term; `seed explain --check` validates. Backed by
+  `glossary/glossary.yaml` (community-contributable, validated + fully sanitized on load, mirroring
+  the catalog/examples loaders). Print-only — no network, no subprocess.
+
 - **A trust surface — `seed whoami` (roadmap B6).** A read-only local dashboard that plainly shows
   what's stored on this machine (which context + data files exist), what *can* leave it (by default
   nothing automatic; flags cloud embeddings / digest delivery if you've turned them on, and lists the
