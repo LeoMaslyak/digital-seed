@@ -6,6 +6,15 @@ All notable changes to Digital Seed will be documented in this file.
 
 ### Added
 
+- **One-command task router — `seed ask "<anything>"` (roadmap B3).** Turns any task into a single
+  ready-to-paste prompt: it routes your request to the right specialist framing (planning / writing /
+  code / finance / research / learning / decisions / life-admin / operations / strategy / general),
+  tells the agent to read your context files (by reference — never dumping their contents), includes
+  your request, and adds the standing "draft-and-confirm before anything irreversible" guardrail.
+  Detects your installed agent and prints the exact launch command; `--copy` puts the prompt on your
+  clipboard. This is the safe, print-only first step toward collapsing the two-pane copy-paste model.
+  Print-only — no network; clipboard/agent-detection reuse the existing argv-form `safe-exec` helpers.
+
 - **A just-in-time glossary — `seed explain <term>` (roadmap A5).** Plain-language, one-screen
   explanations of the jargon that scares newcomers (agent, LLM, MCP, RAG, embeddings, vector DB,
   context window, token, index, integration, local-first, autonomy): what it is, why it matters to

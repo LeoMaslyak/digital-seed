@@ -37,6 +37,7 @@ import { installSchedule, uninstallSchedule, planText, sendNotification } from "
 import { loadExamples, filterByCategory, formatExample, CATEGORIES } from "./lib/examples.ts";
 import { buildTrustReport, renderTrustReport } from "./lib/trust-surface.ts";
 import { loadGlossary, lookup, suggest, formatTerm } from "./lib/glossary.ts";
+import { routeSpecialist, buildAskPrompt, normalizeQuestion } from "./lib/ask.ts";
 import { safeExec, commandExists } from "./lib/safe-exec.ts";
 import { loadCatalog, matchNeed, formatEntry, tierBadge } from "./lib/catalog.ts";
 
@@ -1046,6 +1047,7 @@ BEGINNER — first 15 minutes
   bun run seed onboard --plain         Same path, no animation or color
   bun run seed doctor                  Friendly setup health check
   bun run seed first-prompt [--copy]   Print the first agent prompt (--copy: to clipboard)
+  bun run seed ask "<task>" [--copy]   Turn any task into one ready-to-paste prompt (context + framing)
   bun run seed privacy-scan            Check for common private leftovers
   bun run seed whoami                  What's stored / what can leave / what the agent may do
   bun run seed index <folder>          Build a local retrieval index
@@ -1215,6 +1217,7 @@ else if (cmd === "start") {
   try { completeStep(ROOT, 1, "context", new Date().toISOString()); } catch { /* best-effort */ }
   console.log("");
   console.log(dim("Not sure what to ask your agent? Run `bun run seed examples` for ready-to-paste tasks."));
+  console.log(dim("Have a task in mind? `bun run seed ask \"<your task>\"` builds the whole prompt for you."));
   console.log(dim("Lost or coming back later? Run `bun run seed guide` any time — it always tells you your single next step."));
 }
 else if (cmd === "intro") {
@@ -1225,6 +1228,39 @@ else if (cmd === "intro") {
   printTerminalSeedIntro({ animate: !rest.includes("--static") && USE_ANSI, frames, delayMs });
 }
 else if (cmd === "first-prompt") { printFirstPrompt({ copy: rest.includes("--copy") }); }
+else if (cmd === "ask") {
+  // normalizeQuestion (not bare .trim()) so a control-char-only question counts as
+  // empty too — the guard and the prompt builder share one definition of "empty".
+  const question = normalizeQuestion(rest.filter((a) => !a.startsWith("--")).join(" "));
+  if (!question) {
+    console.error('Usage: bun run seed ask "<what you want help with>"   (e.g. "draft my week from my goals")');
+    console.error("It builds one ready-to-paste prompt: your context + the right framing + your request.");
+    process.exit(1);
+  }
+  const ansi = USE_ANSI && !rest.includes("--plain");
+  const dimIf = (t: string) => (ansi ? `${ANSI.dim}${t}${ANSI.reset}` : t);
+  const boldIf = (t: string) => (ansi ? `${ANSI.bold}${ANSI.mint}${t}${ANSI.reset}` : t);
+  const prompt = buildAskPrompt(question, routeSpecialist(question));
+  const ruler = "----- copy from below this line -----";
+  const endRuler = "----- copy from above this line -----";
+
+  console.log(boldIf("# Copy the prompt below and paste it into your AI agent"));
+  const agents = detectAgents();
+  if (agents.length) {
+    console.log(dimIf(`# (open a terminal in this folder and run \`${agents[0].launch}\`, then paste.)`));
+  } else {
+    console.log(dimIf("# (no AI agent detected — install one first: docs/install-claude-code.md — then run it in this folder and paste.)"));
+  }
+  console.log(dimIf(ruler));
+  console.log(prompt);
+  console.log(dimIf(endRuler));
+
+  if (rest.includes("--copy")) {
+    console.log(copyToClipboard(prompt)
+      ? (USE_ANSI ? `${ANSI.mint}✅ Copied to clipboard — just paste it into your agent.${ANSI.reset}` : "✅ Copied to clipboard — just paste it into your agent.")
+      : dimIf("(No clipboard tool found — copy the prompt above manually. On Linux, install xclip or wl-copy to enable --copy.)"));
+  }
+}
 else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") }); }
 else if (cmd === "what-next") { printWhatNext(); }
 else if (cmd === "guide") {
