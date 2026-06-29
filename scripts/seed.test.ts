@@ -240,3 +240,37 @@ test("seed explain --check passes on the shipped glossary", async () => {
   const out = await seed(root, ["explain", "--check"]);
   expect(out.toLowerCase()).toContain("ok");
 });
+
+// ── B3: seed ask (one-command task router) ──────────────────────────────────
+test("seed ask builds a paste-ready prompt with the question + an agent/launch hint", async () => {
+  const root = sandbox();
+  const out = await seed(root, ["ask", "draft my week from my goals", "--plain"]);
+  expect(out).toContain("draft my week from my goals");
+  expect(out.toLowerCase()).toContain("user/goals.md"); // references context, doesn't dump it
+  expect(out.toLowerCase()).toMatch(/run:|claude|cursor|no ai agent|paste/); // launch-or-paste hint
+});
+
+test("seed ask with no question exits non-zero with usage", async () => {
+  const root = sandbox();
+  const proc = Bun.spawn(["bun", "run", join(root, "scripts/seed.ts"), "ask"], { cwd: root, stdout: "pipe", stderr: "pipe" });
+  await proc.exited;
+  expect(proc.exitCode).not.toBe(0);
+  const err = (await new Response(proc.stderr).text()) + (await new Response(proc.stdout).text());
+  expect(err.toLowerCase()).toContain("usage");
+});
+
+test("seed ask with a control-char-only question exits non-zero (guard matches scrub)", async () => {
+  const root = sandbox();
+  const C = String.fromCharCode(1) + String.fromCharCode(2);
+  const proc = Bun.spawn(["bun", "run", join(root, "scripts/seed.ts"), "ask", C], { cwd: root, stdout: "pipe", stderr: "pipe" });
+  await proc.exited;
+  expect(proc.exitCode).not.toBe(0);
+});
+
+test("seed ask scrubs a control-char-laced question (no raw escape in output)", async () => {
+  const root = sandbox();
+  const ESC = String.fromCharCode(0x1b);
+  const out = await seed(root, ["ask", "plan my week" + ESC + "[2Jx", "--plain"]);
+  expect([...out].some((c) => c.charCodeAt(0) === 0x1b)).toBe(false);
+  expect(out).toContain("plan my week"); // question still shown, just sanitized
+});
