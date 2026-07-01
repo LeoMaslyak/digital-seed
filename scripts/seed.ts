@@ -1082,6 +1082,11 @@ ADVANCED — optional power-user workflows
   bun run seed recipe hermes init      Draft Hermes always-on setup context
   bun run seed intro                   Replay the animated terminal intro
 
+  In-kit AI (OPT-IN — these SEND your context off your machine to your AI provider):
+  bun run seed ask "<task>" --run      Answer now using your context (add --dry-run to preview the exact bytes first)
+  bun run seed chat                    Live conversational AI inside the kit (multi-turn; print-only, never acts for you)
+  bun run seed ask --revoke-consent    Turn in-kit AI sending back off (revoke the one-time opt-in)
+
   bun run seed collab [...]            Shared projects / learning groups
   bun run seed digest [...]            Your seed summary (--save / --json / --text)
   bun run seed digest --notify         Print the digest + a best-effort desktop ping
@@ -1229,6 +1234,11 @@ else if (cmd === "intro") {
 }
 else if (cmd === "first-prompt") { printFirstPrompt({ copy: rest.includes("--copy") }); }
 else if (cmd === "ask") {
+  // Live egress + consent management (--run / --dry-run / --revoke-consent) delegate
+  // to the ask-run driver; bare `seed ask` stays print-only and leaks nothing.
+  if (rest.some((f) => f === "--run" || f === "--dry-run" || f === "--revoke-consent")) {
+    run("scripts/ask-run-cli.ts", rest);
+  }
   // normalizeQuestion (not bare .trim()) so a control-char-only question counts as
   // empty too — the guard and the prompt builder share one definition of "empty".
   const question = normalizeQuestion(rest.filter((a) => !a.startsWith("--")).join(" "));
@@ -1261,6 +1271,7 @@ else if (cmd === "ask") {
       : dimIf("(No clipboard tool found — copy the prompt above manually. On Linux, install xclip or wl-copy to enable --copy.)"));
   }
 }
+else if (cmd === "chat") { run("scripts/chat-cli.ts", rest); }
 else if (cmd === "plan") { printPlan({ writePlan: rest.includes("--write-plan") }); }
 else if (cmd === "what-next") { printWhatNext(); }
 else if (cmd === "guide") {

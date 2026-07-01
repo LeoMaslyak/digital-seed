@@ -14,6 +14,7 @@
  */
 import { randomUUID } from "crypto";
 import { createInterface } from "readline";
+import { join, dirname } from "path";
 import { routeSpecialist } from "./lib/ask.ts";
 import { loadContextBundle } from "./lib/context-bundle.ts";
 import { scanForSecrets } from "./lib/secret-scan.ts";
@@ -115,3 +116,30 @@ export async function runChat(flags: RunChatFlags, deps: RunChatDeps = {}): Prom
   }
   return 0;
 }
+
+/** CLI entrypoint — delegated to by `seed chat`. One shared readline iterator
+ * serves both the first-run consent line and the conversation loop. */
+function main(): void {
+  const root = join(dirname(new URL(import.meta.url).pathname), "..");
+  const argv = process.argv.slice(2);
+  const listFlag = (name: string): string[] | undefined => {
+    const a = argv.find((x) => x.startsWith(name + "="));
+    return a ? a.slice(name.length + 1).split(",").filter(Boolean) : undefined;
+  };
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  const iterator = rl[Symbol.asyncIterator]();
+  const readLine = async (): Promise<string> => {
+    const { value, done } = await iterator.next();
+    return done || typeof value !== "string" ? "" : value;
+  };
+  const lines: AsyncIterable<string> = { [Symbol.asyncIterator]: () => iterator };
+  void runChat(
+    { root, sendAnyway: argv.includes("--send-anyway"), only: listFlag("--only"), exclude: listFlag("--exclude") },
+    { readLine, lines },
+  ).then((code) => {
+    rl.close();
+    process.exit(code);
+  });
+}
+
+if (import.meta.main) main();

@@ -11,10 +11,12 @@
  * tests never touch the real network.
  */
 import { randomUUID } from "crypto";
+import { join, dirname } from "path";
+import { createInterface } from "readline";
 import { routeSpecialist } from "./lib/ask.ts";
 import { loadContextBundle } from "./lib/context-bundle.ts";
 import { scanForSecrets } from "./lib/secret-scan.ts";
-import { loadChatConsent, saveChatConsent, resolveConsent } from "./lib/chat-consent.ts";
+import { loadChatConsent, saveChatConsent, resolveConsent, revokeChatConsent } from "./lib/chat-consent.ts";
 import { resolveProvider, aiCallExact, type ProviderInfo } from "./lib/ai-call.ts";
 import {
   buildRunPrompt,
@@ -124,3 +126,56 @@ export async function runAsk(question: string, flags: RunAskFlags, deps: RunAskD
     return 1;
   }
 }
+
+/** CLI entrypoint — delegated to by `seed ask --run/--dry-run/--revoke-consent`. */
+async function main(): Promise<void> {
+  const root = join(dirname(new URL(import.meta.url).pathname), "..");
+  const argv = process.argv.slice(2);
+  const has = (f: string) => argv.includes(f);
+
+  if (has("--revoke-consent")) {
+    const revoked = revokeChatConsent(root);
+    process.stdout.write(
+      revoked
+        ? "✓ Chat/ask egress consent revoked — `seed ask --run` will ask again next time.\n"
+        : "No consent was set — nothing to revoke.\n",
+    );
+    process.exit(0);
+  }
+
+  const listFlag = (name: string): string[] | undefined => {
+    const a = argv.find((x) => x.startsWith(name + "="));
+    return a ? a.slice(name.length + 1).split(",").filter(Boolean) : undefined;
+  };
+  const question = argv.filter((a) => !a.startsWith("-")).join(" ");
+  if (!question.trim()) {
+    process.stderr.write('Usage: seed ask "<your question>" --run   (add --dry-run to preview what would be sent)\n');
+    process.exit(1);
+  }
+
+  const readLine = () =>
+    new Promise<string>((resolve) => {
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      rl.question('Type "yes" to allow (remembered for next time): ', (ans) => {
+        rl.close();
+        resolve(ans);
+      });
+    });
+
+  const code = await runAsk(
+    question,
+    {
+      root,
+      run: has("--run"),
+      dryRun: has("--dry-run"),
+      yes: has("--yes") || has("-y"),
+      sendAnyway: has("--send-anyway"),
+      only: listFlag("--only"),
+      exclude: listFlag("--exclude"),
+    },
+    { readLine },
+  );
+  process.exit(code);
+}
+
+if (import.meta.main) void main();

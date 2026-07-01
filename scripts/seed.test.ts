@@ -267,6 +267,63 @@ test("seed ask with a control-char-only question exits non-zero (guard matches s
   expect(proc.exitCode).not.toBe(0);
 });
 
+// ── C1: seed ask --run / seed chat (live in-kit AI, opt-in egress) ───────────
+// Spawn with stdin explicitly ignored so the child is deterministically non-TTY
+// (never blocks on a consent prompt, and provably never sends without consent),
+// regardless of whether the test runner itself has a TTY.
+async function seedNoTTY(root: string, args: string[]): Promise<{ out: string; code: number | null }> {
+  const proc = Bun.spawn(["bun", "run", join(root, "scripts/seed.ts"), ...args], {
+    cwd: root, stdout: "pipe", stderr: "pipe", stdin: "ignore",
+  });
+  await proc.exited;
+  const out = (await new Response(proc.stdout).text()) + (await new Response(proc.stderr).text());
+  return { out, code: proc.exitCode };
+}
+
+test("seed ask --run --dry-run prints the assembled prompt and sends nothing", async () => {
+  const root = sandbox();
+  const { out, code } = await seedNoTTY(root, ["ask", "plan my week", "--run", "--dry-run"]);
+  expect(out).toContain("plan my week");
+  expect(out.toLowerCase()).toMatch(/dry run|nothing was sent/);
+  expect(code).toBe(0);
+});
+
+test("seed chat with no interactive terminal refuses cleanly (never sends, never hangs)", async () => {
+  const root = sandbox();
+  const { out, code } = await seedNoTTY(root, ["chat"]);
+  expect(out.toLowerCase()).toMatch(/terminal|interactive/);
+  expect(code).toBe(2);
+});
+
+test("seed ask --run with no consent + no TTY refuses (does not send, does not hang)", async () => {
+  const root = sandbox();
+  const { out, code } = await seedNoTTY(root, ["ask", "what should I do today", "--run"]);
+  expect(out.toLowerCase()).toMatch(/terminal|nothing was sent|no ai provider/);
+  expect(code).not.toBe(0); // refused — nothing left the machine
+});
+
+test("seed ask --revoke-consent is idempotent and reports the consent state", async () => {
+  const root = sandbox();
+  const { out, code } = await seedNoTTY(root, ["ask", "--revoke-consent"]);
+  expect(out.toLowerCase()).toContain("consent");
+  expect(code).toBe(0);
+});
+
+test("bare seed ask stays print-only after the --run wiring (no regression)", async () => {
+  const root = sandbox();
+  const { out } = await seedNoTTY(root, ["ask", "draft my week", "--plain"]);
+  expect(out).toContain("draft my week");
+  expect(out.toLowerCase()).toContain("copy"); // the print-and-paste copy rulers, not a live send
+});
+
+test("seed help surfaces the in-kit AI commands (chat + ask --run) as opt-in egress", async () => {
+  const root = sandbox();
+  const { out } = await seedNoTTY(root, ["help"]);
+  expect(out).toContain("seed chat");
+  expect(out).toContain("--run");
+  expect(out.toLowerCase()).toMatch(/opt-in|send/);
+});
+
 test("seed ask scrubs a control-char-laced question (no raw escape in output)", async () => {
   const root = sandbox();
   const ESC = String.fromCharCode(0x1b);
