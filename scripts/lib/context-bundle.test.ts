@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from "fs";
+import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync, linkSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { loadContextBundle } from "./context-bundle.ts";
@@ -35,4 +35,26 @@ test("symlink escaping user/ is refused, never read", () => {
   const b = loadContextBundle(root);
   expect(b.files.find((f) => f.name === "MEMORY.md")?.text ?? "").not.toContain("PRIVATE");
   expect(b.missing).toContain("MEMORY.md");
+});
+
+test("a symlinked user/ DIRECTORY is refused wholesale (nothing outside the repo is read)", () => {
+  const root = mkdtempSync(join(tmpdir(), "ctx-"));
+  const outside = mkdtempSync(join(tmpdir(), "outside-"));
+  writeFileSync(join(outside, "USER.md"), "OUTSIDE_CANARY");
+  symlinkSync(outside, join(root, "user")); // user/ itself is a symlink to an external dir
+  const b = loadContextBundle(root);
+  expect(b.files.length).toBe(0);
+  expect(b.missing).toContain("USER.md");
+  expect(JSON.stringify(b)).not.toContain("OUTSIDE_CANARY");
+});
+
+test("a hardlinked context file (nlink>1) is refused, contents never read", () => {
+  const root = seedRoot({ "USER.md": "ok" });
+  const outside = join(root, "outside-secret.txt");
+  writeFileSync(outside, "HARDLINK_CANARY");
+  linkSync(outside, join(root, "user", "MEMORY.md")); // hardlink a file into user/
+  const b = loadContextBundle(root);
+  expect(b.files.find((f) => f.name === "MEMORY.md")).toBeUndefined();
+  expect(b.missing).toContain("MEMORY.md");
+  expect(JSON.stringify(b)).not.toContain("HARDLINK_CANARY");
 });

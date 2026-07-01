@@ -37,11 +37,20 @@ export function loadContextBundle(
   }
 
   const userDir = join(root, "user");
+  // Refuse the WHOLE bundle if user/ itself is a symlink, or resolves anywhere
+  // other than <root>/user — a malicious clone can ship `user -> /home/victim`
+  // (git tracks symlinks as mode 120000), and the per-file realpath check below
+  // would then be anchored to the attacker's target and wave everything through.
   let safeRoot: string;
   try {
+    const st = lstatSync(userDir);
     safeRoot = realpathSync(userDir);
+    if (st.isSymbolicLink() || safeRoot !== join(realpathSync(root), "user")) {
+      return { files: [], totalBytes: 0, missing: names };
+    }
   } catch {
-    safeRoot = userDir;
+    // user/ missing or unreadable → nothing to load (every name is "missing").
+    return { files: [], totalBytes: 0, missing: names };
   }
 
   const files: ContextFile[] = [];
@@ -55,7 +64,10 @@ export function loadContextBundle(
         continue;
       }
       const st = lstatSync(path);
-      if (st.isSymbolicLink() || !st.isFile()) {
+      // Refuse symlinks, non-regular files, and hardlinks (nlink>1) — a hardlink
+      // is indistinguishable from a regular file by realpath, so an attacker with
+      // write access to user/ could hardlink ~/.ssh/id_rsa in as MEMORY.md.
+      if (st.isSymbolicLink() || !st.isFile() || st.nlink > 1) {
         missing.push(name);
         continue;
       }
