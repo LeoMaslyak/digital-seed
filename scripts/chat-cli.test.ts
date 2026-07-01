@@ -52,3 +52,12 @@ test("no-tools invariant: chat-cli.ts source has no subprocess or direct file mu
   expect(src).not.toMatch(/child_process|execSync|spawnSync|\bspawn\b|safe-?exec/i);
   expect(src).not.toMatch(/writeFileSync|appendFileSync|unlinkSync|renameSync/); // consent writes go through chat-consent.ts
 });
+
+test("first-run consent-save failure degrades gracefully (no uncaught throw, nothing sent)", async () => {
+  const r = root();
+  writeFileSync(join(r, "data"), "not a dir"); // force saveChatConsent's mkdir to fail
+  const t = mk(["hello", "/exit"]); // isTTY true, readLine returns "yes"
+  expect(await runChat({ root: r }, t.d)).toBe(1); // graceful non-zero, not a raw stacktrace
+  expect(t.prompts.length).toBe(0); // never sent
+  expect(t.err().toLowerCase()).toContain("consent");
+});

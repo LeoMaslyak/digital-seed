@@ -19,7 +19,7 @@ import { routeSpecialist } from "./lib/ask.ts";
 import { loadContextBundle } from "./lib/context-bundle.ts";
 import { scanForSecrets } from "./lib/secret-scan.ts";
 import { loadChatConsent, saveChatConsent, resolveConsent } from "./lib/chat-consent.ts";
-import { resolveProvider, aiCallExact, type ProviderInfo } from "./lib/ai-call.ts";
+import { resolveProvider, aiCallExact, redactSecrets, type ProviderInfo } from "./lib/ai-call.ts";
 import { buildTurnPrompt, buildEgressPreview, renderFirstRunDisclosure, renderEgressBanner, type Turn } from "./lib/ask-run.ts";
 import { scrubBlock } from "./lib/scrub.ts";
 
@@ -91,7 +91,12 @@ export async function runChat(flags: RunChatFlags, deps: RunChatDeps = {}): Prom
       err("Cancelled. Nothing left your machine.\n");
       return 2;
     }
-    saveChatConsent(flags.root, provider.label, now());
+    try {
+      saveChatConsent(flags.root, provider.label, now());
+    } catch (e) {
+      err("Couldn't save your consent (" + redactSecrets((e as Error).message) + "). Nothing was sent.\n");
+      return 1;
+    }
   } else if (!decision.allowed) {
     err("Consent required. Nothing was sent.\n");
     return 2;
@@ -111,7 +116,7 @@ export async function runChat(flags: RunChatFlags, deps: RunChatDeps = {}): Prom
       out(scrubBlock(text) + "\n");
       history.push({ role: "user", text: line }, { role: "assistant", text });
     } catch (e) {
-      err("Error: " + (e as Error).message + "\n");
+      err("Error: " + redactSecrets((e as Error).message) + "\n");
     }
   }
   return 0;
@@ -139,6 +144,10 @@ function main(): void {
   ).then((code) => {
     rl.close();
     process.exit(code);
+  }).catch((e) => {
+    rl.close();
+    process.stderr.write("Error: " + redactSecrets(String((e as Error)?.message ?? e)) + "\n");
+    process.exit(1);
   });
 }
 

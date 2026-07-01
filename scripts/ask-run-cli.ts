@@ -17,7 +17,7 @@ import { routeSpecialist } from "./lib/ask.ts";
 import { loadContextBundle } from "./lib/context-bundle.ts";
 import { scanForSecrets } from "./lib/secret-scan.ts";
 import { loadChatConsent, saveChatConsent, resolveConsent, revokeChatConsent } from "./lib/chat-consent.ts";
-import { resolveProvider, aiCallExact, type ProviderInfo } from "./lib/ai-call.ts";
+import { resolveProvider, aiCallExact, redactSecrets, type ProviderInfo } from "./lib/ai-call.ts";
 import {
   buildRunPrompt,
   buildEgressPreview,
@@ -108,7 +108,12 @@ export async function runAsk(question: string, flags: RunAskFlags, deps: RunAskD
       err("Cancelled. Nothing left your machine.\n");
       return 2;
     }
-    saveChatConsent(flags.root, provider.label, now());
+    try {
+      saveChatConsent(flags.root, provider.label, now());
+    } catch (e) {
+      err("Couldn't save your consent (" + redactSecrets((e as Error).message) + "). Nothing was sent.\n");
+      return 1;
+    }
   } else if (!decision.allowed) {
     err("Consent required. Nothing was sent.\n");
     return 2;
@@ -122,7 +127,7 @@ export async function runAsk(question: string, flags: RunAskFlags, deps: RunAskD
     err(renderReceipt(served, preview.totalBytes) + "\n");
     return 0;
   } catch (e) {
-    err("Error: " + (e as Error).message + "\n");
+    err("Error: " + redactSecrets((e as Error).message) + "\n");
     return 1;
   }
 }
@@ -178,4 +183,9 @@ async function main(): Promise<void> {
   process.exit(code);
 }
 
-if (import.meta.main) void main();
+if (import.meta.main) {
+  main().catch((e) => {
+    process.stderr.write("Error: " + redactSecrets(String((e as Error)?.message ?? e)) + "\n");
+    process.exit(1);
+  });
+}

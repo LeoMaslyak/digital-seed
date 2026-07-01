@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import { mkdtempSync } from "fs";
+import { mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { runAsk } from "./ask-run-cli.ts";
@@ -56,4 +56,14 @@ test("model answer with control chars renders inert on stdout; receipt on stderr
   expect(t.out()).toContain("there");
   expect(t.out()).not.toContain("\x1b");
   expect(t.err().toLowerCase()).toContain("sent"); // receipt to stderr
+});
+
+test("first-run consent-save failure degrades gracefully (no uncaught throw, nothing sent)", async () => {
+  const r = root();
+  writeFileSync(join(r, "data"), "not a dir"); // force saveChatConsent's mkdir to fail (EEXIST/ENOTDIR)
+  const t = mk(); // isTTY true, readLine returns "yes"
+  const code = await runAsk("plan my week", { root: r, run: true }, t.d);
+  expect(code).toBe(1);            // graceful non-zero, not a raw stacktrace
+  expect(t.calls.length).toBe(0);  // never sent
+  expect(t.err().toLowerCase()).toContain("consent");
 });
