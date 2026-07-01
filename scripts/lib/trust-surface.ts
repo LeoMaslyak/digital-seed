@@ -14,7 +14,7 @@ import { join } from "path";
 import { load as loadYaml } from "js-yaml";
 import { readSignals } from "./journey.ts";
 
-const CONTEXT_FILES = ["USER", "COMPASS", "GOALS", "DOMAINS", "PREFERENCES", "ANTI-GOALS", "MEMORY"];
+export const CONTEXT_FILES = ["USER", "COMPASS", "GOALS", "DOMAINS", "PREFERENCES", "ANTI-GOALS", "MEMORY"];
 const DATA_FILES = ["journey.json", "digest-state.json", "tasks.json", "pending-tasks.json", "interview-state.json"];
 
 export interface TrustReport {
