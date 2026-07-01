@@ -101,3 +101,47 @@ test("egress: a digest channel is ON only with a non-empty webhookUrl (matches d
   writeFileSync(join(root, "config/digest.yaml"), "delivery:\n  email:\n    enabled: true\n    webhookUrl: https://h/x\n", "utf-8");
   expect(buildTrustReport(root, {}).egress.digestEmail).toBe(true);
 });
+
+// ── C1: chat / ask --run egress line ─────────────────────────────────────────
+test("whoami reports chat egress from the consent file with a LIVE byte size, no key leak", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "user"), { recursive: true });
+  writeFileSync(join(root, "user/USER.md"), "hi there", "utf-8");
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/chat-consent.json"),
+    JSON.stringify({ version: 1, enabled: true, at: "t", provider: "Anthropic (claude CLI)" }),
+    "utf-8",
+  );
+  const prov = { label: "Anthropic (HTTP)", vendor: "Anthropic" as const, transport: "HTTP" as const, host: "api.anthropic.com" };
+  const r = buildTrustReport(root, { ANTHROPIC_API_KEY: "sk-ant-SECRETVALUE" }, { resolveProvider: () => prov });
+  expect(r.egress.chat.enabled).toBe(true);
+  expect(r.egress.chat.provider).toBe("Anthropic (HTTP)");
+  expect(r.egress.chat.sends).toMatch(/\d+ bytes/); // live count, never hardcoded
+  const text = renderTrustReport(r);
+  expect(text).toMatch(/AI answers.*ON/);
+  expect(text).not.toContain("sk-ant-SECRETVALUE"); // never echoes the key
+  expect(hasCtrl(text)).toBe(false);
+});
+
+test("whoami under-report guard: consented but no provider configured", () => {
+  const root = tmpRoot();
+  mkdirSync(join(root, "data"), { recursive: true });
+  writeFileSync(
+    join(root, "data/chat-consent.json"),
+    JSON.stringify({ version: 1, enabled: true, at: "t", provider: "Anthropic (claude CLI)" }),
+    "utf-8",
+  );
+  const r = buildTrustReport(root, {}, { resolveProvider: () => null });
+  expect(r.egress.chat.enabled).toBe(true);
+  expect(r.egress.chat.destination).toContain("no provider");
+  expect(renderTrustReport(r)).toMatch(/ON \(you consented\)/);
+});
+
+test("whoami: chat egress is OFF by default and stays out of automaticByDefault", () => {
+  const root = tmpRoot();
+  const r = buildTrustReport(root, {}, { resolveProvider: () => null });
+  expect(r.egress.chat.enabled).toBe(false);
+  expect(r.egress.automaticByDefault).toBe(true); // chat is on-demand, not automatic
+  expect(renderTrustReport(r)).toMatch(/AI answers.*OFF/);
+});
