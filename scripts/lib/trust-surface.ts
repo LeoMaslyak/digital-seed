@@ -13,8 +13,11 @@ import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { load as loadYaml } from "js-yaml";
 import { readSignals } from "./journey.ts";
+import { loadChatConsent } from "./chat-consent.ts";
+import { resolveProvider, type ProviderInfo } from "./ai-call.ts";
+import { loadContextBundle } from "./context-bundle.ts";
 
-const CONTEXT_FILES = ["USER", "COMPASS", "GOALS", "DOMAINS", "PREFERENCES", "ANTI-GOALS", "MEMORY"];
+export const CONTEXT_FILES = ["USER", "COMPASS", "GOALS", "DOMAINS", "PREFERENCES", "ANTI-GOALS", "MEMORY"];
 const DATA_FILES = ["journey.json", "digest-state.json", "tasks.json", "pending-tasks.json", "interview-state.json"];
 
 export interface TrustReport {
@@ -26,6 +29,16 @@ export interface TrustReport {
     digestTelegram: boolean;
     digestEmail: boolean;
     onDemand: string[];
+    chat: {
+      command: string;
+      sendsData: boolean;
+      enabled: boolean;
+      consentedAt: string | null;
+      provider: string | null;
+      destination: string;
+      sends: string;
+      storesHistory: boolean;
+    };
   };
   leash: string[];
   control: { isGitRepo: boolean };
@@ -79,7 +92,9 @@ export function agentLeash(): string[] {
 export function buildTrustReport(
   root: string,
   env: Record<string, string | undefined> = process.env,
+  opts: { resolveProvider?: () => ProviderInfo | null } = {},
 ): TrustReport {
+  const resolveP = opts.resolveProvider ?? (() => resolveProvider(env));
   const contextFilled: string[] = [];
   const contextEmpty: string[] = [];
   for (const n of CONTEXT_FILES) {
@@ -102,6 +117,24 @@ export function buildTrustReport(
   const cloudEmbeddings = ["1", "true", "yes", "on"].includes((env.RAG_EMBED_CLOUD || "").toLowerCase());
   const automaticByDefault = !(cloudEmbeddings || ch.telegram || ch.email);
 
+  // Chat / ask --run egress: opt-in + on-demand, so it does NOT flip
+  // automaticByDefault (it only sends when the user runs it). Reported live
+  // from the consent file + the presence-only provider resolver + the actual
+  // context bundle size — never a hardcoded byte count, never a key value.
+  const consent = loadChatConsent(root);
+  const chatProvider = resolveP();
+  const chatBundle = loadContextBundle(root);
+  const chat = {
+    command: "seed chat / seed ask --run",
+    sendsData: true,
+    enabled: consent !== null,
+    consentedAt: consent?.at ?? null,
+    provider: chatProvider?.label ?? null,
+    destination: chatProvider?.host ?? "(no provider configured)",
+    sends: `your question + ${chatBundle.files.length}/${CONTEXT_FILES.length} context files (${chatBundle.totalBytes} bytes) — sent verbatim`,
+    storesHistory: false,
+  };
+
   return {
     root,
     stored: { contextFilled, contextEmpty, dataFiles, hasIndex },
@@ -115,7 +148,9 @@ export function buildTrustReport(
         "seed drive (publish)",
         "seed update",
         "seed index with RAG_EMBED_CLOUD=1",
+        "seed ask --run / seed chat (opt-in — sends your context off-machine)",
       ],
+      chat,
     },
     leash: agentLeash(),
     control: { isGitRepo: existsSync(join(root, ".git")) },
@@ -145,6 +180,16 @@ export function renderTrustReport(r: TrustReport): string {
     }`,
   );
   L.push(`   Digest delivery — Telegram: ${r.egress.digestTelegram ? "ON" : "off"}, Email: ${r.egress.digestEmail ? "ON" : "off"}`);
+  const chat = r.egress.chat;
+  if (!chat.enabled) {
+    L.push("   AI answers (seed chat / seed ask --run): OFF — nothing is sent until you opt in once (then type yes).");
+  } else if (!chat.provider) {
+    L.push("   AI answers (seed chat / seed ask --run): ON (you consented) — but no AI provider is configured in .env, so nothing can send right now.");
+  } else {
+    L.push(
+      `   AI answers (seed chat / seed ask --run): ON — sends ${scrub(chat.sends)} to ${scrub(chat.provider)}; no history saved. Preview: seed ask --run --dry-run. Revoke: seed ask --revoke-consent.`,
+    );
+  }
   L.push(`   Only when you run them: ${r.egress.onDemand.join("; ")}.`);
   L.push("   Full detail: docs/what-leaves-your-machine.md");
   L.push("");
