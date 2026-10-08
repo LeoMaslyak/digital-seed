@@ -36,6 +36,8 @@ const BUDGET_FILE = "config/token-budget.json";
 const COST_TABLE: Record<string, { input: number; output: number }> = {
   "claude-sonnet-4-6": { input: 3.0, output: 15.0 },
   "claude-haiku-4-5": { input: 0.8, output: 4.0 },
+  // Prompt <=100K card; prompts >100K are $0.50 / $2.50 (this table has no prompt length).
+  "claude-haiku-5-5": { input: 0.1, output: 0.5 },
   "claude-opus-4": { input: 15.0, output: 75.0 },
   "gpt-4o": { input: 2.5, output: 10.0 },
   "gpt-4o-mini": { input: 0.15, output: 0.6 },
@@ -129,7 +131,12 @@ export function recordTokenUsage(root: string, event: TokenEvent): {
  * Estimate cost for a model/token count.
  */
 export function estimateCost(model: string, inputTokens: number, outputTokens: number): number {
-  const modelKey = Object.keys(COST_TABLE).find((k) => model.toLowerCase().includes(k.toLowerCase()));
+  // Longest matching key wins, so row order cannot shadow a more specific id
+  // (e.g. "gpt-4o-mini" must not fall into the "gpt-4o" row).
+  const id = model.toLowerCase();
+  const modelKey = Object.keys(COST_TABLE)
+    .filter((k) => id.includes(k.toLowerCase()))
+    .sort((a, b) => b.length - a.length)[0];
   if (!modelKey) return 0;
   const costs = COST_TABLE[modelKey];
   return (inputTokens * costs.input + outputTokens * costs.output) / 1_000_000;

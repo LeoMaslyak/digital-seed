@@ -5,7 +5,7 @@
  *   1. claude CLI (claude --print)
  *   2. openai CLI
  *   3. gemini CLI
- *   4. Anthropic API (fetch) using ANTHROPIC_API_KEY
+ *   4. Anthropic API (fetch, Claude Haiku 5.5) using ANTHROPIC_API_KEY
  *   5. OpenAI API (fetch) using OPENAI_API_KEY
  *   6. Google Gemini API (fetch) using GOOGLE_API_KEY
  *   7. Error with setup instructions
@@ -73,6 +73,47 @@ function cliExists(name: string): boolean {
 
 // ── API helpers ─────────────────────────────────────────────────────
 
+// One model id and one request body for BOTH Anthropic sites below. claude-haiku-5-5
+// has no date suffix. Sampling params (temperature, top_p, top_k),
+// an assistant prefill and thinking.budget_tokens are all HTTP 400 on this model,
+// so the request carries none of them. Thinking is on by default and counts
+// toward max_tokens, so the cap leaves room for thinking plus the answer.
+const ANTHROPIC_MODEL = "claude-haiku-5-5";
+const ANTHROPIC_MAX_TOKENS = 16_000;
+
+function anthropicBody(prompt: string): string {
+  return JSON.stringify({
+    model: ANTHROPIC_MODEL,
+    max_tokens: ANTHROPIC_MAX_TOKENS,
+    output_config: { effort: "medium" }, // = the model default, pinned so it is explicit
+    messages: [{ role: "user", content: prompt }],
+  });
+}
+
+interface AnthropicMessage {
+  content: { type: string; text?: string }[];
+  stop_reason?: string | null;
+  stop_details?: { category?: string } | null;
+}
+
+/**
+ * Text of an Anthropic Messages response. A decline arrives as HTTP 200 with
+ * stop_reason "refusal" (and no server-side fallback): it is a FAILURE of this
+ * provider, thrown before any content is read, so a cascade moves on instead
+ * of returning an empty or partial string as if it were the answer. Content is
+ * read by block type, never by position: a response may start with thinking
+ * blocks.
+ */
+function anthropicText(data: AnthropicMessage): string {
+  if (data.stop_reason === "refusal") {
+    const category = data.stop_details?.category;
+    throw new Error(
+      `Anthropic API refusal${typeof category === "string" ? ` (${category.slice(0, 40)})` : ""}`,
+    );
+  }
+  return data.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("");
+}
+
 async function callAnthropicAPI(prompt: string, apiKey: string): Promise<string> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -81,15 +122,10 @@ async function callAnthropicAPI(prompt: string, apiKey: string): Promise<string>
       "x-api-key": apiKey,
       "anthropic-version": "2023-06-01",
     },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 4096,
-      messages: [{ role: "user", content: prompt }],
-    }),
+    body: anthropicBody(prompt),
   });
   if (!res.ok) throw new Error(`Anthropic API ${res.status}: ${await res.text()}`);
-  const data = (await res.json()) as { content: { type: string; text: string }[] };
-  return data.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+  return anthropicText((await res.json()) as AnthropicMessage);
 }
 
 async function callOpenAIAPI(prompt: string, apiKey: string): Promise<string> {
@@ -130,21 +166,26 @@ async function callGoogleAPI(prompt: string, apiKey: string): Promise<string> {
  * Send a prompt to any available AI provider. Returns the text response.
  * Tries CLI tools first (sync), then direct API calls (async).
  */
-export async function aiCall(prompt: string): Promise<string> {
+export async function aiCall(
+  prompt: string,
+  opts: { hasCli?: (name: string) => boolean } = {},
+): Promise<string> {
+  const hasCli = opts.hasCli ?? cliExists; // seam for tests, as in resolveProvider()
+
   // 1. claude CLI
-  if (cliExists("claude")) {
+  if (hasCli("claude")) {
     const result = tryCliCommand("claude --print", prompt);
     if (result) return result;
   }
 
   // 2. openai CLI
-  if (cliExists("openai")) {
+  if (hasCli("openai")) {
     const result = tryCliCommand("openai api chat.completions.create -m gpt-4o-mini -g user", prompt);
     if (result) return result;
   }
 
   // 3. gemini CLI
-  if (cliExists("gemini")) {
+  if (hasCli("gemini")) {
     const result = tryCliCommand("gemini", prompt);
     if (result) return result;
   }
@@ -192,8 +233,7 @@ export async function aiCall(prompt: string): Promise<string> {
 // raw response body. That's unacceptable for callers who must send a
 // prompt to exactly ONE named provider and never fan it out further, and
 // must never leak key material into a thrown error or a log. resolveProvider()
-// and aiCallExact() below are that door. aiCall() and its helpers above are
-// untouched.
+// and aiCallExact() below are that door. aiCall() above keeps its cascade.
 
 export interface ProviderInfo {
   label: string;
@@ -317,15 +357,10 @@ export async function aiCallExact(
           "x-api-key": apiKey,
           "anthropic-version": "2023-06-01",
         },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 4096,
-          messages: [{ role: "user", content: prompt }],
-        }),
+        body: anthropicBody(prompt),
       });
       if (!res.ok) throw new Error(`Anthropic API ${res.status}: ${await res.text()}`);
-      const data = (await res.json()) as { content: { type: string; text: string }[] };
-      const text = data.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+      const text = anthropicText((await res.json()) as AnthropicMessage);
       return { text, served: provider };
     }
 
