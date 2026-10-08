@@ -1,18 +1,24 @@
 import { test, expect, beforeEach, afterEach } from "bun:test";
+import * as aiMod from "./ai-call.ts";
 import { aiCall, resolveProvider, aiCallExact, redactSecrets, type ProviderInfo } from "./ai-call.ts";
 
 // Every test runs with all three provider keys pinned to a fake value. getEnvVar() falls back
-// to ROOT/.env when a variable is unset, so without this a developer's real key could end up in
-// the (mocked) request header. Tests that need "no key" delete it explicitly; the hook restores
+// to the .env loader when a variable is unset; tests install an empty loader (setEnvFileLoaderForTests)
+// so no .env is read, and pin the keys so a developer's real key can never end up in the (mocked) request header. Tests that need "no key" delete it explicitly; the hook restores
 // whatever was there afterwards.
 const DUMMY_KEY = "dummy-not-a-key";
 const KEY_VARS = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY"] as const;
 let savedKeys: Record<string, string | undefined> = {};
+// The .env file is never read by tests: getEnvVar() uses this empty loader instead of loadEnv().
+const setLoader = (aiMod as unknown as { setEnvFileLoaderForTests?: (l: (() => Record<string, string>) | null) => void })
+  .setEnvFileLoaderForTests;
 beforeEach(() => {
+  setLoader?.(() => ({}));
   savedKeys = Object.fromEntries(KEY_VARS.map((k) => [k, process.env[k]]));
   for (const k of KEY_VARS) process.env[k] = DUMMY_KEY;
 });
 afterEach(() => {
+  setLoader?.(null);
   for (const k of KEY_VARS) {
     if (savedKeys[k] === undefined) delete process.env[k];
     else process.env[k] = savedKeys[k];
@@ -602,4 +608,120 @@ test("R5 aiCallExact: a rejection with undefined (or null) becomes an Error cont
     expect(err).toBeInstanceOf(Error);
     expect((err as Error).message).toContain("AI call failed");
   }
+});
+
+
+// ── SFIX3: whole-key redaction, OpenAI/Google truncation, .env seam, Google key in header ──
+
+const A24 = "A".repeat(24);
+const B40 = "B".repeat(40);
+const OAI_LEN = { choices: [{ message: { content: '{"slides": [{"title": "Q3' }, finish_reason: "length" }] };
+const GOO_MAX = { candidates: [{ content: { parts: [{ text: '{"slides": [{"title": "Q3' }] }, finishReason: "MAX_TOKENS" }] };
+
+test("SFIX3 R1 redactSecrets hides a whole sk- key even with _ or - after 20+ alnum chars", () => {
+  for (const sep of ["_", "-"]) {
+    const out = redactSecrets(`x sk-${A24}${sep}${B40} y`);
+    expect(out).not.toContain("B".repeat(20));
+    expect(out).not.toContain(A24);
+  }
+  for (const k of [`sk-svcacct-${A24}_${B40}`, `sk-proj-${B40}`, `sk-ant-admin01-${B40}`]) {
+    const out = redactSecrets(`x ${k} y`);
+    expect(out).not.toContain("B".repeat(20));
+  }
+});
+
+test("SFIX3 R1 a 401 body carrying such a key is redacted in the log and in both final errors", async () => {
+  const leak = `sk-${A24}_${B40}`;
+  const body = () => new Response(`{"error":"bad key ${leak}"}`, { status: 401 });
+  await withCascade(body, async () => {
+    const logged: string[] = [];
+    console.error = (...a: unknown[]) => { logged.push(a.map(String).join(" ")); };
+    const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+    expect(logged.length).toBeGreaterThanOrEqual(3);
+    for (const l of logged) expect(l).not.toContain("B".repeat(20));
+    expect(err?.message).toContain("All configured AI providers failed");
+    expect(err?.message).not.toContain("B".repeat(20));
+    const ex = await aiCallExact("q", OPENAI_HTTP, { fetch: globalThis.fetch }).then(() => null, (e: Error) => e);
+    expect(ex?.message).not.toContain("B".repeat(20));
+  });
+});
+
+test("SFIX3 R2 aiCallExact rejects OpenAI finish_reason=length without partial text", async () => {
+  await withCascade(() => json(OAI_LEN), async () => {
+    const err = await aiCallExact("q", OPENAI_HTTP, { fetch: globalThis.fetch }).then(() => null, (e: Error) => e);
+    expect(err?.message).toContain("OpenAI API answer truncated (finish_reason=length)");
+    expect(err?.message).not.toContain("slides");
+  });
+});
+
+test("SFIX3 R2 aiCallExact rejects Google finishReason=MAX_TOKENS without partial text", async () => {
+  await withCascade(() => json(GOO_MAX), async () => {
+    const err = await aiCallExact("q", GOOGLE_HTTP, { fetch: globalThis.fetch }).then(() => null, (e: Error) => e);
+    expect(err?.message).toContain("Google API answer truncated (finishReason=MAX_TOKENS)");
+    expect(err?.message).not.toContain("slides");
+  });
+});
+
+test("SFIX3 R2 aiCall moves on from a truncated OpenAI answer to Google", async () => {
+  await withCascade((host) => (host === "api.openai.com" ? json(OAI_LEN) : json(GOOGLE_OK)), async (calls) => {
+    expect(await aiCall("q", NO_CLI)).toBe("GOOGLE ANSWER");
+    expect(calls.map((c) => c.host)).toEqual(["api.openai.com", "generativelanguage.googleapis.com"]);
+  }, ["OPENAI_API_KEY", "GOOGLE_API_KEY"]);
+});
+
+test("SFIX3 R2 aiCall with only a truncated Google answer ends in the provider-failure error", async () => {
+  await withCascade(() => json(GOO_MAX), async () => {
+    const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+    expect(err?.message).toContain("All configured AI providers failed");
+    expect(err?.message).toContain("truncated");
+    expect(err?.message).not.toContain("slides");
+  }, ["GOOGLE_API_KEY"]);
+});
+
+test("SFIX3 R2 finish_reason=stop / finishReason=STOP still resolve", async () => {
+  const oai = { choices: [{ message: { content: "OPENAI ANSWER" }, finish_reason: "stop" }] };
+  const goo = { candidates: [{ content: { parts: [{ text: "GOOGLE ANSWER" }] }, finishReason: "STOP" }] };
+  await withCascade((host) => json(host === "api.openai.com" ? oai : goo), async () => {
+    expect((await aiCallExact("q", OPENAI_HTTP, { fetch: globalThis.fetch })).text).toBe("OPENAI ANSWER");
+    expect((await aiCallExact("q", GOOGLE_HTTP, { fetch: globalThis.fetch })).text).toBe("GOOGLE ANSWER");
+    expect(await aiCall("q", NO_CLI)).toBe("OPENAI ANSWER");
+  });
+  await withCascade(() => json(goo), async () => {
+    expect(await aiCall("q", NO_CLI)).toBe("GOOGLE ANSWER");
+  }, ["GOOGLE_API_KEY"]);
+});
+
+test("SFIX3 R3 getEnvVar consults the installed loader, and null restores the default", async () => {
+  expect(typeof setLoader).toBe("function");
+  await withCascade(() => json(OPENAI_OK), async (calls) => {
+    delete process.env.OPENAI_API_KEY;
+    setLoader?.(() => ({ OPENAI_API_KEY: DUMMY_KEY }));
+    expect(await aiCall("q", NO_CLI)).toBe("OPENAI ANSWER");
+    expect(calls.length).toBe(1);
+    setLoader?.(() => ({}));
+    const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+    expect(err?.message).toContain("No AI provider found");
+    expect(calls.length).toBe(1);
+  }, []);
+});
+
+test("SFIX3 R4 aiCall Google path sends the key in x-goog-api-key, never in the URL", async () => {
+  const realFetch = globalThis.fetch;
+  let seenUrl = "";
+  let seenHeader: string | null = null;
+  globalThis.fetch = (async (u: string, init?: RequestInit) => {
+    seenUrl = String(u);
+    seenHeader = new Headers(init?.headers).get("x-goog-api-key");
+    return json(GOOGLE_OK);
+  }) as unknown as typeof fetch;
+  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.OPENAI_API_KEY;
+  try {
+    expect(await aiCall("q", NO_CLI)).toBe("GOOGLE ANSWER");
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+  expect(seenUrl).not.toMatch(/[?&]key=/);
+  expect(seenUrl).not.toContain(DUMMY_KEY);
+  expect(seenHeader as string | null).toBe(DUMMY_KEY);
 });

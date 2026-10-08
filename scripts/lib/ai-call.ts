@@ -42,8 +42,17 @@ function loadEnv(): Record<string, string> {
   return env;
 }
 
+// Test seam: while a loader is installed, getEnvVar() uses it in place of loadEnv(), so tests
+// never read a .env file from disk. null restores loadEnv().
+let envFileLoader: (() => Record<string, string>) | null = null;
+
+export function setEnvFileLoaderForTests(loader: (() => Record<string, string>) | null): void {
+  envFileLoader = loader;
+}
+
+/** process.env first, then the .env file (or the installed test loader). */
 function getEnvVar(key: string): string | undefined {
-  return process.env[key] || loadEnv()[key];
+  return process.env[key] || (envFileLoader ?? loadEnv)()[key];
 }
 
 // ── CLI helpers ─────────────────────────────────────────────────────
@@ -108,6 +117,29 @@ function isBlankAnswer(s: string | null | undefined): boolean {
 function requireAnswer(vendor: "OpenAI" | "Google", text: string | null | undefined): string {
   if (isBlankAnswer(text)) throw new Error(`${vendor} API returned no answer text`);
   return text as string;
+}
+
+/** A truncated OpenAI/Google answer is a failure (thrown before requireAnswer; never carries response content). */
+function failIfTruncated(vendor: "OpenAI" | "Google", reason: unknown): void {
+  if (vendor === "OpenAI" && reason === "length") {
+    throw new Error("OpenAI API answer truncated (finish_reason=length)");
+  }
+  if (vendor === "Google" && reason === "MAX_TOKENS") {
+    throw new Error("Google API answer truncated (finishReason=MAX_TOKENS)");
+  }
+}
+
+interface OpenAIResponse { choices: { message: { content: string | null }; finish_reason?: string | null }[] }
+interface GoogleResponse { candidates: { content: { parts: { text: string }[] }; finishReason?: string }[] }
+
+function openAIText(data: OpenAIResponse): string {
+  failIfTruncated("OpenAI", data.choices?.[0]?.finish_reason);
+  return requireAnswer("OpenAI", data.choices?.[0]?.message?.content);
+}
+
+function googleText(data: GoogleResponse): string {
+  failIfTruncated("Google", data.candidates?.[0]?.finishReason);
+  return requireAnswer("Google", data.candidates?.[0]?.content?.parts?.map((p) => p.text).join(""));
 }
 
 /**
@@ -175,22 +207,21 @@ async function callOpenAIAPI(prompt: string, apiKey: string): Promise<string> {
     }),
   });
   if (!res.ok) throw new Error(`OpenAI API ${res.status}: ${await res.text()}`);
-  const data = (await res.json()) as { choices: { message: { content: string | null } }[] };
-  return requireAnswer("OpenAI", data.choices[0]?.message?.content);
+  return openAIText((await res.json()) as OpenAIResponse);
 }
 
 async function callGoogleAPI(prompt: string, apiKey: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  // Key in the x-goog-api-key header, never in the URL.
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
   const res = await fetch(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
     }),
   });
   if (!res.ok) throw new Error(`Google API ${res.status}: ${await res.text()}`);
-  const data = (await res.json()) as { candidates: { content: { parts: { text: string }[] } }[] };
-  return requireAnswer("Google", data.candidates?.[0]?.content?.parts?.map((p) => p.text).join(""));
+  return googleText((await res.json()) as GoogleResponse);
 }
 
 // ── Main export ─────────────────────────────────────────────────────
@@ -278,7 +309,7 @@ export async function aiCall(
 // ── Task 7: single-provider, no-cascade door ────────────────────────
 //
 // aiCall() above intentionally cascades across providers on failure, and
-// its HTTP callers put the Google key in the URL and console.error the
+// its HTTP callers console.error the
 // raw response body. That's unacceptable for callers who must send a
 // prompt to exactly ONE named provider and never fan it out further, and
 // must never leak key material into a thrown error or a log. resolveProvider()
@@ -333,8 +364,7 @@ export function resolveProvider(
 const SECRET_PATTERNS: RegExp[] = [
   /sk-ant-[A-Za-z0-9_-]+/g,
   /sk-proj-[A-Za-z0-9_-]+/g,
-  /sk-[A-Za-z0-9]{20,}/g,
-  /sk-[A-Za-z0-9_-]{20,}/g, // sk-svcacct-..., sk-admin-...: the pattern above stops at the dash
+  /sk-[A-Za-z0-9_-]{20,}/g, // whole key incl. sk-svcacct-..., sk-admin-...: never stops at _ or -
   /AKIA[0-9A-Z]{16}/g,
   /AIza[0-9A-Za-z_-]{20,}/g,
   /ghp_[0-9A-Za-z]{30,}/g,
@@ -429,8 +459,7 @@ export async function aiCallExact(
         }),
       });
       if (!res.ok) throw new Error(`OpenAI API ${res.status}: ${await res.text()}`);
-      const data = (await res.json()) as { choices: { message: { content: string | null } }[] };
-      const text = requireAnswer("OpenAI", data.choices[0]?.message?.content);
+      const text = openAIText((await res.json()) as OpenAIResponse);
       return { text, served: provider };
     }
 
@@ -448,8 +477,7 @@ export async function aiCallExact(
       },
     );
     if (!res.ok) throw new Error(`Google API ${res.status}: ${await res.text()}`);
-    const data = (await res.json()) as { candidates: { content: { parts: { text: string }[] } }[] };
-    const text = requireAnswer("Google", data.candidates?.[0]?.content?.parts?.map((p) => p.text).join(""));
+    const text = googleText((await res.json()) as GoogleResponse);
     return { text, served: provider };
   } catch (e) {
     throw new Error(redactSecrets("AI call failed: " + errorMessage(e)));
