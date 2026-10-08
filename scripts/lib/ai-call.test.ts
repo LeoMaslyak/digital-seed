@@ -1,5 +1,23 @@
-import { test, expect } from "bun:test";
+import { test, expect, beforeEach, afterEach } from "bun:test";
 import { aiCall, resolveProvider, aiCallExact, redactSecrets, type ProviderInfo } from "./ai-call.ts";
+
+// Every test runs with all three provider keys pinned to a fake value. getEnvVar() falls back
+// to ROOT/.env when a variable is unset, so without this a developer's real key could end up in
+// the (mocked) request header. Tests that need "no key" delete it explicitly; the hook restores
+// whatever was there afterwards.
+const DUMMY_KEY = "dummy-not-a-key";
+const KEY_VARS = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY"] as const;
+let savedKeys: Record<string, string | undefined> = {};
+beforeEach(() => {
+  savedKeys = Object.fromEntries(KEY_VARS.map((k) => [k, process.env[k]]));
+  for (const k of KEY_VARS) process.env[k] = DUMMY_KEY;
+});
+afterEach(() => {
+  for (const k of KEY_VARS) {
+    if (savedKeys[k] === undefined) delete process.env[k];
+    else process.env[k] = savedKeys[k];
+  }
+});
 
 // Secret-shaped inputs are built by concatenation so the repo's own source-level
 // privacy-scan doesn't flag these fixtures, while redactSecrets still sees the full
@@ -74,12 +92,14 @@ interface Call { host: string; body: Record<string, unknown> | null }
 /**
  * Runs fn with aiCall() cascade conditions pinned and no network: no CLI is
  * reported present (so the claude/openai/gemini CLI steps are skipped and no real
- * CLI can run), all three API keys are fake values (so .env is never consulted),
+ * CLI can run), the API keys named in `keys` (default: all three) are the fake DUMMY_KEY
+ * (so .env is never consulted for them; the others are deleted),
  * and global fetch is a mock routed by host. Everything is restored afterwards.
  */
 async function withCascade<T>(
   route: (host: string) => Response,
   fn: (calls: Call[]) => Promise<T>,
+  keys: readonly (typeof KEY_VARS)[number][] = KEY_VARS,
 ): Promise<T> {
   const saved = {
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
@@ -89,9 +109,10 @@ async function withCascade<T>(
   const realFetch = globalThis.fetch;
   const realError = console.error;
   const calls: Call[] = [];
-  process.env.ANTHROPIC_API_KEY = "test-anthropic-key";
-  process.env.OPENAI_API_KEY = "test-openai-key";
-  process.env.GOOGLE_API_KEY = "test-google-key";
+  for (const k of KEY_VARS) {
+    if (keys.includes(k)) process.env[k] = DUMMY_KEY;
+    else delete process.env[k];
+  }
   globalThis.fetch = (async (url: string, init?: RequestInit) => {
     const host = new URL(url).host;
     calls.push({ host, body: init?.body ? JSON.parse(String(init.body)) : null });
@@ -121,7 +142,8 @@ function expectHaiku55Body(body: Record<string, unknown> | null) {
   expect(b.model).toBe("claude-haiku-5-5");
   // Haiku 5.5 400s on all of these, so none may be sent.
   for (const banned of ["temperature", "top_p", "top_k", "thinking", "fallbacks"]) expect(b).not.toHaveProperty(banned);
-  expect(b.max_tokens as number).toBeGreaterThanOrEqual(1024); // thinking counts toward max_tokens
+  // Thinking counts toward max_tokens, so the budget is pinned EXACTLY (a floor would let 16000 drop to 1024).
+  expect(b.max_tokens).toBe(16_000);
   const messages = b.messages as { role: string; content: string }[];
   expect(messages[messages.length - 1].role).toBe("user"); // no assistant prefill
 }
@@ -187,14 +209,63 @@ test("cascade: refusal behaves exactly like an HTTP error (same fall-through)", 
   });
 });
 
-test("cascade: refusals everywhere end in the setup error, never an empty or partial string", async () => {
+test("cascade: an Anthropic refusal plus failing OpenAI/Google ends in a provider-failure error, never an empty or partial string", async () => {
   await withCascade(
     (host) => (host === "api.anthropic.com" ? json(REFUSAL_PARTIAL) : json({}, 500)),
     async (calls) => {
-      await expect(aiCall("q", NO_CLI)).rejects.toThrow("No AI provider found");
+      const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+      expect(err).not.toBeNull();
+      expect(err!.message).toContain("All configured AI providers failed");
+      expect(err!.message).toContain("Google API 500"); // the LAST provider failure
+      expect(err!.message).not.toContain("No AI provider found");
+      expect(err!.message).not.toContain("PARTIAL");
       expect(calls.map((c) => c.host)).toEqual(["api.anthropic.com", "api.openai.com", "generativelanguage.googleapis.com"]);
     },
   );
+});
+
+// ── F5: the final error names the last provider failure ─────────────
+
+const ONLY_ANTHROPIC = ["ANTHROPIC_API_KEY"] as const;
+
+test("cascade: Anthropic as the only provider and it refuses => the error names the refusal, not the setup hint", async () => {
+  await withCascade(() => json(REFUSAL_EMPTY), async (calls) => {
+    const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+    expect(err).not.toBeNull();
+    expect(err!.message).toBe("All configured AI providers failed (last: Anthropic API refusal (cyber))");
+    expect(err!.message).toContain("refusal");
+    expect(err!.message).not.toContain("No AI provider found");
+    expect(calls.map((c) => c.host)).toEqual(["api.anthropic.com"]);
+  }, ONLY_ANTHROPIC);
+});
+
+test("cascade: nothing configured (no CLI, no keys) keeps the setup error and makes no request", async () => {
+  await withCascade(() => json({}), async (calls) => {
+    await expect(aiCall("q", NO_CLI)).rejects.toThrow("No AI provider found");
+    expect(calls).toEqual([]);
+  }, []);
+});
+
+test("cascade: an Anthropic 401 whose body echoes a key-shaped string => the final error is redacted", async () => {
+  const leak = "sk-ant-" + "api03-" + "A".repeat(40);
+  await withCascade(() => new Response(`{"error":"invalid x-api-key ${leak}"}`, { status: 401 }), async () => {
+    const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+    expect(err).not.toBeNull();
+    expect(err!.message).toContain("All configured AI providers failed");
+    expect(err!.message).toContain("401");
+    expect(err!.message).not.toContain("sk-ant-api03");
+    expect(err!.message).not.toContain("A".repeat(20));
+  }, ONLY_ANTHROPIC);
+});
+
+test("cascade: the last-failure text in the final error is length-capped", async () => {
+  await withCascade(() => new Response("x".repeat(2000), { status: 500 }), async () => {
+    const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
+    expect(err).not.toBeNull();
+    const prefix = "All configured AI providers failed (last: ";
+    expect(err!.message.startsWith(prefix)).toBe(true);
+    expect(err!.message.length).toBeLessThanOrEqual(prefix.length + 160 + 1); // 160 chars of detail + ")"
+  }, ONLY_ANTHROPIC);
 });
 
 test("aiCallExact: a refusal with partial text rejects with an error containing 'refusal', one fetch only", async () => {
@@ -212,4 +283,81 @@ test("aiCallExact: a refusal with partial text rejects with an error containing 
 test("aiCallExact: a refusal with empty content also rejects with 'refusal'", async () => {
   const fakeFetch = (async () => json(REFUSAL_EMPTY)) as unknown as typeof fetch;
   await expect(aiCallExact("q", ANTHROPIC_HTTP, { fetch: fakeFetch })).rejects.toThrow(/refusal/);
+});
+
+// ── F4: hermetic keys ──────────────────────────────────────────────
+// aiCallExact reads its key through getEnvVar(), which falls back to ROOT/.env when the
+// variable is unset. The file-level hook above pins all three keys to a fake value, so an
+// ambient or .env key can never reach a (mocked) request header.
+
+test("aiCallExact HTTP requests carry the pinned fake key in the header, for every vendor", async () => {
+  const headers: Record<string, Record<string, string>> = {};
+  const fakeFetch = (async (url: string, init?: RequestInit) => {
+    const host = new URL(url).host;
+    headers[host] = init?.headers as Record<string, string>;
+    if (host === "api.openai.com") return json(OPENAI_OK);
+    if (host === "api.anthropic.com") return json(NORMAL);
+    return json({ candidates: [{ content: { parts: [{ text: "GOOGLE ANSWER" }] } }] });
+  }) as unknown as typeof fetch;
+  const OPENAI_HTTP: ProviderInfo = { label: "OpenAI (HTTP)", vendor: "OpenAI", transport: "HTTP", host: "api.openai.com" };
+  const GOOGLE_HTTP: ProviderInfo = { label: "Google (HTTP)", vendor: "Google", transport: "HTTP", host: "generativelanguage.googleapis.com" };
+  for (const p of [ANTHROPIC_HTTP, OPENAI_HTTP, GOOGLE_HTTP]) await aiCallExact("q", p, { fetch: fakeFetch });
+  expect(headers["api.anthropic.com"]["x-api-key"]).toBe(DUMMY_KEY);
+  expect(headers["api.openai.com"].authorization).toBe(`Bearer ${DUMMY_KEY}`);
+  expect(headers["generativelanguage.googleapis.com"]["x-goog-api-key"]).toBe(DUMMY_KEY);
+});
+
+// ── F1: an empty answer is a provider failure, never a success ──────
+// Haiku 5.5 thinks by default and thinking counts toward max_tokens, so a reply can end
+// with only a thinking block (the budget ran out) or with no / whitespace-only text.
+
+const THINKING_ONLY_MAX_TOKENS = {
+  stop_reason: "max_tokens",
+  content: [{ type: "thinking", thinking: "PRIVATE CHAIN OF THOUGHT", signature: "sig-abc" }],
+};
+const WHITESPACE_ONLY_END_TURN = {
+  stop_reason: "end_turn",
+  content: [{ type: "text", text: " \n\t  " }],
+};
+
+test("aiCallExact: thinking-only + max_tokens rejects (no answer text), no response content in the message", async () => {
+  const fakeFetch = (async () => json(THINKING_ONLY_MAX_TOKENS)) as unknown as typeof fetch;
+  let err: unknown;
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: fakeFetch }).catch((e) => { err = e; });
+  expect(r).toBeUndefined();
+  expect((err as Error).message).toContain("no answer text");
+  expect((err as Error).message).toContain("stop_reason=max_tokens");
+  expect((err as Error).message).not.toContain("PRIVATE CHAIN");
+});
+
+test("aiCallExact: whitespace-only text + end_turn rejects (no answer text)", async () => {
+  const fakeFetch = (async () => json(WHITESPACE_ONLY_END_TURN)) as unknown as typeof fetch;
+  let err: unknown;
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: fakeFetch }).catch((e) => { err = e; });
+  expect(r).toBeUndefined();
+  expect((err as Error).message).toContain("no answer text");
+  expect((err as Error).message).toContain("stop_reason=end_turn");
+});
+
+test("cascade: a thinking-only Anthropic reply is a provider failure, so OpenAI answers (one Anthropic request)", async () => {
+  await withCascade(routeAnthropicThen(() => json(THINKING_ONLY_MAX_TOKENS)), async (calls) => {
+    expect(await aiCall("q", NO_CLI)).toBe("OPENAI ANSWER");
+    expect(calls.map((c) => c.host)).toEqual(["api.anthropic.com", "api.openai.com"]);
+    expect(calls.filter((c) => c.host === "api.anthropic.com").length).toBe(1);
+  });
+});
+
+test("regression: thinking + text returns the text exactly as sent (not trimmed) on both sites", async () => {
+  const padded = {
+    stop_reason: "end_turn",
+    content: [
+      { type: "thinking", thinking: "some reasoning", signature: "sig-abc" },
+      { type: "text", text: "  ANSWER WITH PADDING\n" },
+    ],
+  };
+  await withCascade(() => json(padded), async () => {
+    expect(await aiCall("q", NO_CLI)).toBe("  ANSWER WITH PADDING\n");
+  });
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: (async () => json(padded)) as unknown as typeof fetch });
+  expect(r.text).toBe("  ANSWER WITH PADDING\n");
 });

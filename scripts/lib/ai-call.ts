@@ -8,7 +8,7 @@
  *   4. Anthropic API (fetch, Claude Haiku 5.5) using ANTHROPIC_API_KEY
  *   5. OpenAI API (fetch) using OPENAI_API_KEY
  *   6. Google Gemini API (fetch) using GOOGLE_API_KEY
- *   7. Error with setup instructions
+ *   7. Error: the last provider failure (redacted) if one was tried, else setup instructions
  *
  * No external dependencies — .env parsed manually, HTTP via fetch().
  */
@@ -103,6 +103,12 @@ interface AnthropicMessage {
  * of returning an empty or partial string as if it were the answer. Content is
  * read by block type, never by position: a response may start with thinking
  * blocks.
+ *
+ * An EMPTY answer is a failure too, whatever the stop_reason: Haiku 5.5 thinks
+ * by default and thinking counts toward max_tokens, so a reply can be a thinking
+ * block only (stop_reason "max_tokens"), or end_turn with no or whitespace-only
+ * text. The message carries the stop_reason (capped) and never response content.
+ * The returned text is not trimmed.
  */
 function anthropicText(data: AnthropicMessage): string {
   if (data.stop_reason === "refusal") {
@@ -111,7 +117,13 @@ function anthropicText(data: AnthropicMessage): string {
       `Anthropic API refusal${typeof category === "string" ? ` (${category.slice(0, 40)})` : ""}`,
     );
   }
-  return data.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("");
+  const text = data.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("");
+  if (text.trim() === "") {
+    throw new Error(
+      `Anthropic API returned no answer text (stop_reason=${String(data.stop_reason).slice(0, 40)})`,
+    );
+  }
+  return text;
 }
 
 async function callAnthropicAPI(prompt: string, apiKey: string): Promise<string> {
@@ -190,12 +202,17 @@ export async function aiCall(
     if (result) return result;
   }
 
+  // The last HTTP provider failure (null = no HTTP provider was attempted). Steps 4-6 record it
+  // so the final error can say what actually failed instead of sending the user to setup.
+  let lastFailure: string | null = null;
+
   // 4. Anthropic API
   const anthropicKey = getEnvVar("ANTHROPIC_API_KEY");
   if (anthropicKey) {
     try {
       return await callAnthropicAPI(prompt, anthropicKey);
     } catch (e) {
+      lastFailure = String((e as Error)?.message ?? e);
       console.error("⚠️  Anthropic API failed:", (e as Error).message?.slice(0, 100));
     }
   }
@@ -206,6 +223,7 @@ export async function aiCall(
     try {
       return await callOpenAIAPI(prompt, openaiKey);
     } catch (e) {
+      lastFailure = String((e as Error)?.message ?? e);
       console.error("⚠️  OpenAI API failed:", (e as Error).message?.slice(0, 100));
     }
   }
@@ -216,11 +234,16 @@ export async function aiCall(
     try {
       return await callGoogleAPI(prompt, googleKey);
     } catch (e) {
+      lastFailure = String((e as Error)?.message ?? e);
       console.error("⚠️  Google API failed:", (e as Error).message?.slice(0, 100));
     }
   }
 
-  // 7. Fallback error
+  // 7. Fallback error. A provider WAS configured and tried but failed: say so (redacted, capped);
+  // "run setup" is only right when nothing is configured at all.
+  if (lastFailure !== null) {
+    throw new Error(`All configured AI providers failed (last: ${redactSecrets(lastFailure).slice(0, 160)})`);
+  }
   throw new Error(
     "No AI provider found. Run ./setup.sh to configure one. We recommend Anthropic Claude — console.anthropic.com",
   );

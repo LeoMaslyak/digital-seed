@@ -35,7 +35,7 @@ const BUDGET_FILE = "config/token-budget.json";
 // Cost per 1M tokens (rough estimates, update as needed)
 const COST_TABLE: Record<string, { input: number; output: number }> = {
   "claude-sonnet-4-6": { input: 3.0, output: 15.0 },
-  "claude-haiku-4-5": { input: 0.8, output: 4.0 },
+  "claude-haiku-4-5": { input: 1.0, output: 5.0 },
   // Prompt <=100K card; prompts >100K are $0.50 / $2.50 (this table has no prompt length).
   "claude-haiku-5-5": { input: 0.1, output: 0.5 },
   "claude-opus-4": { input: 15.0, output: 75.0 },
