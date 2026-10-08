@@ -97,6 +97,20 @@ interface AnthropicMessage {
 }
 
 /**
+ * True when an answer is empty after removing whitespace and the zero-width characters
+ * U+200B, U+200C, U+200D, U+2060 and U+FEFF. A non-string (null, undefined) is blank.
+ */
+function isBlankAnswer(s: string | null | undefined): boolean {
+  return typeof s !== "string" || /^[\s\u200B\u200C\u200D\u2060\uFEFF]*$/.test(s);
+}
+
+/** The answer text unchanged, or a thrown "no answer text" failure for a blank one (OpenAI and Google). */
+function requireAnswer(vendor: "OpenAI" | "Google", text: string | null | undefined): string {
+  if (isBlankAnswer(text)) throw new Error(`${vendor} API returned no answer text`);
+  return text as string;
+}
+
+/**
  * Text of an Anthropic Messages response. A decline arrives as HTTP 200 with
  * stop_reason "refusal" (and no server-side fallback): it is a FAILURE of this
  * provider, thrown before any content is read, so a cascade moves on instead
@@ -104,11 +118,15 @@ interface AnthropicMessage {
  * read by block type, never by position: a response may start with thinking
  * blocks.
  *
- * An EMPTY answer is a failure too, whatever the stop_reason: Haiku 5.5 thinks
- * by default and thinking counts toward max_tokens, so a reply can be a thinking
- * block only (stop_reason "max_tokens"), or end_turn with no or whitespace-only
- * text. The message carries the stop_reason (capped) and never response content.
- * The returned text is not trimmed.
+ * A TRUNCATED answer is a failure too: stop_reason "max_tokens" throws whatever
+ * text is present, after the refusal check and before the empty check. Haiku 5.5
+ * thinks by default and thinking counts toward max_tokens, so a cut-off reply can
+ * carry partial text (e.g. truncated JSON) that must not pass as an answer.
+ *
+ * An EMPTY answer is a failure as well, whatever the other stop_reason: end_turn
+ * with a thinking block only, or with no, whitespace-only or zero-width-only text
+ * (see isBlankAnswer). The messages carry the stop_reason (capped) and never
+ * response content. The returned text is not trimmed.
  */
 function anthropicText(data: AnthropicMessage): string {
   if (data.stop_reason === "refusal") {
@@ -117,8 +135,11 @@ function anthropicText(data: AnthropicMessage): string {
       `Anthropic API refusal${typeof category === "string" ? ` (${category.slice(0, 40)})` : ""}`,
     );
   }
+  if (data.stop_reason === "max_tokens") {
+    throw new Error("Anthropic API answer truncated (stop_reason=max_tokens)");
+  }
   const text = data.content.filter((b) => b.type === "text").map((b) => b.text ?? "").join("");
-  if (text.trim() === "") {
+  if (isBlankAnswer(text)) {
     throw new Error(
       `Anthropic API returned no answer text (stop_reason=${String(data.stop_reason).slice(0, 40)})`,
     );
@@ -154,8 +175,8 @@ async function callOpenAIAPI(prompt: string, apiKey: string): Promise<string> {
     }),
   });
   if (!res.ok) throw new Error(`OpenAI API ${res.status}: ${await res.text()}`);
-  const data = (await res.json()) as { choices: { message: { content: string } }[] };
-  return data.choices[0]?.message?.content ?? "";
+  const data = (await res.json()) as { choices: { message: { content: string | null } }[] };
+  return requireAnswer("OpenAI", data.choices[0]?.message?.content);
 }
 
 async function callGoogleAPI(prompt: string, apiKey: string): Promise<string> {
@@ -169,10 +190,15 @@ async function callGoogleAPI(prompt: string, apiKey: string): Promise<string> {
   });
   if (!res.ok) throw new Error(`Google API ${res.status}: ${await res.text()}`);
   const data = (await res.json()) as { candidates: { content: { parts: { text: string }[] } }[] };
-  return data.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
+  return requireAnswer("Google", data.candidates?.[0]?.content?.parts?.map((p) => p.text).join(""));
 }
 
 // ── Main export ─────────────────────────────────────────────────────
+
+/** Null-safe message of whatever was thrown or rejected (null, undefined and non-Errors included). */
+function errorMessage(e: unknown): string {
+  return String((e as Error | null | undefined)?.message ?? e);
+}
 
 /**
  * Send a prompt to any available AI provider. Returns the text response.
@@ -212,8 +238,8 @@ export async function aiCall(
     try {
       return await callAnthropicAPI(prompt, anthropicKey);
     } catch (e) {
-      lastFailure = String((e as Error)?.message ?? e);
-      console.error("⚠️  Anthropic API failed:", (e as Error).message?.slice(0, 100));
+      lastFailure = errorMessage(e);
+      console.error("⚠️  Anthropic API failed:", redactSecrets(lastFailure).slice(0, 100));
     }
   }
 
@@ -223,8 +249,8 @@ export async function aiCall(
     try {
       return await callOpenAIAPI(prompt, openaiKey);
     } catch (e) {
-      lastFailure = String((e as Error)?.message ?? e);
-      console.error("⚠️  OpenAI API failed:", (e as Error).message?.slice(0, 100));
+      lastFailure = errorMessage(e);
+      console.error("⚠️  OpenAI API failed:", redactSecrets(lastFailure).slice(0, 100));
     }
   }
 
@@ -234,8 +260,8 @@ export async function aiCall(
     try {
       return await callGoogleAPI(prompt, googleKey);
     } catch (e) {
-      lastFailure = String((e as Error)?.message ?? e);
-      console.error("⚠️  Google API failed:", (e as Error).message?.slice(0, 100));
+      lastFailure = errorMessage(e);
+      console.error("⚠️  Google API failed:", redactSecrets(lastFailure).slice(0, 100));
     }
   }
 
@@ -308,6 +334,7 @@ const SECRET_PATTERNS: RegExp[] = [
   /sk-ant-[A-Za-z0-9_-]+/g,
   /sk-proj-[A-Za-z0-9_-]+/g,
   /sk-[A-Za-z0-9]{20,}/g,
+  /sk-[A-Za-z0-9_-]{20,}/g, // sk-svcacct-..., sk-admin-...: the pattern above stops at the dash
   /AKIA[0-9A-Z]{16}/g,
   /AIza[0-9A-Za-z_-]{20,}/g,
   /ghp_[0-9A-Za-z]{30,}/g,
@@ -402,8 +429,8 @@ export async function aiCallExact(
         }),
       });
       if (!res.ok) throw new Error(`OpenAI API ${res.status}: ${await res.text()}`);
-      const data = (await res.json()) as { choices: { message: { content: string } }[] };
-      const text = data.choices[0]?.message?.content ?? "";
+      const data = (await res.json()) as { choices: { message: { content: string | null } }[] };
+      const text = requireAnswer("OpenAI", data.choices[0]?.message?.content);
       return { text, served: provider };
     }
 
@@ -422,9 +449,9 @@ export async function aiCallExact(
     );
     if (!res.ok) throw new Error(`Google API ${res.status}: ${await res.text()}`);
     const data = (await res.json()) as { candidates: { content: { parts: { text: string }[] } }[] };
-    const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
+    const text = requireAnswer("Google", data.candidates?.[0]?.content?.parts?.map((p) => p.text).join(""));
     return { text, served: provider };
   } catch (e) {
-    throw new Error(redactSecrets("AI call failed: " + (e as Error).message));
+    throw new Error(redactSecrets("AI call failed: " + errorMessage(e)));
   }
 }

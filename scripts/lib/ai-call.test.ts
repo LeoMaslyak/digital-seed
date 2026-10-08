@@ -68,6 +68,8 @@ test("aiCallExact CLI transport uses injected exec (stdin), returns served provi
 // ── Claude Haiku 5.5: request body, thinking-first content, refusal ──
 
 const ANTHROPIC_HTTP: ProviderInfo = { label: "Anthropic (HTTP)", vendor: "Anthropic", transport: "HTTP", host: "api.anthropic.com" };
+const OPENAI_HTTP: ProviderInfo = { label: "OpenAI (HTTP)", vendor: "OpenAI", transport: "HTTP", host: "api.openai.com" };
+const GOOGLE_HTTP: ProviderInfo = { label: "Google (HTTP)", vendor: "Google", transport: "HTTP", host: "generativelanguage.googleapis.com" };
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -287,8 +289,11 @@ test("aiCallExact: a refusal with empty content also rejects with 'refusal'", as
 
 // ── F4: hermetic keys ──────────────────────────────────────────────
 // aiCallExact reads its key through getEnvVar(), which falls back to ROOT/.env when the
-// variable is unset. The file-level hook above pins all three keys to a fake value, so an
-// ambient or .env key can never reach a (mocked) request header.
+// variable is unset. The file-level hook above pins all three keys to a fake value, which
+// covers every test that leaves them set. It does NOT cover the tests that delete a key on
+// purpose (nothing configured / ONLY_ANTHROPIC): there getEnvVar falls back to loadEnv(), which
+// reads ROOT/.env, so a real .env key could reach the (mocked) request header. fetch is mocked
+// in those tests, so nothing leaves the machine.
 
 test("aiCallExact HTTP requests carry the pinned fake key in the header, for every vendor", async () => {
   const headers: Record<string, Record<string, string>> = {};
@@ -299,8 +304,6 @@ test("aiCallExact HTTP requests carry the pinned fake key in the header, for eve
     if (host === "api.anthropic.com") return json(NORMAL);
     return json({ candidates: [{ content: { parts: [{ text: "GOOGLE ANSWER" }] } }] });
   }) as unknown as typeof fetch;
-  const OPENAI_HTTP: ProviderInfo = { label: "OpenAI (HTTP)", vendor: "OpenAI", transport: "HTTP", host: "api.openai.com" };
-  const GOOGLE_HTTP: ProviderInfo = { label: "Google (HTTP)", vendor: "Google", transport: "HTTP", host: "generativelanguage.googleapis.com" };
   for (const p of [ANTHROPIC_HTTP, OPENAI_HTTP, GOOGLE_HTTP]) await aiCallExact("q", p, { fetch: fakeFetch });
   expect(headers["api.anthropic.com"]["x-api-key"]).toBe(DUMMY_KEY);
   expect(headers["api.openai.com"].authorization).toBe(`Bearer ${DUMMY_KEY}`);
@@ -320,13 +323,27 @@ const WHITESPACE_ONLY_END_TURN = {
   content: [{ type: "text", text: " \n\t  " }],
 };
 
-test("aiCallExact: thinking-only + max_tokens rejects (no answer text), no response content in the message", async () => {
+test("aiCallExact: thinking-only + max_tokens rejects (truncated, checked before the empty check), no response content in the message", async () => {
   const fakeFetch = (async () => json(THINKING_ONLY_MAX_TOKENS)) as unknown as typeof fetch;
   let err: unknown;
   const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: fakeFetch }).catch((e) => { err = e; });
   expect(r).toBeUndefined();
-  expect((err as Error).message).toContain("no answer text");
+  expect((err as Error).message).toContain("truncated");
   expect((err as Error).message).toContain("stop_reason=max_tokens");
+  expect((err as Error).message).not.toContain("PRIVATE CHAIN");
+});
+
+test("aiCallExact: thinking-only + end_turn rejects (no answer text), no response content in the message", async () => {
+  const thinkingOnlyEndTurn = {
+    stop_reason: "end_turn",
+    content: [{ type: "thinking", thinking: "PRIVATE CHAIN OF THOUGHT", signature: "sig-abc" }],
+  };
+  const fakeFetch = (async () => json(thinkingOnlyEndTurn)) as unknown as typeof fetch;
+  let err: unknown;
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: fakeFetch }).catch((e) => { err = e; });
+  expect(r).toBeUndefined();
+  expect((err as Error).message).toContain("no answer text");
+  expect((err as Error).message).toContain("stop_reason=end_turn");
   expect((err as Error).message).not.toContain("PRIVATE CHAIN");
 });
 
@@ -360,4 +377,229 @@ test("regression: thinking + text returns the text exactly as sent (not trimmed)
   });
   const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: (async () => json(padded)) as unknown as typeof fetch });
   expect(r.text).toBe("  ANSWER WITH PADDING\n");
+});
+
+// ── R1: a truncated answer (stop_reason max_tokens) is a failure, whatever text is present ──
+// Haiku 5.5 thinks by default and thinking counts toward max_tokens, so a cut-off reply can carry
+// partial (e.g. truncated JSON) text that would otherwise come back as a "successful" answer.
+
+const TRUNCATED_PARTIAL = {
+  stop_reason: "max_tokens",
+  content: [
+    { type: "thinking", thinking: "PRIVATE CHAIN OF THOUGHT", signature: "sig-abc" },
+    { type: "text", text: '{"slides": [{"title": "PARTIAL TRUNCATED JSON' },
+  ],
+};
+
+test("R1 aiCallExact: thinking + partial text + max_tokens rejects as truncated; the error holds no response content", async () => {
+  let fetches = 0;
+  const fakeFetch = (async () => { fetches++; return json(TRUNCATED_PARTIAL); }) as unknown as typeof fetch;
+  let err: unknown;
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: fakeFetch }).catch((e) => { err = e; });
+  expect(r).toBeUndefined();
+  expect((err as Error).message).toContain("truncated");
+  expect((err as Error).message).toContain("stop_reason=max_tokens");
+  expect((err as Error).message).not.toContain("PARTIAL TRUNCATED");
+  expect((err as Error).message).not.toContain("slides");
+  expect((err as Error).message).not.toContain("PRIVATE CHAIN");
+  expect(fetches).toBe(1);
+});
+
+test("R1 cascade: a truncated Anthropic reply with partial text is a provider failure, so OpenAI answers (exactly one Anthropic request)", async () => {
+  await withCascade(
+    routeAnthropicThen(() => json(TRUNCATED_PARTIAL)),
+    async (calls) => {
+      const out = await aiCall("q", NO_CLI);
+      expect(out).toBe("OPENAI ANSWER");
+      expect(out).not.toContain("PARTIAL");
+      expect(calls.map((c) => c.host)).toEqual(["api.anthropic.com", "api.openai.com"]);
+      expect(calls.filter((c) => c.host === "api.anthropic.com").length).toBe(1);
+    },
+    ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"],
+  );
+});
+
+// ── R2: an empty OpenAI or Google answer is a failure, never "" as the answer ──
+
+const OPENAI_ONLY = ["OPENAI_API_KEY"] as const;
+const OPENAI_AND_GOOGLE = ["OPENAI_API_KEY", "GOOGLE_API_KEY"] as const;
+const GOOGLE_OK = { candidates: [{ content: { parts: [{ text: "GOOGLE ANSWER" }] } }] };
+const GOOGLE_EMPTY = { candidates: [{ content: { parts: [{ text: "" }] } }] };
+const openaiWith = (content: unknown) => ({ choices: [{ message: { content } }] });
+const routeOpenaiGoogle = (openai: () => Response, google: () => Response) => (host: string) =>
+  host === "api.openai.com" ? openai() : host === "generativelanguage.googleapis.com" ? google() : json({}, 500);
+
+test("R2 cascade: an empty OpenAI answer (empty, whitespace, null) is a provider failure, so Google answers", async () => {
+  for (const empty of ["", "  \n\t", null]) {
+    await withCascade(
+      routeOpenaiGoogle(() => json(openaiWith(empty)), () => json(GOOGLE_OK)),
+      async (calls) => {
+        expect(await aiCall("q", NO_CLI)).toBe("GOOGLE ANSWER");
+        expect(calls.map((c) => c.host)).toEqual(["api.openai.com", "generativelanguage.googleapis.com"]);
+      },
+      OPENAI_AND_GOOGLE,
+    );
+  }
+});
+
+test("R2 cascade: empty OpenAI and empty Google answers end in the provider-failure error, never an empty string", async () => {
+  await withCascade(
+    routeOpenaiGoogle(() => json(openaiWith("")), () => json(GOOGLE_EMPTY)),
+    async (calls) => {
+      const err = await aiCall("q", NO_CLI).then((v) => new Error("RESOLVED " + JSON.stringify(v)), (e: Error) => e);
+      expect(err.message).toBe("All configured AI providers failed (last: Google API returned no answer text)");
+      expect(calls.map((c) => c.host)).toEqual(["api.openai.com", "generativelanguage.googleapis.com"]);
+    },
+    OPENAI_AND_GOOGLE,
+  );
+});
+
+test("R2 cascade: an empty OpenAI answer as the only provider names the failure, not the setup hint", async () => {
+  await withCascade(() => json(openaiWith("")), async () => {
+    const err = await aiCall("q", NO_CLI).then((v) => new Error("RESOLVED " + JSON.stringify(v)), (e: Error) => e);
+    expect(err.message).toBe("All configured AI providers failed (last: OpenAI API returned no answer text)");
+  }, OPENAI_ONLY);
+});
+
+test("R2 aiCallExact: an empty OpenAI answer rejects with a redacted wrapper", async () => {
+  let err: unknown;
+  const r = await aiCallExact("q", OPENAI_HTTP, { fetch: (async () => json(openaiWith(""))) as unknown as typeof fetch }).catch((e) => { err = e; });
+  expect(r).toBeUndefined();
+  expect((err as Error).message).toBe("AI call failed: OpenAI API returned no answer text");
+});
+
+test("R2 aiCallExact: an empty Google answer rejects with a redacted wrapper (no candidates, and empty parts)", async () => {
+  for (const body of [{ candidates: [] }, GOOGLE_EMPTY, {}]) {
+    let err: unknown;
+    const r = await aiCallExact("q", GOOGLE_HTTP, { fetch: (async () => json(body)) as unknown as typeof fetch }).catch((e) => { err = e; });
+    expect(r).toBeUndefined();
+    expect((err as Error).message).toBe("AI call failed: Google API returned no answer text");
+  }
+});
+
+test("R2 regression: normal OpenAI and Google answers return unchanged and untrimmed (cascade and aiCallExact)", async () => {
+  const openaiPadded = openaiWith("  OPENAI PADDED\n");
+  const googlePadded = { candidates: [{ content: { parts: [{ text: "  GOOGLE " }, { text: "PADDED\n" }] } }] };
+  await withCascade(() => json(openaiPadded), async () => {
+    expect(await aiCall("q", NO_CLI)).toBe("  OPENAI PADDED\n");
+  }, OPENAI_ONLY);
+  await withCascade(() => json(googlePadded), async () => {
+    expect(await aiCall("q", NO_CLI)).toBe("  GOOGLE PADDED\n");
+  }, ["GOOGLE_API_KEY"]);
+  const o = await aiCallExact("q", OPENAI_HTTP, { fetch: (async () => json(openaiPadded)) as unknown as typeof fetch });
+  const g = await aiCallExact("q", GOOGLE_HTTP, { fetch: (async () => json(googlePadded)) as unknown as typeof fetch });
+  expect(o.text).toBe("  OPENAI PADDED\n");
+  expect(g.text).toBe("  GOOGLE PADDED\n");
+});
+
+// ── R3: blank means whitespace or zero-width characters only ──
+
+const ZERO_WIDTH = "\u200B\u200C\u200D\u2060\uFEFF";
+
+test("R3 aiCallExact: an Anthropic end_turn reply of only zero-width characters plus a newline rejects (no answer text)", async () => {
+  const body = { stop_reason: "end_turn", content: [{ type: "text", text: ZERO_WIDTH + "\n" }] };
+  let err: unknown;
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: (async () => json(body)) as unknown as typeof fetch }).catch((e) => { err = e; });
+  expect(r).toBeUndefined();
+  expect((err as Error).message).toContain("no answer text");
+  expect((err as Error).message).toContain("stop_reason=end_turn");
+});
+
+test("R3 aiCallExact: zero-width-only OpenAI and Google answers reject too; real text next to a zero-width char is returned unchanged", async () => {
+  await expect(
+    aiCallExact("q", OPENAI_HTTP, { fetch: (async () => json(openaiWith(ZERO_WIDTH))) as unknown as typeof fetch }),
+  ).rejects.toThrow("OpenAI API returned no answer text");
+  await expect(
+    aiCallExact("q", GOOGLE_HTTP, { fetch: (async () => json({ candidates: [{ content: { parts: [{ text: ZERO_WIDTH + " " }] } }] })) as unknown as typeof fetch }),
+  ).rejects.toThrow("Google API returned no answer text");
+  const real = { stop_reason: "end_turn", content: [{ type: "text", text: "\u200BX" }] };
+  const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: (async () => json(real)) as unknown as typeof fetch });
+  expect(r.text).toBe("\u200BX");
+});
+
+// ── R4: sk-svcacct- / sk-admin- keys are redacted too ──
+// Built by concatenation so the repo's source-level privacy-scan does not flag the fixtures.
+
+test("R4 redactSecrets hides the tail of svcacct, admin, proj and ant-admin keys", () => {
+  const tail = "B".repeat(40);
+  for (const prefix of ["sk-" + "svcacct-", "sk-" + "admin-", "sk-" + "proj-", "sk-ant-" + "admin01-"]) {
+    const out = redactSecrets(`x ${prefix}${tail} y`);
+    expect(out).not.toContain("B".repeat(20));
+    expect(out).not.toContain(prefix);
+    expect(out).toContain("[redacted]");
+  }
+});
+
+// ── R5: provider logs are redacted before they are cut, and a null rejection does not crash ──
+
+/** Replaces console.error with a collector for the rest of the (withCascade) callback; withCascade restores it. */
+function collectErrorLogs(): string[] {
+  const logged: string[] = [];
+  console.error = (...a: unknown[]) => { logged.push(a.map(String).join(" ")); };
+  return logged;
+}
+
+test("R5 cascade: HTTP 401 bodies carrying an sk-svcacct key reach neither console.error nor the final error", async () => {
+  const leak = "sk-" + "svcacct-" + "C".repeat(40);
+  await withCascade(() => new Response(`{"error":"bad key ${leak}"}`, { status: 401 }), async () => {
+    const logged = collectErrorLogs();
+    const err = await aiCall("q", NO_CLI).then((v) => new Error("RESOLVED " + JSON.stringify(v)), (e: Error) => e);
+    const all = logged.join("\n");
+    expect(logged.length).toBe(3); // the probe can fire: one log per vendor
+    expect(all).not.toContain("sk-svcacct");
+    expect(all).not.toContain("C".repeat(20));
+    expect(err.message).toContain("All configured AI providers failed");
+    expect(err.message).not.toContain("sk-svcacct");
+    expect(err.message).not.toContain("C".repeat(20));
+  });
+});
+
+test("R5 cascade: a key that straddles the 100-char log cut is redacted first, then cut", async () => {
+  const leak = "sk-" + "svcacct-" + "C".repeat(40);
+  // "Anthropic API 401: " is 19 chars, so the key starts at index 90 and the cut at 100 lands inside it.
+  const body = "x".repeat(70) + " " + leak;
+  await withCascade(() => new Response(body, { status: 401 }), async () => {
+    const logged = collectErrorLogs();
+    await aiCall("q", NO_CLI).catch(() => {});
+    expect(logged.length).toBe(3);
+    for (const line of logged) {
+      expect(line).not.toContain("sk-svcacct");
+      expect(line).not.toContain("CCCC");
+    }
+  });
+});
+
+test("R5 cascade: a fetch that rejects with null (or undefined) does not abort the cascade, so OpenAI answers", async () => {
+  for (const rejection of [null, undefined]) {
+    await withCascade(() => json(OPENAI_OK), async (calls) => {
+      const realMock = globalThis.fetch;
+      globalThis.fetch = (async (url: string, init?: RequestInit) => {
+        if (new URL(url).host === "api.anthropic.com") { calls.push({ host: "api.anthropic.com", body: null }); return Promise.reject(rejection); }
+        return realMock(url, init);
+      }) as unknown as typeof fetch;
+      const logged = collectErrorLogs();
+      const out = await aiCall("q", NO_CLI).then((v) => v, (e: Error) => "REJECTED " + e.message);
+      expect(out).toBe("OPENAI ANSWER");
+      expect(logged.length).toBe(1);
+    }, ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"]);
+  }
+});
+
+test("R5 cascade: null rejections from every vendor still end in the provider-failure error", async () => {
+  await withCascade(() => json({}), async () => {
+    globalThis.fetch = (async () => Promise.reject(null)) as unknown as typeof fetch;
+    collectErrorLogs();
+    const err = await aiCall("q", NO_CLI).then((v) => new Error("RESOLVED " + JSON.stringify(v)), (e: Error) => e);
+    expect(err.message).toContain("All configured AI providers failed");
+  });
+});
+
+test("R5 aiCallExact: a rejection with undefined (or null) becomes an Error containing 'AI call failed'", async () => {
+  for (const rejection of [undefined, null]) {
+    let err: unknown = "none";
+    const r = await aiCallExact("q", ANTHROPIC_HTTP, { fetch: (async () => Promise.reject(rejection)) as unknown as typeof fetch }).catch((e) => { err = e; });
+    expect(r).toBeUndefined();
+    expect(err).toBeInstanceOf(Error);
+    expect((err as Error).message).toContain("AI call failed");
+  }
 });
