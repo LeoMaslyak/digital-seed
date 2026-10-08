@@ -1,6 +1,5 @@
 import { test, expect, beforeEach, afterEach } from "bun:test";
-import * as aiMod from "./ai-call.ts";
-import { aiCall, resolveProvider, aiCallExact, redactSecrets, type ProviderInfo } from "./ai-call.ts";
+import { setEnvFileLoaderForTests, aiCall, resolveProvider, aiCallExact, redactSecrets, type ProviderInfo } from "./ai-call.ts";
 
 // Every test runs with all three provider keys pinned to a fake value. getEnvVar() falls back
 // to the .env loader when a variable is unset; tests install an empty loader (setEnvFileLoaderForTests)
@@ -10,15 +9,14 @@ const DUMMY_KEY = "dummy-not-a-key";
 const KEY_VARS = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GOOGLE_API_KEY"] as const;
 let savedKeys: Record<string, string | undefined> = {};
 // The .env file is never read by tests: getEnvVar() uses this empty loader instead of loadEnv().
-const setLoader = (aiMod as unknown as { setEnvFileLoaderForTests?: (l: (() => Record<string, string>) | null) => void })
-  .setEnvFileLoaderForTests;
+const setLoader = setEnvFileLoaderForTests;
 beforeEach(() => {
-  setLoader?.(() => ({}));
+  setEnvFileLoaderForTests(() => ({}));
   savedKeys = Object.fromEntries(KEY_VARS.map((k) => [k, process.env[k]]));
   for (const k of KEY_VARS) process.env[k] = DUMMY_KEY;
 });
 afterEach(() => {
-  setLoader?.(null);
+  setEnvFileLoaderForTests(null);
   for (const k of KEY_VARS) {
     if (savedKeys[k] === undefined) delete process.env[k];
     else process.env[k] = savedKeys[k];
@@ -692,13 +690,13 @@ test("SFIX3 R2 finish_reason=stop / finishReason=STOP still resolve", async () =
 });
 
 test("SFIX3 R3 getEnvVar consults the installed loader, and null restores the default", async () => {
-  expect(typeof setLoader).toBe("function");
+  expect(typeof setEnvFileLoaderForTests).toBe("function");
   await withCascade(() => json(OPENAI_OK), async (calls) => {
     delete process.env.OPENAI_API_KEY;
-    setLoader?.(() => ({ OPENAI_API_KEY: DUMMY_KEY }));
+    setLoader(() => ({ OPENAI_API_KEY: DUMMY_KEY }));
     expect(await aiCall("q", NO_CLI)).toBe("OPENAI ANSWER");
     expect(calls.length).toBe(1);
-    setLoader?.(() => ({}));
+    setLoader(() => ({}));
     const err = await aiCall("q", NO_CLI).then(() => null, (e: Error) => e);
     expect(err?.message).toContain("No AI provider found");
     expect(calls.length).toBe(1);
